@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class DescricaoCliente extends StatefulWidget {
-  const DescricaoCliente({super.key});
+class DescricaoClienteAdm extends StatefulWidget {
+  const DescricaoClienteAdm({super.key});
 
   @override
-  State<DescricaoCliente> createState() => _DescricaoClienteState();
+  State<DescricaoClienteAdm> createState() => _DescricaoClienteAdmState();
 }
 
-class _DescricaoClienteState extends State<DescricaoCliente> {
+class _DescricaoClienteAdmState extends State<DescricaoClienteAdm> {
   bool isOptionTwo = false;
 
   @override

@@ -14,7 +14,7 @@ class Meal4You extends StatelessWidget {
       title: 'Meal4You',
       theme: ThemeData.dark().copyWith(),
       debugShowCheckedModeBanner: false,
-      home: const DescricaoCliente(),
+      home: const DescricaoClienteAdm(),
     );
   }
 }
