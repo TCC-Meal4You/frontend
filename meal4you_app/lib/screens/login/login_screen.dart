@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/screens/register/register_screen.dart';
-import 'package:meal4you_app/widgets/forms_icon.dart';
+import 'package:meal4you_app/widgets/forms_icon_client.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -263,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                const FormsIcon(),
+                const FormsIconClient(),
               ],
             ),
           ),
