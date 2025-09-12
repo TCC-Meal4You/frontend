@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class FormsIcon extends StatelessWidget {
-  const FormsIcon({super.key});
+class FormsIconClient extends StatelessWidget {
+  const FormsIconClient({super.key});
 
   @override
   Widget build(BuildContext context) {
