@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/screens/login/login_screen.dart';
-import 'package:meal4you_app/widgets/forms_icon.dart';
+import 'package:meal4you_app/widgets/forms_icon_adm.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -121,6 +121,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             height: 60,
                             width: 350,
                             child: TextField(
+                              obscureText: true,
                               decoration: InputDecoration(
                                 labelText: 'Senha...',
                                 fillColor: Colors.white,
@@ -136,6 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             height: 60,
                             width: 350,
                             child: TextField(
+                              obscureText: true,
                               decoration: InputDecoration(
                                 labelText: 'Confirmar Senha...',
                                 fillColor: Colors.white,
@@ -211,12 +213,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   endIndent: 0,
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-
-                                child: const Text(
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: Text(
                                   'OU',
                                   style: TextStyle(
                                     color: Colors.black,
@@ -278,7 +277,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
                 ),
-                const FormsIcon(),
+                const FormsIconAdm(),
               ],
             ),
           ),
