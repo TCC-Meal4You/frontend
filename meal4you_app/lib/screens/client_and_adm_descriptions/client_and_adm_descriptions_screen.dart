@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
 
-class DescriptionsClientAdm extends StatefulWidget {
-  const DescriptionsClientAdm({super.key, required this.dados});
+class ClientAndAdmDescriptionsScreen extends StatefulWidget {
+  const ClientAndAdmDescriptionsScreen({
+    super.key,
+    required this.dados,
+    required this.isAdminInitial,
+  });
 
   final Map<String, dynamic> dados;
+  final bool isAdminInitial;
 
   @override
-  State<DescriptionsClientAdm> createState() => _DescriptionsClientAdmState();
+  State<ClientAndAdmDescriptionsScreen> createState() =>
+      _ClientAndAdmDescriptionsScreenState();
 }
 
-class _DescriptionsClientAdmState extends State<DescriptionsClientAdm> {
-  bool isOptionTwo = false;
+class _ClientAndAdmDescriptionsScreenState
+    extends State<ClientAndAdmDescriptionsScreen> {
+  late bool isOptionTwo;
+
+  @override
+  void initState() {
+    super.initState();
+    isOptionTwo = widget.isAdminInitial;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +79,8 @@ class _DescriptionsClientAdmState extends State<DescriptionsClientAdm> {
                 ),
               ],
             ),
-
             AnimatedContainer(
-              duration: const Duration(milliseconds: 100),
+              duration: const Duration(milliseconds: 50),
               height: 350,
               width: 320,
               decoration: BoxDecoration(
@@ -85,13 +97,7 @@ class _DescriptionsClientAdmState extends State<DescriptionsClientAdm> {
                     duration: const Duration(milliseconds: 100),
                     child: isOptionTwo
                         ? const Text(
-                            'Selecione essa opção '
-                            'se você é dono de um '
-                            'restaurante e deseja '
-                            'administrá-lo, além de '
-                            'ser capaz de gerir as '
-                            'refeições, bem como '
-                            'os ingredientes, preços e suas descrições. ',
+                            'Selecione essa opção se você é dono de um restaurante e deseja administrá-lo, além de ser capaz de gerir as refeições, bem como os ingredientes, preços e suas descrições.',
                             key: ValueKey(2),
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -101,12 +107,7 @@ class _DescriptionsClientAdmState extends State<DescriptionsClientAdm> {
                             ),
                           )
                         : const Text(
-                            'Selecione essa opção '
-                            'se você busca por opções de '
-                            'refeições que se adequem às '
-                            'suas necessidades individuais e deseja '
-                            'usar filtros para '
-                            'decidir onde e o que você vai comer hoje!',
+                            'Selecione essa opção se você busca por opções de refeições que se adequem às suas necessidades individuais e deseja usar filtros para decidir onde e o que você vai comer hoje!',
                             key: ValueKey(1),
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -119,7 +120,6 @@ class _DescriptionsClientAdmState extends State<DescriptionsClientAdm> {
                 ),
               ),
             ),
-
             const SizedBox(height: 30),
             const Divider(
               color: Colors.black,
@@ -128,7 +128,6 @@ class _DescriptionsClientAdmState extends State<DescriptionsClientAdm> {
               endIndent: 40,
             ),
             const SizedBox(height: 20),
-
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
@@ -147,9 +146,7 @@ class _DescriptionsClientAdmState extends State<DescriptionsClientAdm> {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -184,7 +181,7 @@ class _DescriptionsClientAdmState extends State<DescriptionsClientAdm> {
               ),
             ),
             const SizedBox(height: 10),
-            Text(
+            const Text(
               'Toque para trocar de Perfil',
               style: TextStyle(
                 color: Colors.black,
