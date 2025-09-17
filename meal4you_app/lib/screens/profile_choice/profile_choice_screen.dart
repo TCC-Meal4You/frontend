@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_tooltip/super_tooltip.dart';
-import 'package:meal4you_app/screens/descriptions_client_adm/descriptions_client_adm.dart';
+import 'package:meal4you_app/screens/descriptions_client_adm/descriptions_client_adm_screen.dart';
 
 class ProfileChoiceScreen extends StatefulWidget {
   const ProfileChoiceScreen({super.key});
