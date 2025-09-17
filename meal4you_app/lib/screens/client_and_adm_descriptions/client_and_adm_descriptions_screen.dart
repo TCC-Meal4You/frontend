@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/screens/register/register_screen.dart';
 
 class ClientAndAdmDescriptionsScreen extends StatefulWidget {
   const ClientAndAdmDescriptionsScreen({
@@ -136,7 +137,14 @@ class _ClientAndAdmDescriptionsScreenState
                 ),
                 fixedSize: const Size(280, 55),
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RegisterScreen(),
+                  ),
+                );
+              },
               child: const Text(
                 'Continuar',
                 style: TextStyle(

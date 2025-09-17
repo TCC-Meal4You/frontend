@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/screens/login/login_screen.dart';
+import 'package:meal4you_app/screens/restrictions_choice/restrictions_choice_screen.dart';
 import 'package:meal4you_app/widgets/forms_icon_adm.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -162,7 +163,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               fixedSize: const Size(350, 50),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const RestrictionsChoiceScreen(),
+                                ),
+                              );
+                            },
                             child: const Text(
                               'Cadastrar',
                               style: TextStyle(

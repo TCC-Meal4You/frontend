@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/screens/profile/client_profile_screen.dart';
 
 class TimeChoiceScreen extends StatefulWidget {
   const TimeChoiceScreen({super.key});
@@ -196,7 +197,17 @@ class _ButtonSelectedState extends State<TimeChoiceScreen> {
                   SizedBox(height: 10),
 
                   ElevatedButton.icon(
-                    onPressed: selected.isEmpty ? null : () {},
+                    onPressed: selected.isEmpty
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ClientProfileScreen(),
+                              ),
+                            );
+                          },
                     icon: Icon(
                       selected.isEmpty ? Icons.block : Icons.check,
                       color: Colors.white,

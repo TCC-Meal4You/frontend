@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/screens/change_data/change_client_data_screen.dart';
 
 class ClientProfileScreen extends StatelessWidget {
   const ClientProfileScreen({super.key});
@@ -67,7 +68,14 @@ class ClientProfileScreen extends StatelessWidget {
                   fixedSize: const Size(300, 55),
                   elevation: 20,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChangeClientDataScreen(),
+                    ),
+                  );
+                },
                 child: const Text(
                   'ALTERAR MEUS DADOS',
                   style: TextStyle(
