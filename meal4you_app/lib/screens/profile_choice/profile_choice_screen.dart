@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_tooltip/super_tooltip.dart';
-import 'package:meal4you_app/screens/descriptions_client_adm/descriptions_client_adm_screen.dart';
+import 'package:meal4you_app/screens/client_and_adm_descriptions/client_and_adm_descriptions_screen.dart';
 
 class ProfileChoiceScreen extends StatefulWidget {
   const ProfileChoiceScreen({super.key});
@@ -38,7 +38,10 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) =>
-                                const DescriptionsClientAdm(dados: {}),
+                                const ClientAndAdmDescriptionsScreen(
+                                  dados: {},
+                                  isAdminInitial: false,
+                                ),
                           ),
                         );
                       },
@@ -91,7 +94,10 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) =>
-                                const DescriptionsClientAdm(dados: {}),
+                                const ClientAndAdmDescriptionsScreen(
+                                  dados: {},
+                                  isAdminInitial: true,
+                                ),
                           ),
                         );
                       },
