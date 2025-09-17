@@ -64,7 +64,7 @@ flutter:
   assets:
   - assets/images/client.jpg
   - assets/images/adm.jpg
-  - assets/images/restrictions_background.jpg
+  - assets/images/choices_background.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
