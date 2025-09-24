@@ -78,17 +78,11 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
+    return SafeArea(
+      child: Scaffold(
+        body: SizedBox(
           height: double.infinity,
           width: double.infinity,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/choices_background.jpg'),
-              fit: BoxFit.fill,
-            ),
-          ),
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.only(top: 10),
