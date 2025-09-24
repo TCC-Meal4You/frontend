@@ -1,7 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.meal4you">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 🔽 Permissão de internet -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -29,13 +27,11 @@
             </intent-filter>
         </activity>
 
-        <!-- Flutter usa isso para registrar os plugins -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
 
-    <!-- Permissão de consultar apps que processam texto -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
