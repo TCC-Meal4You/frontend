@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:super_tooltip/super_tooltip.dart';
-import 'package:meal4you_app/screens/client_and_adm_descriptions/client_and_adm_descriptions_screen.dart';
+import 'package:meal4you_app/screens/register/adm_register_screen.dart';
+import 'package:meal4you_app/screens/register/client_register_screen.dart';
 
 class ProfileChoiceScreen extends StatefulWidget {
   const ProfileChoiceScreen({super.key});
@@ -10,113 +10,206 @@ class ProfileChoiceScreen extends StatefulWidget {
 }
 
 class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
-  final SuperTooltipController tooltipController = SuperTooltipController();
+  int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
+  final List<List<Color>> _gradients = [
+    [Color.fromARGB(255, 27, 28, 28), Color.fromARGB(255, 136, 0, 255)],
+    [Color.fromARGB(255, 27, 28, 28), Color.fromARGB(223, 0, 203, 166)],
+  ];
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      tooltipController.showTooltip();
-    });
+  final List<Color> _buttonColors = [
+    Color.fromARGB(255, 157, 0, 255),
+    Color.fromARGB(255, 4, 128, 73),
+  ];
+
+  final List<Map<String, String>> _texts = [
+    {
+      "title": "Cliente",
+      "description":
+          "Para quem busca refeições personalizadas: use filtros para escolher onde e o que comer hoje",
+      "image": "assets/images/client.png",
+    },
+    {
+      "title": "Administrador",
+      "description":
+          "Para donos de restaurante: gerencie seu estabelecimento, refeições, ingredientes, preços e descrições",
+      "image": "assets/images/adm.png",
+    },
+  ];
+
+  void _onSwipe(DragEndDetails details) {
+    if (details.primaryVelocity == null) return;
+
+    if (details.primaryVelocity! < 0) {
+      setState(() {
+        _currentIndex = (_currentIndex + 1) % _gradients.length;
+      });
+    } else if (details.primaryVelocity! > 0) {
+      setState(() {
+        _currentIndex =
+            (_currentIndex - 1 + _gradients.length) % _gradients.length;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    double containerHeight = MediaQuery.of(context).size.height / 3;
+    double imageHeight = 500;
+
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        tooltipController.hideTooltip();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const ClientAndAdmDescriptionsScreen(
-                                  dados: {},
-                                  isAdminInitial: false,
-                                ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/images/client.jpg"),
-                            fit: BoxFit.cover,
-                            alignment: Alignment.center,
-                          ),
-                        ),
-                      ),
-                    ),
+        body: GestureDetector(
+          onHorizontalDragEnd: _onSwipe,
+          child: Stack(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: _gradients[_currentIndex],
                   ),
-                  SuperTooltip(
-                    controller: tooltipController,
-                    popupDirection: TooltipDirection.up,
-                    showCloseButton: true,
-                    closeButtonColor: Colors.white,
-                    barrierColor: Colors.black38,
-                    backgroundColor: Color.fromARGB(255, 136, 0, 255),
-                    borderRadius: 12,
-                    content: const Material(
-                      color: Colors.transparent,
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "ESCOLHA SEU PERFIL",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                    child: const Divider(
-                      height: 1,
-                      thickness: 2,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        tooltipController.hideTooltip();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const ClientAndAdmDescriptionsScreen(
-                                  dados: {},
-                                  isAdminInitial: true,
-                                ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/images/adm.jpg"),
-                            fit: BoxFit.cover,
-                            alignment: Alignment.center,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+              Positioned(
+                top:
+                    MediaQuery.of(context).size.height -
+                    containerHeight -
+                    (imageHeight / 1.5),
+                left: MediaQuery.of(context).size.width / 2 - 240,
+                child: Image.asset(
+                  _texts[_currentIndex]["image"]!,
+                  width: 500,
+                  height: imageHeight,
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: double.infinity,
+                  height: containerHeight,
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Escolha seu perfil",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color.fromARGB(255, 106, 105, 105),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        _texts[_currentIndex]["title"]!,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _texts[_currentIndex]["description"]!,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const Spacer(),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_currentIndex == 0) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ClientRegisterScreen(),
+                                ),
+                              );
+                            } else if (_currentIndex == 1) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const AdmRegisterScreen(),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _buttonColors[_currentIndex],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text(
+                            "Continuar",
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (_currentIndex == 0)
+                Positioned(
+                  right: 20,
+                  top: MediaQuery.of(context).size.height / 2 - 50,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 24),
+                      SizedBox(width: 2),
+                      Text(
+                        "Arraste",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (_currentIndex == 1)
+                Positioned(
+                  left: 20,
+                  top: MediaQuery.of(context).size.height / 2 - 20,
+                  child: Row(
+                    children: const [
+                      Text(
+                        "Arraste",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 2),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
