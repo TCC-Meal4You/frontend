@@ -1,3 +1,14 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+val localProperties = Properties().apply {
+    load(FileInputStream(rootProject.file("local.properties")))
+}
+
+val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toInt() ?: 1
+val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
+
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -20,13 +31,13 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.meal4you"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutterVersionCode.toInt()
-        versionName = flutterVersionName
-    }
+    applicationId = "com.example.meal4you"
+    minSdk = 21
+    targetSdk = 34
+    versionCode = flutterVersionCode
+    versionName = flutterVersionName
+}
+
 
     buildTypes {
         release {
