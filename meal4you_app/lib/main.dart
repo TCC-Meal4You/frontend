@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/screens/descricoes_cliente_adm/descricoes_cliente_adm.dart';
+import 'package:meal4you_app/screens/profile_choice/profile_choice_screen.dart';
 
 void main() {
   runApp(const Meal4You());
@@ -12,9 +12,8 @@ class Meal4You extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Meal4You',
-      theme: ThemeData.dark().copyWith(),
       debugShowCheckedModeBanner: false,
-      home: const DescricaoClienteAdm(),
+      home: const ProfileChoiceScreen(),
     );
   }
 }
