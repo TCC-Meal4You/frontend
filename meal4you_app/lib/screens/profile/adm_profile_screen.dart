@@ -9,9 +9,10 @@ class AdmProfileScreen extends StatelessWidget {
       child: Scaffold(
         body: Container(
           decoration: const BoxDecoration(
+            color: Colors.black,
             gradient: LinearGradient(
               colors: [
-                Color.fromARGB(9, 4, 255, 142),
+                Color.fromARGB(255, 27, 28, 28),
                 Color.fromARGB(223, 0, 203, 166),
               ],
               begin: Alignment.topCenter,

@@ -10,9 +10,10 @@ class ClientProfileScreen extends StatelessWidget {
       child: Scaffold(
         body: Container(
           decoration: const BoxDecoration(
+            color: Colors.black,
             gradient: LinearGradient(
               colors: [
-                Color.fromARGB(105, 61, 2, 120),
+                Color.fromARGB(255, 27, 28, 28),
                 Color.fromARGB(255, 136, 0, 255),
               ],
               begin: Alignment.topCenter,
