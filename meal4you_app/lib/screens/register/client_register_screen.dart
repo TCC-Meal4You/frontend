@@ -20,8 +20,8 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
   bool _isLoading = false;
 
   Future<void> _registerClient() async {
-    if (ClientRegisterControllers.senhaController.text !=
-        ClientRegisterControllers.confirmarSenhaController.text) {
+    if (RegisterControllers.senhaController.text !=
+        RegisterControllers.confirmarSenhaController.text) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -33,9 +33,9 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
 
     try {
       final response = await ClientRegisterService.registerClient(
-        nome: ClientRegisterControllers.nomeController.text,
-        email: ClientRegisterControllers.emailController.text,
-        senha: ClientRegisterControllers.senhaController.text,
+        nome: RegisterControllers.nomeController.text,
+        email: RegisterControllers.emailController.text,
+        senha: RegisterControllers.senhaController.text,
       );
 
       if (!mounted) return;
@@ -153,25 +153,25 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
 
                           CustomTextField(
                             controller:
-                                ClientRegisterControllers.nomeController,
+                                RegisterControllers.nomeController,
                             label: "Nome...",
                           ),
                           const SizedBox(height: 10),
                           CustomTextField(
                             controller:
-                                ClientRegisterControllers.emailController,
+                                RegisterControllers.emailController,
                             label: "Email...",
                           ),
                           const SizedBox(height: 10),
                           CustomTextField(
                             controller:
-                                ClientRegisterControllers.senhaController,
+                                RegisterControllers.senhaController,
                             label: "Senha...",
                             obscure: true,
                           ),
                           const SizedBox(height: 10),
                           CustomTextField(
-                            controller: ClientRegisterControllers
+                            controller: RegisterControllers
                                 .confirmarSenhaController,
                             label: "Confirmar Senha...",
                             obscure: true,
@@ -186,7 +186,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
 
                           const SizedBox(height: 20),
 
-                          const LoginRedirectText(),
+                          const LoginRedirectText(userType: UserType.client),
 
                           const SizedBox(height: 20),
 
