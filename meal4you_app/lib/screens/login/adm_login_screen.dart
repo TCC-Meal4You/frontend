@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/login_controllers.dart';
 import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
 import 'package:meal4you_app/services/login/adm_login_service.dart';
-import 'package:meal4you_app/widgets/adm_register_forms_icon.dart';
+import 'package:meal4you_app/widgets/adm_login_forms_icon.dart';
 import 'package:meal4you_app/widgets/custom_text_field.dart';
 import 'package:meal4you_app/widgets/or_divider.dart';
 import 'package:meal4you_app/widgets/register_redirect_text.dart';
@@ -190,7 +190,7 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
                     ),
                   ],
                 ),
-                const AdmRegisterFormsIcon(),
+                const AdmLoginFormsIcon(),
               ],
             ),
           ),
