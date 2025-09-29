@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/screens/change_data/change_adm_data_screen.dart';
 
 class AdmProfileScreen extends StatelessWidget {
   const AdmProfileScreen({super.key});
@@ -89,7 +90,14 @@ class AdmProfileScreen extends StatelessWidget {
                   fixedSize: const Size(300, 55),
                   elevation: 20,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChangeAdmDataScreen(),
+                    ),
+                  );
+                },
                 child: const Text(
                   'ALTERAR MEUS DADOS',
                   style: TextStyle(
