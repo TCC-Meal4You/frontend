@@ -1,9 +1,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/screens/login/login_screen.dart';
+import 'package:meal4you_app/screens/login/client_login_screen.dart';
+import 'package:meal4you_app/screens/login/adm_login_screen.dart';
+
+enum UserType { client, adm }
 
 class LoginRedirectText extends StatelessWidget {
-  const LoginRedirectText({super.key});
+  final UserType userType;
+
+  const LoginRedirectText({super.key, required this.userType});
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +29,21 @@ class LoginRedirectText extends StatelessWidget {
             ),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                );
+                if (userType == UserType.client) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ClientLoginScreen(),
+                    ),
+                  );
+                } else if (userType == UserType.adm) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdmLoginScreen(),
+                    ),
+                  );
+                }
               },
           ),
         ],
