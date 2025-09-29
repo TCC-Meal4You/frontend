@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class FormsIconClient extends StatelessWidget {
-  const FormsIconClient({super.key});
+class AdmLoginFormsIcon extends StatelessWidget {
+  const AdmLoginFormsIcon({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +16,12 @@ class FormsIconClient extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(color: Colors.black26, blurRadius: 8),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
           ),
           child: const Icon(
-            Icons.fastfood,
+            Icons.home,
             size: 40,
-            color: Colors.green,
+            color: Color.fromARGB(255, 157, 0, 255),
           ),
         ),
       ),
