@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/screens/change_data/change_client_data_screen.dart';
+import 'package:meal4you_app/controllers/client_logout_handler.dart';
 
 class ClientProfileScreen extends StatelessWidget {
   const ClientProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final logoutHandler = LogoutHandler();
+
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -70,12 +72,7 @@ class ClientProfileScreen extends StatelessWidget {
                   elevation: 20,
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ChangeClientDataScreen(),
-                    ),
-                  );
+                 Navigator.pushNamed(context, '/changeClientData');
                 },
                 child: const Text(
                   'ALTERAR MEUS DADOS',
@@ -96,7 +93,7 @@ class ClientProfileScreen extends StatelessWidget {
                   fixedSize: const Size(200, 50),
                   elevation: 20,
                 ),
-                onPressed: () {},
+                onPressed: () => logoutHandler.showLogoutDialog(context),
                 child: const Text(
                   'SAIR',
                   style: TextStyle(
