@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/screens/profile/client_profile_screen.dart';
 
 class ChangeClientDataScreen extends StatefulWidget {
   const ChangeClientDataScreen({super.key});
@@ -184,12 +183,7 @@ class _ChangeClientDataScreenState extends State<ChangeClientDataScreen> {
                   size: 30,
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ClientProfileScreen(),
-                    ),
-                  );
+                  Navigator.pushNamed(context, '/clientProfile');
                 },
               ),
             ),

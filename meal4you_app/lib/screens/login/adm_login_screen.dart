@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/login_controllers.dart';
-import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
 import 'package:meal4you_app/services/login/adm_login_service.dart';
 import 'package:meal4you_app/widgets/adm_login_forms_icon.dart';
 import 'package:meal4you_app/widgets/custom_text_field.dart';
@@ -45,12 +44,8 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
       );
 
       if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const AdmProfileScreen()),
-      );
+      Navigator.pushNamed(context, '/admProfile');
 
-      // Limpar campos após login
       LoginControllers.emailController.clear();
       LoginControllers.senhaController.clear();
     } catch (e) {

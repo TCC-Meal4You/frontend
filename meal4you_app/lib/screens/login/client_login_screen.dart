@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/login_controllers.dart';
-import 'package:meal4you_app/screens/profile/client_profile_screen.dart';
 import 'package:meal4you_app/services/login/client_login_service.dart';
 import 'package:meal4you_app/widgets/custom_text_field.dart';
 import 'package:meal4you_app/widgets/client_login_forms_icon.dart';
@@ -45,10 +44,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
       );
 
       if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ClientProfileScreen()),
-      );
+      Navigator.pushNamed(context, '/clientProfile');
     } catch (e) {
       ScaffoldMessenger.of(
         context,

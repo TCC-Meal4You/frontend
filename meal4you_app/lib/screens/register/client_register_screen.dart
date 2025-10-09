@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/register_controllers.dart';
-import 'package:meal4you_app/screens/restrictions_choice/restrictions_choice_screen.dart';
 import 'package:meal4you_app/services/register/client_register_service.dart';
 import 'package:meal4you_app/widgets/client_register_forms_icon.dart';
 import 'package:meal4you_app/widgets/custom_text_field.dart';
@@ -44,12 +43,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       );
 
       if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const RestrictionsChoiceScreen(),
-        ),
-      );
+      Navigator.pushNamed(context, '/restrictionsChoice');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -152,27 +146,24 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                           const SizedBox(height: 5),
 
                           CustomTextField(
-                            controller:
-                                RegisterControllers.nomeController,
+                            controller: RegisterControllers.nomeController,
                             label: "Nome...",
                           ),
                           const SizedBox(height: 10),
                           CustomTextField(
-                            controller:
-                                RegisterControllers.emailController,
+                            controller: RegisterControllers.emailController,
                             label: "Email...",
                           ),
                           const SizedBox(height: 10),
                           CustomTextField(
-                            controller:
-                                RegisterControllers.senhaController,
+                            controller: RegisterControllers.senhaController,
                             label: "Senha...",
                             obscure: true,
                           ),
                           const SizedBox(height: 10),
                           CustomTextField(
-                            controller: RegisterControllers
-                                .confirmarSenhaController,
+                            controller:
+                                RegisterControllers.confirmarSenhaController,
                             label: "Confirmar Senha...",
                             obscure: true,
                           ),

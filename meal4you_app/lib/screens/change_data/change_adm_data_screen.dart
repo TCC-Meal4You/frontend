@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
 
 class ChangeAdmDataScreen extends StatefulWidget {
   const ChangeAdmDataScreen({super.key});
@@ -169,12 +168,7 @@ class _ChangeAdmDataScreenState extends State<ChangeAdmDataScreen> {
                   size: 30,
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdmProfileScreen(),
-                    ),
-                  );
+                  Navigator.pushNamed(context, '/admProfile');
                 },
               ),
             ),

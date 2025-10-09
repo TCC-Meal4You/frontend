@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/screens/register/adm_register_screen.dart';
-import 'package:meal4you_app/screens/register/client_register_screen.dart';
 
 class ProfileChoiceScreen extends StatefulWidget {
   const ProfileChoiceScreen({super.key});
@@ -132,21 +130,9 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_currentIndex == 0) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ClientRegisterScreen(),
-                                ),
-                              );
+                              Navigator.pushNamed(context, '/clientRegister');
                             } else if (_currentIndex == 1) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AdmRegisterScreen(),
-                                ),
-                              );
+                              Navigator.pushNamed(context, '/admRegister');
                             }
                           },
                           style: ElevatedButton.styleFrom(

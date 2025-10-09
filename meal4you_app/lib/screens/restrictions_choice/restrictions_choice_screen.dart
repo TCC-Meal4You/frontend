@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:meal4you_app/screens/time_choice/time_choice_screen.dart';
 
 class RestrictionsChoiceScreen extends StatefulWidget {
   const RestrictionsChoiceScreen({super.key});
@@ -274,12 +273,7 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                     onPressed: selected.isEmpty
                         ? null
                         : () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const TimeChoiceScreen(),
-                              ),
-                            );
+                           Navigator.pushNamed(context, '/timeChoice');
                           },
                     icon: Icon(
                       selected.isEmpty ? Icons.block : Icons.check,
