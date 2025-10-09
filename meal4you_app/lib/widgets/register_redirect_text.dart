@@ -1,7 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/screens/register/adm_register_screen.dart';
-import 'package:meal4you_app/screens/register/client_register_screen.dart';
 
 enum RegisterUserType { client, adm }
 
@@ -30,19 +28,9 @@ class RegisterRedirectText extends StatelessWidget {
             recognizer: TapGestureRecognizer()
               ..onTap = () {
                 if (registerUserType == RegisterUserType.client) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ClientRegisterScreen(),
-                    ),
-                  );
+                  Navigator.pushNamed(context, '/clientRegister');
                 } else if (registerUserType == RegisterUserType.adm) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdmRegisterScreen(),
-                    ),
-                  );
+                  Navigator.pushNamed(context, '/admRegister');
                 }
               },
           ),
