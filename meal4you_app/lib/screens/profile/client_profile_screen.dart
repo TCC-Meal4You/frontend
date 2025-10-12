@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/controllers/client_logout_handler.dart';
+import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
 
 class ClientProfileScreen extends StatelessWidget {
   const ClientProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final logoutHandler = LogoutHandler();
+    final clientLogoutHandler = ClientLogoutHandler();
 
     return SafeArea(
       child: Scaffold(
@@ -93,7 +93,7 @@ class ClientProfileScreen extends StatelessWidget {
                   fixedSize: const Size(200, 50),
                   elevation: 20,
                 ),
-                onPressed: () => logoutHandler.showLogoutDialog(context),
+                onPressed: () => clientLogoutHandler.showLogoutDialog(context),
                 child: const Text(
                   'SAIR',
                   style: TextStyle(
