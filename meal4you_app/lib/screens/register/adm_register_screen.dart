@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/controllers/register_controllers.dart';
+import 'package:meal4you_app/controllers/textfield/register_controllers.dart';
 import 'package:meal4you_app/services/register/adm_register_service.dart';
 import 'package:meal4you_app/widgets/adm_register_forms_icon.dart';
 import 'package:meal4you_app/widgets/custom_text_field.dart';
