@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 
 class AdmProfileScreen extends StatelessWidget {
   const AdmProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final admLogoutHandler = AdmLogoutHandler();
+
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -111,7 +114,7 @@ class AdmProfileScreen extends StatelessWidget {
                   fixedSize: const Size(200, 50),
                   elevation: 20,
                 ),
-                onPressed: () {},
+                onPressed: () => admLogoutHandler.showLogoutDialog(context),
                 child: const Text(
                   'SAIR',
                   style: TextStyle(
