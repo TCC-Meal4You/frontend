@@ -273,7 +273,7 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                     onPressed: selected.isEmpty
                         ? null
                         : () {
-                           Navigator.pushNamed(context, '/timeChoice');
+                           Navigator.pushNamed(context, '/clientProfile');
                           },
                     icon: Icon(
                       selected.isEmpty ? Icons.block : Icons.check,
