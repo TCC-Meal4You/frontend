@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AdmLoginService {
-  static const String baseUrl = "https://backend-backendmeal4you.up.railway.app/admin/login";
+  static const String baseUrl = "https://backend-backendmeal4you.up.railway.app/admins/login";
 
   static Future<Map<String, dynamic>> loginAdm({
     required String email,
