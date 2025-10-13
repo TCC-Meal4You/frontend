@@ -9,7 +9,6 @@ import 'package:meal4you_app/screens/profile_choice/profile_choice_screen.dart';
 import 'package:meal4you_app/screens/register/adm_register_screen.dart';
 import 'package:meal4you_app/screens/register/client_register_screen.dart';
 import 'package:meal4you_app/screens/restrictions_choice/restrictions_choice_screen.dart';
-import 'package:meal4you_app/screens/time_choice/time_choice_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,8 +40,6 @@ class Meal4You extends StatelessWidget {
         '/clientRegister': (context) => const ClientRegisterScreen(),
 
         '/restrictionsChoice': (context) => const RestrictionsChoiceScreen(),
-
-        '/timeChoice': (context) => const TimeChoiceScreen(),
       },
     );
   }
