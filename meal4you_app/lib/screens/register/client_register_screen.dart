@@ -33,8 +33,8 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
     try {
       final response = await ClientRegisterService.registerClient(
         nome: RegisterControllers.nomeController.text,
-        email: RegisterControllers.emailController.text,
-        senha: RegisterControllers.senhaController.text,
+        email: RegisterControllers.emailController.text.trim(),
+        senha: RegisterControllers.senhaController.text.trim(),
       );
 
       if (!mounted) return;

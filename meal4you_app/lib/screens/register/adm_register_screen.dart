@@ -33,8 +33,8 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
     try {
       final response = await AdmRegisterService.registerAdm(
         nome: RegisterControllers.nomeController.text,
-        email: RegisterControllers.emailController.text,
-        senha: RegisterControllers.senhaController.text,
+        email: RegisterControllers.emailController.text.trim(),
+        senha: RegisterControllers.senhaController.text.trim(),
       );
 
       if (!mounted) return;
