@@ -4,7 +4,7 @@ import 'package:meal4you_app/services/logout/adm_logout/adm_prefs.dart';
 
 class AdmLogoutService {
   static const String _baseUrl =
-      "https://backend-backendmeal4you.up.railway.app/admins";
+      "https://backend-production-7a83.up.railway.app/admins";
 
   final http.Client adm;
 

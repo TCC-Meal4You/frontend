@@ -4,7 +4,7 @@ import 'client_prefs.dart';
 
 class ClientGlobalLogoutService {
   static const String _baseUrl =
-      "https://backend-backendmeal4you.up.railway.app/usuarios";
+      "https://backend-production-7a83.up.railway.app/usuarios";
 
   final http.Client client;
 
