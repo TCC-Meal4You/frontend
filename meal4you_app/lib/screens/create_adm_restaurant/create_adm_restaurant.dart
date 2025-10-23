@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/controllers/restaurant/restaurant_controllers.dart';
 
 class CreateAdmRestaurant extends StatefulWidget {
@@ -37,6 +38,8 @@ class _CreateAdmRestaurantState extends State<CreateAdmRestaurant> {
 
   @override
   Widget build(BuildContext context) {
+    final admLogoutHandler = AdmLogoutHandler();
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -85,7 +88,8 @@ class _CreateAdmRestaurantState extends State<CreateAdmRestaurant> {
                             ],
                           ),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () =>
+                                admLogoutHandler.showLogoutDialog(context),
                             icon: const FaIcon(
                               FontAwesomeIcons.rightFromBracket,
                               color: Colors.red,
