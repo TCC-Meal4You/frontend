@@ -26,7 +26,7 @@ class Meal4You extends StatelessWidget {
     return MaterialApp(
       title: 'Meal4You',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/createAdmRestaurant',
+      initialRoute: '/profileChoice',
       routes: {
         '/changeAdmData': (context) => const ChangeAdmDataScreen(),
         '/changeClientData': (context) => const ChangeClientDataScreen(),
