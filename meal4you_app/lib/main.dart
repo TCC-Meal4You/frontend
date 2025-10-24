@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/screens/adm_menu/adm_menu.dart';
 import 'package:meal4you_app/screens/change_data/change_adm_data_screen.dart';
 import 'package:meal4you_app/screens/change_data/change_client_data_screen.dart';
-import 'package:meal4you_app/screens/create_adm_restaurant/create_adm_restaurant.dart';
-import 'package:meal4you_app/screens/home/adm_home.dart';
+import 'package:meal4you_app/screens/create_adm_restaurant/create_adm_restaurant_screen.dart';
+import 'package:meal4you_app/screens/home/adm_restaurant_home_screen.dart';
 import 'package:meal4you_app/screens/home/client_home.dart';
 import 'package:meal4you_app/screens/login/adm_login_screen.dart';
 import 'package:meal4you_app/screens/login/client_login_screen.dart';
@@ -26,7 +27,7 @@ class Meal4You extends StatelessWidget {
     return MaterialApp(
       title: 'Meal4You',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/profileChoice',
+      initialRoute: '/createAdmRestaurant',
       routes: {
         '/changeAdmData': (context) => const ChangeAdmDataScreen(),
         '/changeClientData': (context) => const ChangeClientDataScreen(),
@@ -44,11 +45,12 @@ class Meal4You extends StatelessWidget {
 
         '/restrictionsChoice': (context) => const RestrictionsChoiceScreen(),
 
-        '/createAdmRestaurant': (context) => const CreateAdmRestaurant(),
+        '/createAdmRestaurant': (context) => const CreateAdmRestaurantScreen(),
 
         '/clientHome': (context) => const ClientHome(),
+        '/admRestaurantHome': (context) => const AdmRestaurantHomeScreen(),
 
-        '/admHome': (context) => const AdmHome(),
+        '/admMenu': (context) => const AdmMenuScreen(),
       },
     );
   }
