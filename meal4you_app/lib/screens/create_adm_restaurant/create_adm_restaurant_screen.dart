@@ -3,14 +3,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/controllers/restaurant/restaurant_controllers.dart';
 
-class CreateAdmRestaurant extends StatefulWidget {
-  const CreateAdmRestaurant({super.key});
+class CreateAdmRestaurantScreen extends StatefulWidget {
+  const CreateAdmRestaurantScreen({super.key});
 
   @override
-  State<CreateAdmRestaurant> createState() => _CreateAdmRestaurantState();
+  State<CreateAdmRestaurantScreen> createState() => _CreateAdmRestaurantScreenState();
 }
 
-class _CreateAdmRestaurantState extends State<CreateAdmRestaurant> {
+class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
   final nameController = RestaurantControllers.nameController;
   final descriptionController = RestaurantControllers.descriptionController;
 
@@ -92,7 +92,7 @@ class _CreateAdmRestaurantState extends State<CreateAdmRestaurant> {
                                 admLogoutHandler.showLogoutDialog(context),
                             icon: const FaIcon(
                               FontAwesomeIcons.rightFromBracket,
-                              color: Colors.red,
+                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -277,7 +277,18 @@ class _CreateAdmRestaurantState extends State<CreateAdmRestaurant> {
                             ),
                           );
 
-                          Navigator.pushNamed(context, '/admHome');
+                          Navigator.pushNamed(
+                            context,
+                            '/admRestaurantHome',
+                            arguments: {
+                              'name': nameController.text,
+                              'description': descriptionController.text,
+                              'foodTypes': _foodTypes.entries
+                                  .where((e) => e.value)
+                                  .map((e) => e.key)
+                                  .toList(),
+                            },
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
