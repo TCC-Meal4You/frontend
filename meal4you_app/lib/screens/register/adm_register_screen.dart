@@ -43,7 +43,7 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
       );
 
       if (!mounted) return;
-      Navigator.pushNamed(context, '/admProfile');
+      Navigator.pushNamed(context, '/createAdmRestaurant');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
