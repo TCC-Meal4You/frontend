@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/textfield/login_controllers.dart';
 import 'package:meal4you_app/services/login/adm_login_service.dart';
+import 'package:meal4you_app/services/logout/adm_logout/user_prefs.dart';
 import 'package:meal4you_app/widgets/adm_login_forms_icon.dart';
 import 'package:meal4you_app/widgets/custom_text_field.dart';
 import 'package:meal4you_app/widgets/or_divider.dart';
@@ -43,8 +44,15 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
         ),
       );
 
+      final token = response['token'];
+      if (token != null) {
+        await UserPrefs.saveToken(token);
+      } else {
+        debugPrint('⚠️ Nenhum token retornado');
+      }
+
       if (!mounted) return;
-      Navigator.pushNamed(context, '/admProfile');
+      Navigator.pushNamed(context, '/createAdmRestaurant');
 
       LoginControllers.emailController.clear();
       LoginControllers.senhaController.clear();
