@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
+import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:provider/provider.dart';
 
 class AdmRestaurantHomeScreen extends StatefulWidget {
   const AdmRestaurantHomeScreen({super.key});
@@ -15,14 +17,17 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
   Widget build(BuildContext context) {
     final admLogoutHandler = AdmLogoutHandler();
 
-    final argsInformation =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
-    final List<String> foodTypes = argsInformation?['foodTypes'] ?? [];
-    final String description = argsInformation?['description'] ?? '';
+    final restaurantProvider = Provider.of<RestaurantProvider>(context);
 
-    final argsName =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
-    final String name = argsName?['name'] ?? '';
+    final String name = restaurantProvider.name.isNotEmpty
+        ? restaurantProvider.name
+        : 'Sem nome';
+    final String description = restaurantProvider.description.isNotEmpty
+        ? restaurantProvider.description
+        : 'Sem descrição';
+    final List<String> foodTypes = restaurantProvider.foodTypes.isNotEmpty
+        ? restaurantProvider.foodTypes
+        : [];
 
     return SafeArea(
       child: Scaffold(
@@ -90,9 +95,9 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
+                    const Text(
                       'Painel do Restaurante',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white70,
                         fontSize: 15,
                         fontFamily: 'Ubuntu',
@@ -100,7 +105,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      name.isNotEmpty ? name : 'Sem nome',
+                      name,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -139,7 +144,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width / 2 - 30,
                           child: _buildStat(
-                            '1',
+                            foodTypes.length.toString(),
                             'Tipos de Comida',
                             Colors.blue,
                           ),
@@ -150,7 +155,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                             children: [
                               Text(
                                 'R\$ 102,00',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.deepOrange,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -211,31 +216,29 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                             spacing: 6,
                             runSpacing: -4,
                             children: foodTypes.isEmpty
-                                ? [
-                                    const Text(
+                                ? const [
+                                    Text(
                                       'Nenhum tipo selecionado',
                                       style: TextStyle(color: Colors.grey),
                                     ),
                                   ]
                                 : foodTypes
-                                      .map(
-                                        (type) => Chip(
-                                          label: Text(type),
-                                          backgroundColor: Colors.grey.shade200,
-                                          labelStyle: const TextStyle(
-                                            fontSize: 13,
-                                          ),
+                                    .map(
+                                      (type) => Chip(
+                                        label: Text(type),
+                                        backgroundColor: Colors.grey.shade200,
+                                        labelStyle: const TextStyle(
+                                          fontSize: 13,
                                         ),
-                                      )
-                                      .toList(),
+                                      ),
+                                    )
+                                    .toList(),
                           ),
 
                           const SizedBox(height: 10),
 
                           Text(
-                            description.isNotEmpty
-                                ? description
-                                : 'Sem descrição.',
+                            description,
                             style: const TextStyle(color: Colors.black87),
                           ),
                         ],
