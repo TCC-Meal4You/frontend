@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:meal4you_app/services/logout/adm_logout/adm_prefs.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class AdmLogoutService {
   static const String _baseUrl =
@@ -11,7 +11,7 @@ class AdmLogoutService {
   AdmLogoutService({http.Client? adm}) : adm = adm ?? http.Client();
 
   Future<void> logout() async {
-    final header = await AdmPrefs.getAuthorizationHeader();
+    final header = await UserTokenSaving.getAuthorizationHeader();
     if (header == null) {
       return;
     }
@@ -25,7 +25,7 @@ class AdmLogoutService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        await AdmPrefs.clearToken();
+        await UserTokenSaving.clearToken();
         return;
       } else {
         throw HttpException(

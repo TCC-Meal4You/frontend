@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'client_prefs.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class ClientGlobalLogoutService {
   static const String _baseUrl =
@@ -12,7 +12,7 @@ class ClientGlobalLogoutService {
     : client = client ?? http.Client();
 
   Future<void> logoutGlobal() async {
-    final header = await ClientPrefs.getAuthorizationHeader();
+    final header = await UserTokenSaving.getAuthorizationHeader();
     final uri = Uri.parse('$_baseUrl/logout-global');
 
     try {
@@ -24,7 +24,7 @@ class ClientGlobalLogoutService {
       final response = await client.post(uri, headers: headers);
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        await ClientPrefs.clearAllUserData();
+        await UserTokenSaving.clearAllUserData();
         return;
       } else {
         throw HttpException(
