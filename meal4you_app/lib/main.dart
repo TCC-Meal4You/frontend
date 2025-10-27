@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // <- Import do Provider
 import 'package:meal4you_app/screens/adm_menu/adm_menu.dart';
 import 'package:meal4you_app/screens/change_data/change_adm_data_screen.dart';
 import 'package:meal4you_app/screens/change_data/change_client_data_screen.dart';
@@ -13,10 +14,18 @@ import 'package:meal4you_app/screens/profile_choice/profile_choice_screen.dart';
 import 'package:meal4you_app/screens/register/adm_register_screen.dart';
 import 'package:meal4you_app/screens/register/client_register_screen.dart';
 import 'package:meal4you_app/screens/restrictions_choice/restrictions_choice_screen.dart';
+import 'package:meal4you_app/provider/restaurant_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const Meal4You());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => RestaurantProvider()),
+      ],
+      child: const Meal4You(),
+    ),
+  );
 }
 
 class Meal4You extends StatelessWidget {
@@ -27,7 +36,7 @@ class Meal4You extends StatelessWidget {
     return MaterialApp(
       title: 'Meal4You',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/createAdmRestaurant',
+      initialRoute: '/admRegister',
       routes: {
         '/changeAdmData': (context) => const ChangeAdmDataScreen(),
         '/changeClientData': (context) => const ChangeClientDataScreen(),
