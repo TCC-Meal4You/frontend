@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/controllers/restaurant/restaurant_controllers.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/services/register_restaurant/register_restaurant_service.dart';
 
 class CreateAdmRestaurantScreen extends StatefulWidget {
   const CreateAdmRestaurantScreen({super.key});
 
   @override
-  State<CreateAdmRestaurantScreen> createState() => _CreateAdmRestaurantScreenState();
+  State<CreateAdmRestaurantScreen> createState() =>
+      _CreateAdmRestaurantScreenState();
 }
 
 class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
@@ -253,7 +256,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           final selected = _foodTypes.entries
                               .where((e) => e.value)
                               .toList();
@@ -271,25 +274,44 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             return;
                           }
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Restaurante criado com sucesso!"),
-                            ),
-                          );
+                          final token = await UserTokenSaving.getToken();
+                          if (token == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Token não encontrado. Faça login novamente.",
+                                ),
+                              ),
+                            );
+                            return;
+                          }
 
-                          Navigator.pushNamed(
-                            context,
-                            '/admRestaurantHome',
-                            arguments: {
-                              'name': nameController.text,
-                              'description': descriptionController.text,
-                              'foodTypes': _foodTypes.entries
-                                  .where((e) => e.value)
-                                  .map((e) => e.key)
-                                  .toList(),
-                            },
-                          );
+                          try {
+                            await RegisterRestaurantService.registerRestaurant(
+                              name: nameController.text,
+                              description: descriptionController.text,
+                              foodTypes: selected.map((e) => e.key).toList(),
+                              token: token,
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Restaurante criado com sucesso!",
+                                ),
+                              ),
+                            );
+
+                            Navigator.pushNamed(context, '/admRestaurantHome');
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Erro ao criar restaurante: $e"),
+                              ),
+                            );
+                          }
                         },
+
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           backgroundColor: const Color.fromARGB(
