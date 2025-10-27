@@ -9,21 +9,29 @@ class RegisterRestaurantService {
     required String name,
     required String description,
     required List<String> foodTypes,
+    required String location,
+    required bool isActive,
     required String token,
   }) async {
     final url = Uri.parse(baseUrl);
+
+    final foodTypesString = foodTypes.join(", ");
+
+    final body = jsonEncode({
+      "nome": name,
+      "descricao": description,
+      "localizacao": location,
+      "ativo": isActive,
+      "tipoComida": foodTypesString,
+    });
 
     final response = await http.post(
       url,
       headers: {
         "Content-Type": "application/json",
-        'Authorization': 'Bearer $token',
+        "Authorization": "Bearer $token",
       },
-      body: jsonEncode({
-        "nome": name,
-        "descricao": description,
-        "tiposComida": foodTypes,
-      }),
+      body: body,
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
