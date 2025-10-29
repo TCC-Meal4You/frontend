@@ -223,16 +223,16 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                                     ),
                                   ]
                                 : foodTypes
-                                    .map(
-                                      (type) => Chip(
-                                        label: Text(type),
-                                        backgroundColor: Colors.grey.shade200,
-                                        labelStyle: const TextStyle(
-                                          fontSize: 13,
+                                      .map(
+                                        (type) => Chip(
+                                          label: Text(type),
+                                          backgroundColor: Colors.grey.shade200,
+                                          labelStyle: const TextStyle(
+                                            fontSize: 13,
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                    .toList(),
+                                      )
+                                      .toList(),
                           ),
 
                           const SizedBox(height: 10),
@@ -280,7 +280,9 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       color: Colors.blueAccent.withOpacity(0.15),
                       iconColor: Colors.blue,
                       title: 'Configurações',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, '/restaurantSettings');
+                      },
                     ),
                   ],
                 ),
