@@ -5,7 +5,7 @@ import 'package:meal4you_app/widgets/custom_text_field.dart';
 import 'package:meal4you_app/widgets/client_login_forms_icon.dart';
 import 'package:meal4you_app/widgets/or_divider.dart';
 import 'package:meal4you_app/widgets/register_redirect_text.dart';
-import 'package:meal4you_app/widgets/social_buttons_row.dart';
+import 'package:meal4you_app/screens/social_login_and_register/social_login_and_register.dart';
 import 'package:meal4you_app/widgets/submit_button.dart';
 
 class ClientLoginScreen extends StatefulWidget {
@@ -143,6 +143,12 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          const SizedBox(height: 15),
+
+                          const SocialLoginAndRegister(),
+                          const SizedBox(height: 20),
+                          const OrDivider(),
+
                           const SizedBox(height: 20),
                           CustomTextField(
                             controller: LoginControllers.emailController,
@@ -169,13 +175,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                             registerUserType: RegisterUserType.client,
                           ),
 
-                          const SizedBox(height: 20),
-
-                          const OrDivider(),
-
                           const SizedBox(height: 10),
-
-                          const SocialButtonsRow(),
                         ],
                       ),
                     ),
