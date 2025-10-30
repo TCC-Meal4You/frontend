@@ -6,7 +6,7 @@ import 'package:meal4you_app/widgets/adm_login_forms_icon.dart';
 import 'package:meal4you_app/widgets/custom_text_field.dart';
 import 'package:meal4you_app/widgets/or_divider.dart';
 import 'package:meal4you_app/widgets/register_redirect_text.dart';
-import 'package:meal4you_app/screens/social_login_and_register/social_login_and_register.dart';
+import 'package:meal4you_app/widgets/social_login_and_register.dart';
 import 'package:meal4you_app/widgets/submit_button.dart';
 
 class AdmLoginScreen extends StatefulWidget {
