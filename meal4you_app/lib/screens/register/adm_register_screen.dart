@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/textfield/register_controllers.dart';
-import 'package:meal4you_app/services/register/adm_register_service.dart';
+import 'package:meal4you_app/models/user_type.dart';
+import 'package:meal4you_app/services/email_verification/verify_email_service.dart';
 import 'package:meal4you_app/widgets/adm_register_forms_icon.dart';
 import 'package:meal4you_app/widgets/custom_text_field.dart';
 import 'package:meal4you_app/widgets/login_redirect_text.dart';
 import 'package:meal4you_app/widgets/or_divider.dart';
-import 'package:meal4you_app/widgets/social_buttons_row.dart';
+import 'package:meal4you_app/widgets/social_login_and_register.dart';
 import 'package:meal4you_app/widgets/submit_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdmRegisterScreen extends StatefulWidget {
   const AdmRegisterScreen({super.key});
@@ -17,8 +19,11 @@ class AdmRegisterScreen extends StatefulWidget {
 
 class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
   bool _isLoading = false;
+  final VerifyEmailService _verifyEmailService = VerifyEmailService(
+    baseUrl: 'https://backend-production-7a83.up.railway.app',
+  );
 
-  Future<void> _registerAdm() async {
+  Future<void> _sendCode() async {
     if (RegisterControllers.senhaController.text !=
         RegisterControllers.confirmarSenhaController.text) {
       if (!mounted) return;
@@ -30,25 +35,29 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
 
     setState(() => _isLoading = true);
 
+    final email = RegisterControllers.emailController.text.trim();
+    final nome = RegisterControllers.nomeController.text;
+    final senha = RegisterControllers.senhaController.text.trim();
+
     try {
-      final response = await AdmRegisterService.registerAdm(
-        nome: RegisterControllers.nomeController.text,
-        email: RegisterControllers.emailController.text.trim(),
-        senha: RegisterControllers.senhaController.text.trim(),
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('register_email', email);
+      await prefs.setString('register_nome', nome);
+      await prefs.setString('register_senha', senha);
+      await prefs.setBool('register_isAdmin', true);
+
+      await _verifyEmailService.sendVerificationCode(
+        email: email,
+        isAdmin: true,
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Cadastro realizado: ${response['email']}")),
-      );
-
-      if (!mounted) return;
-      Navigator.pushNamed(context, '/createAdmRestaurant');
+      Navigator.pushNamed(context, '/verifyCode');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Erro ao cadastrar: $e")));
+      ).showSnackBar(SnackBar(content: Text('Erro ao enviar código: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -172,7 +181,7 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
 
                           SubmitButton(
                             isLoading: _isLoading,
-                            onPressed: _registerAdm,
+                            onPressed: _sendCode,
                           ),
 
                           const SizedBox(height: 20),
@@ -183,9 +192,7 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
 
                           const OrDivider(),
 
-                          const SizedBox(height: 10),
-
-                          const SocialButtonsRow(),
+                          const SocialLoginAndRegister(),
                         ],
                       ),
                     ),
