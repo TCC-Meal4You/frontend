@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // <- Import do Provider
+import 'package:meal4you_app/screens/restaurant_settings/restaurant_settings_screen.dart';
+import 'package:meal4you_app/screens/verify_email/verify_code_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:meal4you_app/screens/adm_menu/adm_menu.dart';
 import 'package:meal4you_app/screens/change_data/change_adm_data_screen.dart';
 import 'package:meal4you_app/screens/change_data/change_client_data_screen.dart';
@@ -20,9 +22,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => RestaurantProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => RestaurantProvider())],
       child: const Meal4You(),
     ),
   );
@@ -36,30 +36,64 @@ class Meal4You extends StatelessWidget {
     return MaterialApp(
       title: 'Meal4You',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/admRegister',
-      routes: {
-        '/changeAdmData': (context) => const ChangeAdmDataScreen(),
-        '/changeClientData': (context) => const ChangeClientDataScreen(),
-
-        '/admLogin': (context) => const AdmLoginScreen(),
-        '/clientLogin': (context) => const ClientLoginScreen(),
-
-        '/admProfile': (context) => const AdmProfileScreen(),
-        '/clientProfile': (context) => const ClientProfileScreen(),
-
-        '/profileChoice': (context) => const ProfileChoiceScreen(),
-
-        '/admRegister': (context) => const AdmRegisterScreen(),
-        '/clientRegister': (context) => const ClientRegisterScreen(),
-
-        '/restrictionsChoice': (context) => const RestrictionsChoiceScreen(),
-
-        '/createAdmRestaurant': (context) => const CreateAdmRestaurantScreen(),
-
-        '/clientHome': (context) => const ClientHome(),
-        '/admRestaurantHome': (context) => const AdmRestaurantHomeScreen(),
-
-        '/admMenu': (context) => const AdmMenuScreen(),
+      initialRoute: '/createAdmRestaurant',
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/changeAdmData':
+            return MaterialPageRoute(
+              builder: (_) => const ChangeAdmDataScreen(),
+            );
+          case '/changeClientData':
+            return MaterialPageRoute(
+              builder: (_) => const ChangeClientDataScreen(),
+            );
+          case '/admLogin':
+            return MaterialPageRoute(builder: (_) => const AdmLoginScreen());
+          case '/clientLogin':
+            return MaterialPageRoute(builder: (_) => const ClientLoginScreen());
+          case '/admProfile':
+            return MaterialPageRoute(builder: (_) => const AdmProfileScreen());
+          case '/clientProfile':
+            return MaterialPageRoute(
+              builder: (_) => const ClientProfileScreen(),
+            );
+          case '/profileChoice':
+            return MaterialPageRoute(
+              builder: (_) => const ProfileChoiceScreen(),
+            );
+          case '/admRegister':
+            return MaterialPageRoute(builder: (_) => const AdmRegisterScreen());
+          case '/clientRegister':
+            return MaterialPageRoute(
+              builder: (_) => const ClientRegisterScreen(),
+            );
+          case '/restrictionsChoice':
+            return MaterialPageRoute(
+              builder: (_) => const RestrictionsChoiceScreen(),
+            );
+          case '/createAdmRestaurant':
+            return MaterialPageRoute(
+              builder: (_) => const CreateAdmRestaurantScreen(),
+            );
+          case '/clientHome':
+            return MaterialPageRoute(builder: (_) => const ClientHome());
+          case '/admRestaurantHome':
+            return MaterialPageRoute(
+              builder: (_) => const AdmRestaurantHomeScreen(),
+            );
+          case '/admMenu':
+            return MaterialPageRoute(builder: (_) => const AdmMenuScreen());
+          case '/restaurantSettings':
+            return MaterialPageRoute(builder: (_) => const RestaurantSettingsScreen());
+          case '/verifyCode':
+            return MaterialPageRoute(builder: (_) => const VerifyCodeScreen());
+          default:
+            return MaterialPageRoute(
+              builder: (_) => const Scaffold(
+                body: Center(child: Text('Rota não encontrada')),
+              ),
+            );
+        }
       },
     );
   }
