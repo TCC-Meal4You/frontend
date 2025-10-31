@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/models/user_type.dart';
 
-enum UserType { client, adm }
 
 class LoginRedirectText extends StatelessWidget {
   final UserType userType;
