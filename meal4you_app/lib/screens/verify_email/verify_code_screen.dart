@@ -11,14 +11,43 @@ class VerifyCodeScreen extends StatefulWidget {
 
 class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
   final TextEditingController _codeController = TextEditingController();
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final List<TextEditingController> _digitControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
+
   bool _isButtonEnabled = false;
   bool _isLoading = false;
-  final VerifyEmailService _verifyEmailService =
-      VerifyEmailService(baseUrl: 'https://backend-production-7a83.up.railway.app');
 
-  void _onCodeChanged(String value) {
+  final VerifyEmailService _verifyEmailService = VerifyEmailService(
+    baseUrl: 'https://backend-production-7a83.up.railway.app',
+  );
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    for (var controller in _digitControllers) {
+      controller.dispose();
+    }
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
+
+  void _onDigitChanged(int index, String value) {
+    if (value.isNotEmpty && index < 5) {
+      _focusNodes[index + 1].requestFocus();
+    }
+
+    if (value.isEmpty && index > 0) {
+      _focusNodes[index - 1].requestFocus();
+    }
+
+    _codeController.text = _digitControllers.map((e) => e.text).join();
     setState(() {
-      _isButtonEnabled = value.length == 6;
+      _isButtonEnabled = _codeController.text.length == 6;
     });
   }
 
@@ -31,7 +60,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
       final nome = prefs.getString('register_nome')!;
       final senha = prefs.getString('register_senha')!;
       final isAdmin = prefs.getBool('register_isAdmin')!;
-
       final codigo = _codeController.text.trim();
 
       await _verifyEmailService.confirmCode(
@@ -54,9 +82,9 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -64,52 +92,120 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Verificar Código"),
-          centerTitle: true,
-          backgroundColor: const Color.fromARGB(255, 15, 230, 135),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Digite o código de 6 dígitos enviado para seu e-mail:",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 30),
-              TextField(
-                controller: _codeController,
-                onChanged: _onCodeChanged,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "000000",
-                  counterText: "",
+                'Verificação de E-mail',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF7B3AED),
                 ),
               ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _isButtonEnabled && !_isLoading ? _confirmCode : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isButtonEnabled
-                      ? const Color.fromARGB(255, 15, 230, 135)
-                      : Colors.grey,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 60, vertical: 15),
+              const SizedBox(height: 10),
+              const Text(
+                'Digite o código enviado para o e-mail:',
+                style: TextStyle(fontSize: 15, color: Colors.black87),
+              ),
+              const SizedBox(height: 4),
+              FutureBuilder<String?>(
+                future: SharedPreferences.getInstance().then(
+                  (prefs) => prefs.getString('register_email'),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        "Continuar",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                builder: (context, snapshot) {
+                  return Text(
+                    snapshot.data ?? '',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 40),
+
+              // Campos individuais (6 quadradinhos)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(6, (index) {
+                  return Container(
+                    width: 45,
+                    height: 55,
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                    child: TextField(
+                      controller: _digitControllers[index],
+                      focusNode: _focusNodes[index],
+                      onChanged: (value) => _onDigitChanged(index, value),
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      maxLength: 1,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
+                      decoration: InputDecoration(
+                        counterText: "",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF7B3AED),
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+
+              const SizedBox(height: 50),
+
+              // Botão Confirmar
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isButtonEnabled && !_isLoading
+                      ? _confirmCode
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7B3AED),
+                    disabledBackgroundColor: Colors.grey[400],
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 3,
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          "Autenticar",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
               ),
             ],
           ),
