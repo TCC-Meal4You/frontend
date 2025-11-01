@@ -19,6 +19,7 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
   bool _isButtonEnabled = false;
   bool _isLoading = false;
+  bool _isResendLoading = false;
 
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
     baseUrl: 'https://backend-production-7a83.up.railway.app',
@@ -37,13 +38,8 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
   }
 
   void _onDigitChanged(int index, String value) {
-    if (value.isNotEmpty && index < 5) {
-      _focusNodes[index + 1].requestFocus();
-    }
-
-    if (value.isEmpty && index > 0) {
-      _focusNodes[index - 1].requestFocus();
-    }
+    if (value.isNotEmpty && index < 5) _focusNodes[index + 1].requestFocus();
+    if (value.isEmpty && index > 0) _focusNodes[index - 1].requestFocus();
 
     _codeController.text = _digitControllers.map((e) => e.text).join();
     setState(() {
@@ -90,6 +86,33 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
     }
   }
 
+  Future<void> _resendCode() async {
+    setState(() => _isResendLoading = true);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final email = prefs.getString('register_email')!;
+      final isAdmin = prefs.getBool('register_isAdmin')!;
+
+      await _verifyEmailService.sendVerificationCode(
+        email: email,
+        isAdmin: isAdmin,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Código reenviado com sucesso!')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Código inválido ou expirado. Detalhes: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isResendLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,7 +154,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
               ),
               const SizedBox(height: 40),
 
-              // Campos individuais (6 quadradinhos)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(6, (index) {
@@ -169,10 +191,8 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                   );
                 }),
               ),
+              const SizedBox(height: 40),
 
-              const SizedBox(height: 50),
-
-              // Botão Confirmar
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -201,8 +221,41 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                           "Autenticar",
                           style: TextStyle(
                             fontSize: 17,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
                             color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: !_isResendLoading ? _resendCode : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 15, 230, 135),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 2,
+                  ),
+                  child: _isResendLoading
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.black87,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          "Reenviar Código",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                 ),
