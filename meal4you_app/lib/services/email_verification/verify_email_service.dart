@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:meal4you_app/services/register/adm_register_service.dart';
+import 'package:meal4you_app/services/register/client_register_service.dart';
 
 class VerifyEmailService {
   final String baseUrl;
@@ -14,47 +16,39 @@ class VerifyEmailService {
         ? '$baseUrl/admins/verifica-email'
         : '$baseUrl/usuarios/verifica-email';
 
-    final uri = Uri.parse(endpoint);
-
     final response = await http.post(
-      uri,
+      Uri.parse(endpoint),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email}),
     );
 
     if (response.statusCode != 200) {
       final data = jsonDecode(response.body);
-      throw Exception(data['erro'] ?? 'Erro ao enviar código');
+      throw Exception(data['erro'] ?? 'Erro ao enviar código de verificação.');
     }
   }
 
   Future<void> confirmCode({
-    required String email,
     required String nome,
+    required String email,
     required String senha,
     required String codigo,
     bool isAdmin = false,
   }) async {
-    final endpoint = isAdmin
-        ? '$baseUrl/admins/verifica-email'
-        : '$baseUrl/usuarios/verifica-email';
-
-    final uri = Uri.parse(endpoint);
-
-    final response = await http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'nome': nome,
-        'senha': senha,
-        'codigo': codigo,
-      }),
-    );
-
-    if (response.statusCode != 200) {
-      final data = jsonDecode(response.body);
-      throw Exception(data['erro'] ?? 'Código inválido ou expirado');
+    if (isAdmin) {
+      await AdmRegisterService.registerAdm(
+        nome: nome,
+        email: email,
+        senha: senha,
+        codigo: codigo,
+      );
+    } else {
+      await ClientRegisterService.registerClient(
+        nome: nome,
+        email: email,
+        senha: senha,
+        codigo: codigo,
+      );
     }
   }
 }
