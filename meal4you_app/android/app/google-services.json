@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "442014738415",
+    "project_id": "meal4you",
+    "storage_bucket": "meal4you.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442014738415:android:8210f67b6f580ef3a0f81a",
+        "android_client_info": {
+          "package_name": "com.example.meal4you"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA37gAm5eF-BnOT92nlWhilDtndky3RIDI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
