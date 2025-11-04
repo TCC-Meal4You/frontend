@@ -19,16 +19,17 @@ class ClientRegisterScreen extends StatefulWidget {
 
 class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
   bool _isLoading = false;
-  final VerifyEmailService _verifyEmailService =
-      VerifyEmailService(baseUrl: 'https://backend-production-7a83.up.railway.app');
+  final VerifyEmailService _verifyEmailService = VerifyEmailService(
+    baseUrl: 'https://backend-production-7a83.up.railway.app',
+  );
 
   Future<void> _sendCode() async {
     if (RegisterControllers.senhaController.text !=
         RegisterControllers.confirmarSenhaController.text) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("As senhas não conferem!")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("As senhas não conferem!")));
       return;
     }
 
@@ -54,9 +55,9 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       Navigator.pushNamed(context, '/verifyCode');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao enviar código: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao enviar código: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -151,7 +152,13 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 15),
+
+                          const SocialLoginAndRegister(),
+                          const SizedBox(height: 10),
+                          const OrDivider(),
+
+                          const SizedBox(height: 10),
 
                           CustomTextField(
                             controller: RegisterControllers.nomeController,
@@ -183,15 +190,11 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                             onPressed: _sendCode,
                           ),
 
+                          const SizedBox(height: 15),
+
+                          const LoginRedirectText(userType: UserType.adm),
+
                           const SizedBox(height: 20),
-
-                          const LoginRedirectText(userType: UserType.client),
-
-                          const SizedBox(height: 20),
-
-                          const OrDivider(),
-
-                          const SocialLoginAndRegister(),
                         ],
                       ),
                     ),

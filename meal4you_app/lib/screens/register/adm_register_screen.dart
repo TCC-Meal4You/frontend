@@ -152,8 +152,13 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 15),
 
+                          const SocialLoginAndRegister(),
+                          const SizedBox(height: 10),
+                          const OrDivider(),
+
+                          const SizedBox(height: 10),
                           CustomTextField(
                             controller: RegisterControllers.nomeController,
                             label: "Nome...",
@@ -184,15 +189,11 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
                             onPressed: _sendCode,
                           ),
 
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 15),
 
                           const LoginRedirectText(userType: UserType.adm),
 
                           const SizedBox(height: 20),
-
-                          const OrDivider(),
-
-                          const SocialLoginAndRegister(),
                         ],
                       ),
                     ),
