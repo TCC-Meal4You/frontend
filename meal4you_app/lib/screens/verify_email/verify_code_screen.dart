@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/email_verification/verify_email_service.dart';
+import 'package:meal4you_app/services/login/adm_login_service.dart';
+import 'package:meal4you_app/services/login/client_login_service.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VerifyCodeScreen extends StatefulWidget {
@@ -48,43 +51,63 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
   }
 
   Future<void> _confirmCode() async {
-    setState(() => _isLoading = true);
+  setState(() => _isLoading = true);
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final email = prefs.getString('register_email')!;
-      final nome = prefs.getString('register_nome')!;
-      final senha = prefs.getString('register_senha')!;
-      final isAdmin = prefs.getBool('register_isAdmin')!;
-      final codigo = _codeController.text.trim();
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString('register_email')!;
+    final nome = prefs.getString('register_nome')!;
+    final senha = prefs.getString('register_senha')!;
+    final isAdmin = prefs.getBool('register_isAdmin')!;
+    final codigo = _codeController.text.trim();
 
-      await _verifyEmailService.confirmCode(
+    await _verifyEmailService.confirmCode(
+      email: email,
+      nome: nome,
+      senha: senha,
+      codigo: codigo,
+      isAdmin: isAdmin,
+    );
+
+    Map<String, dynamic> loginResponse;
+
+    if (isAdmin) {
+      loginResponse = await AdmLoginService.loginAdm(
         email: email,
-        nome: nome,
         senha: senha,
-        codigo: codigo,
-        isAdmin: isAdmin,
       );
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cadastro realizado com sucesso!')),
+    } else {
+      loginResponse = await ClientLoginService.loginClient(
+        email: email,
+        senha: senha,
       );
-
-      Navigator.pushReplacementNamed(
-        context,
-        isAdmin ? '/createAdmRestaurant' : '/restrictionsChoice',
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
     }
+
+    final token = loginResponse['token'] ?? loginResponse['accessToken'];
+    if (token != null) {
+      await UserTokenSaving.saveToken(token);
+      await UserTokenSaving.saveUserData(loginResponse.toString());
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cadastro realizado com sucesso!')),
+    );
+
+    Navigator.pushReplacementNamed(
+      context,
+      isAdmin ? '/createAdmRestaurant' : '/restrictionsChoice',
+    );
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Erro: $e')),
+    );
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
   }
+}
+
 
   Future<void> _resendCode() async {
     setState(() => _isResendLoading = true);
