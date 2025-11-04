@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="meal4you_app"
+        android:label="Meal4You"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         
