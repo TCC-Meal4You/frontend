@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/screens/restaurant_settings/restaurant_settings_screen.dart';
 import 'package:meal4you_app/screens/verify_email/verify_code_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:meal4you_app/screens/adm_menu/adm_menu.dart';
@@ -17,9 +16,17 @@ import 'package:meal4you_app/screens/register/adm_register_screen.dart';
 import 'package:meal4you_app/screens/register/client_register_screen.dart';
 import 'package:meal4you_app/screens/restrictions_choice/restrictions_choice_screen.dart';
 import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+
   runApp(
     MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => RestaurantProvider())],
@@ -36,7 +43,7 @@ class Meal4You extends StatelessWidget {
     return MaterialApp(
       title: 'Meal4You',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/createAdmRestaurant',
+      initialRoute: '/clientRegister',
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/changeAdmData':
@@ -83,8 +90,8 @@ class Meal4You extends StatelessWidget {
             );
           case '/admMenu':
             return MaterialPageRoute(builder: (_) => const AdmMenuScreen());
-          case '/restaurantSettings':
-            return MaterialPageRoute(builder: (_) => const RestaurantSettingsScreen());
+          // case '/restaurantSettings':
+          //   return MaterialPageRoute(builder: (_) => const RestaurantSettingsScreen());
           case '/verifyCode':
             return MaterialPageRoute(builder: (_) => const VerifyCodeScreen());
           default:
