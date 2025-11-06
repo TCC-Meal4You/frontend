@@ -4,6 +4,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/services/search_restaurant_data/search_restaurant_data_service.dart';
+import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:provider/provider.dart';
 
 class GoogleRegisterAndLoginService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -35,7 +38,6 @@ class GoogleRegisterAndLoginService {
           await googleUser.authentication;
 
       final accessToken = googleAuth.accessToken;
-
       if (accessToken == null) {
         throw Exception("Não foi possível obter o accessToken do Google.");
       }
@@ -63,13 +65,42 @@ class GoogleRegisterAndLoginService {
         await UserTokenSaving.saveToken(jwt);
 
         if (isAdmin) {
-          Navigator.pushNamed(context, '/createAdmRestaurant');
+          final restaurantData =
+              await SearchRestaurantDataService.searchMyRestaurant(jwt);
+
+          if (restaurantData != null) {
+            final restaurantProvider = Provider.of<RestaurantProvider>(
+              context,
+              listen: false,
+            );
+
+            restaurantProvider.updateRestaurant(
+              name: restaurantData['nome'] ?? '',
+              description: restaurantData['descricao'] ?? '',
+              location: restaurantData['localizacao'] ?? '',
+              isActive: restaurantData['ativo'] ?? false,
+              foodTypes: (restaurantData['tipoComida'] != null)
+                  ? restaurantData['tipoComida']
+                        .toString()
+                        .split(',')
+                        .map((e) => e.trim())
+                        .toList()
+                  : [],
+            );
+
+            await UserTokenSaving.saveRestaurantData(restaurantData);
+
+            Navigator.pushReplacementNamed(context, '/admRestaurantHome');
+          } else {
+            Navigator.pushReplacementNamed(context, '/createAdmRestaurant');
+          }
         } else {
-          Navigator.pushNamed(context, '/restrictionsChoice');
+          Navigator.pushReplacementNamed(context, '/restrictionsChoice');
         }
       } else {
         debugPrint(
-            '❌ Falha na autenticação: ${response.statusCode} - ${response.body}');
+          '❌ Falha na autenticação: ${response.statusCode} - ${response.body}',
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Falha na autenticação com Google.')),
         );
