@@ -83,11 +83,11 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
       );
     }
 
-    final token = loginResponse['token'] ?? loginResponse['accessToken'];
-    if (token != null) {
-      await UserTokenSaving.saveToken(token);
-      await UserTokenSaving.saveUserData(loginResponse.toString());
-    }
+   final token = loginResponse['token'] ?? loginResponse['accessToken'];
+if (token != null) {
+  await UserTokenSaving.saveToken(token);
+  await UserTokenSaving.saveUserData(loginResponse);
+}
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
