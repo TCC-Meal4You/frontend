@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/provider/restaurant_provider.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_global_logout_service.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_logout_service.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:provider/provider.dart';
 
 class AdmLogoutHandler {
   final AdmLogoutService _admLogoutService;
@@ -9,9 +12,9 @@ class AdmLogoutHandler {
   AdmLogoutHandler({
     AdmLogoutService? admLogoutService,
     AdmGlobalLogoutService? admGlobalLogoutService,
-  }) : _admLogoutService = admLogoutService ?? AdmLogoutService(),
-       _admGlobalLogoutService =
-           admGlobalLogoutService ?? AdmGlobalLogoutService();
+  })  : _admLogoutService = admLogoutService ?? AdmLogoutService(),
+        _admGlobalLogoutService =
+            admGlobalLogoutService ?? AdmGlobalLogoutService();
 
   Future<void> showLogoutDialog(BuildContext context) async {
     return showDialog<void>(
@@ -36,7 +39,7 @@ class AdmLogoutHandler {
               },
               child: const Text('Sair neste dispositivo'),
             ),
-            // ElevatedButton(
+            // TextButton(
             //   onPressed: () async {
             //     Navigator.of(dialogContext).pop();
             //     await _handleLogout(context, onlyThisDevice: false);
@@ -66,6 +69,18 @@ class AdmLogoutHandler {
         await _admGlobalLogoutService.logoutGlobal();
       }
 
+      await UserTokenSaving.clearAllUserData();
+
+      final restaurantProvider =
+          Provider.of<RestaurantProvider>(context, listen: false);
+      restaurantProvider.updateRestaurant(
+        name: '',
+        description: '',
+        location: '',
+        isActive: false,
+        foodTypes: [],
+      );
+
       if (!context.mounted) return;
 
       Navigator.of(context).pop();
@@ -79,9 +94,8 @@ class AdmLogoutHandler {
         ),
       );
 
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil('/admLogin', (route) => false);
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/admLogin', (route) => false);
     } catch (e) {
       if (!context.mounted) return;
       Navigator.of(context).pop();
