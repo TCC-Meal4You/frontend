@@ -6,7 +6,7 @@ import 'package:meal4you_app/screens/change_data/change_adm_data_screen.dart';
 import 'package:meal4you_app/screens/change_data/change_client_data_screen.dart';
 import 'package:meal4you_app/screens/create_adm_restaurant/create_adm_restaurant_screen.dart';
 import 'package:meal4you_app/screens/home/adm_restaurant_home_screen.dart';
-import 'package:meal4you_app/screens/home/client_home.dart';
+import 'package:meal4you_app/screens/home/client_home_screen.dart';
 import 'package:meal4you_app/screens/login/adm_login_screen.dart';
 import 'package:meal4you_app/screens/login/client_login_screen.dart';
 import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
@@ -88,7 +88,7 @@ class Meal4You extends StatelessWidget {
               builder: (_) => const CreateAdmRestaurantScreen(),
             );
           case '/clientHome':
-            return MaterialPageRoute(builder: (_) => const ClientHome());
+            return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
           case '/admRestaurantHome':
             return MaterialPageRoute(
               builder: (_) => const AdmRestaurantHomeScreen(),
