@@ -12,7 +12,20 @@
           "package_name": "com.example.meal4you"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "442014738415-tks93surtv1tlohhoibtaj9uftacbnu7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.meal4you",
+            "certificate_hash": "a37212daae69be0d79f2ecce42dec9a4f5f30f84"
+          }
+        },
+        {
+          "client_id": "442014738415-i1od3oad7h6l8g6rsej0lmnfektcsr1l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA37gAm5eF-BnOT92nlWhilDtndky3RIDI"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442014738415-i1od3oad7h6l8g6rsej0lmnfektcsr1l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "442014738415-e2ht41pq35d4fp9trjsqrdqrk64l8ohp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.meal4youApp"
+              }
+            }
+          ]
         }
       }
     }
