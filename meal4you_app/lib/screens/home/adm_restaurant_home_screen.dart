@@ -125,58 +125,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Estatísticas
-                    Wrap(
-                      spacing: 20,
-                      runSpacing: 20,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 30,
-                          child: _buildStat(
-                            '4',
-                            'Pratos Disponíveis',
-                            Colors.purple,
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 30,
-                          child: _buildStat('8', 'Ingredientes', Colors.green),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 30,
-                          child: _buildStat(
-                            foodTypes.length.toString(),
-                            'Tipos de Comida',
-                            Colors.blue,
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 30,
-                          child: Column(
-                            children: [
-                              Text(
-                                'R\$ 102,00',
-                                style: const TextStyle(
-                                  color: Colors.deepOrange,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const Text(
-                                'Valor Estimado',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-                    const Divider(),
-
                     const SizedBox(height: 10),
 
                     Container(
@@ -309,27 +257,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
           onTap: (index) {},
         ),
       ),
-    );
-  }
-
-  Widget _buildStat(String value, String label, Color color) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            color: color,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-          textAlign: TextAlign.center,
-        ),
-      ],
     );
   }
 
