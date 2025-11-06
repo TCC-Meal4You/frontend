@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/textfield/register_controllers.dart';
 import 'package:meal4you_app/models/user_type.dart';
 import 'package:meal4you_app/services/email_verification/verify_email_service.dart';
-import 'package:meal4you_app/widgets/adm_register_forms_icon.dart';
-import 'package:meal4you_app/widgets/custom_text_field.dart';
-import 'package:meal4you_app/widgets/login_redirect_text.dart';
-import 'package:meal4you_app/widgets/or_divider.dart';
-import 'package:meal4you_app/widgets/social_login_and_register.dart';
-import 'package:meal4you_app/widgets/submit_button.dart';
+import 'package:meal4you_app/widgets/forms_icons/adm_register_forms_icon.dart';
+import 'package:meal4you_app/widgets/textfield/custom_text_field.dart';
+import 'package:meal4you_app/widgets/redirect_text/login_redirect_text.dart';
+import 'package:meal4you_app/widgets/or_divider/or_divider.dart';
+import 'package:meal4you_app/widgets/social_button/social_login_and_register.dart';
+import 'package:meal4you_app/widgets/submit_button/submit_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdmRegisterScreen extends StatefulWidget {
@@ -154,7 +154,7 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
                           ),
                           const SizedBox(height: 15),
 
-                          const SocialLoginAndRegister(),
+                          const SocialLoginAndRegister(isAdmin: true),
                           const SizedBox(height: 10),
                           const OrDivider(),
 
