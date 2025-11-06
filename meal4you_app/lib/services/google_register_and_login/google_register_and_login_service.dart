@@ -1,0 +1,87 @@
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
+class GoogleRegisterAndLoginService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'profile',
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/user.emails.read',
+    ],
+  );
+
+  final String baseUrl = "https://backend-production-7a83.up.railway.app";
+
+  Future<void> signInWithGoogle({
+    required BuildContext context,
+    required bool isAdmin,
+  }) async {
+    try {
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final accessToken = googleAuth.accessToken;
+
+      if (accessToken == null) {
+        throw Exception("Não foi possível obter o accessToken do Google.");
+      }
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await _auth.signInWithCredential(credential);
+
+      final endpoint = isAdmin
+          ? "$baseUrl/admins/login/oauth2/google"
+          : "$baseUrl/usuarios/login/oauth2/google";
+
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'accessToken': accessToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final jwt = data['token'];
+        await UserTokenSaving.saveToken(jwt);
+
+        if (isAdmin) {
+          Navigator.pushNamed(context, '/createAdmRestaurant');
+        } else {
+          Navigator.pushNamed(context, '/restrictionsChoice');
+        }
+      } else {
+        debugPrint(
+            '❌ Falha na autenticação: ${response.statusCode} - ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Falha na autenticação com Google.')),
+        );
+      }
+    } catch (e, stack) {
+      debugPrint('Erro ao autenticar com Google: $e');
+      debugPrintStack(stackTrace: stack);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao autenticar com Google: $e')),
+      );
+    }
+  }
+
+  User? get currentUser => _auth.currentUser;
+}
