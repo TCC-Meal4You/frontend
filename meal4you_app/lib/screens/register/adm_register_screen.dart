@@ -9,6 +9,7 @@ import 'package:meal4you_app/widgets/or_divider/or_divider.dart';
 import 'package:meal4you_app/widgets/social_button/social_login_and_register.dart';
 import 'package:meal4you_app/widgets/submit_button/submit_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 
 class AdmRegisterScreen extends StatefulWidget {
   const AdmRegisterScreen({super.key});
@@ -93,7 +94,10 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
                     Container(
                       width: double.infinity,
                       constraints: BoxConstraints(
-                        minHeight: MediaQuery.of(context).size.height - 120,
+                        minHeight: max(
+                          0,
+                          MediaQuery.of(context).size.height - 120,
+                        ),
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       decoration: const BoxDecoration(
