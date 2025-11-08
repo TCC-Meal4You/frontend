@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:provider/provider.dart';
 
 class AdmRestaurantHomeScreen extends StatefulWidget {
@@ -14,9 +15,37 @@ class AdmRestaurantHomeScreen extends StatefulWidget {
 
 class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
   @override
+  void initState() {
+    super.initState();
+    _loadRestaurantData();
+  }
+
+  Future<void> _loadRestaurantData() async {
+    final restaurantData = await UserTokenSaving.getRestaurantData();
+
+    if (restaurantData != null && mounted) {
+      final provider =
+          Provider.of<RestaurantProvider>(context, listen: false);
+
+      provider.updateRestaurant(
+        name: restaurantData['nome'] ?? '',
+        description: restaurantData['descricao'] ?? '',
+        location: restaurantData['localizacao'] ?? '',
+        isActive: restaurantData['ativo'] ?? false,
+        foodTypes: (restaurantData['tipoComida'] != null)
+            ? restaurantData['tipoComida']
+                .toString()
+                .split(',')
+                .map((e) => e.trim())
+                .toList()
+            : [],
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final admLogoutHandler = AdmLogoutHandler();
-
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
 
     final String name = restaurantProvider.name.isNotEmpty
@@ -124,9 +153,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Estatísticas
                     const SizedBox(height: 10),
-
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -159,7 +186,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                             style: TextStyle(fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(height: 6),
-
                           Wrap(
                             spacing: 6,
                             runSpacing: -4,
@@ -171,20 +197,17 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                                     ),
                                   ]
                                 : foodTypes
-                                      .map(
-                                        (type) => Chip(
-                                          label: Text(type),
-                                          backgroundColor: Colors.grey.shade200,
-                                          labelStyle: const TextStyle(
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
+                                    .map(
+                                      (type) => Chip(
+                                        label: Text(type),
+                                        backgroundColor: Colors.grey.shade200,
+                                        labelStyle:
+                                            const TextStyle(fontSize: 13),
+                                      ),
+                                    )
+                                    .toList(),
                           ),
-
                           const SizedBox(height: 10),
-
                           Text(
                             description,
                             style: const TextStyle(color: Colors.black87),
@@ -192,9 +215,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     const Text(
                       'Gerenciar Restaurante',
                       style: TextStyle(
@@ -203,7 +224,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-
                     _buildOption(
                       icon: Icons.restaurant_menu_outlined,
                       // ignore: deprecated_member_use
@@ -238,7 +258,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
             ],
           ),
         ),
-
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.white,
           selectedItemColor: Colors.deepPurple,
@@ -289,18 +308,13 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: iconColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: iconColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ),
             const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
