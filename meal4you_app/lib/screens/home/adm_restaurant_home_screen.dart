@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/provider/restaurant_provider.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/widgets/restaurant_management_buttons/restaurant_management_buttons.dart';
 import 'package:provider/provider.dart';
 
 class AdmRestaurantHomeScreen extends StatefulWidget {
@@ -229,7 +230,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildOption(
+                    RestaurantManagementButtons(
                       icon: Icons.restaurant_menu_outlined,
                       // ignore: deprecated_member_use
                       color: Colors.purpleAccent.withOpacity(0.15),
@@ -239,7 +240,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                         Navigator.pushNamed(context, '/admMenu');
                       },
                     ),
-                    _buildOption(
+                    RestaurantManagementButtons(
                       icon: Icons.eco_outlined,
                       // ignore: deprecated_member_use
                       color: Colors.greenAccent.withOpacity(0.15),
@@ -247,7 +248,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       title: 'Gerenciar Ingredientes',
                       onTap: () {},
                     ),
-                    _buildOption(
+                    RestaurantManagementButtons(
                       icon: Icons.chat_bubble_outline,
                       // ignore: deprecated_member_use
                       color: Color.fromARGB(255, 255, 170, 0).withOpacity(0.15),
@@ -257,7 +258,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                         Navigator.pushNamed(context, '/ratingsAndComments');
                       },
                     ),
-                    _buildOption(
+                    RestaurantManagementButtons(
                       icon: Icons.settings_outlined,
                       // ignore: deprecated_member_use
                       color: Colors.blueAccent.withOpacity(0.15),
@@ -289,51 +290,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
           ],
           currentIndex: 0,
           onTap: (index) {},
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOption({
-    required IconData icon,
-    required Color color,
-    required Color iconColor,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: iconColor, size: 24),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: iconColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-            const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
-          ],
         ),
       ),
     );
