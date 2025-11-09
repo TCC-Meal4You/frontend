@@ -21,30 +21,31 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
   }
 
   Future<void> _loadRestaurantData() async {
-  final email = await UserTokenSaving.getUserEmail();
-  if (email == null) return;
+    final email = await UserTokenSaving.getUserEmail();
+    if (email == null) return;
 
-  final restaurantData = await UserTokenSaving.getRestaurantDataForUser(email);
-
-  if (restaurantData != null && mounted) {
-    final provider = Provider.of<RestaurantProvider>(context, listen: false);
-
-    provider.updateRestaurant(
-      name: restaurantData['nome'] ?? '',
-      description: restaurantData['descricao'] ?? '',
-      location: restaurantData['localizacao'] ?? '',
-      isActive: restaurantData['ativo'] ?? false,
-      foodTypes: (restaurantData['tipoComida'] != null)
-          ? restaurantData['tipoComida']
-              .toString()
-              .split(',')
-              .map((e) => e.trim())
-              .toList()
-          : [],
+    final restaurantData = await UserTokenSaving.getRestaurantDataForUser(
+      email,
     );
-  }
-}
 
+    if (restaurantData != null && mounted) {
+      final provider = Provider.of<RestaurantProvider>(context, listen: false);
+
+      provider.updateRestaurant(
+        name: restaurantData['nome'] ?? '',
+        description: restaurantData['descricao'] ?? '',
+        location: restaurantData['localizacao'] ?? '',
+        isActive: restaurantData['ativo'] ?? false,
+        foodTypes: (restaurantData['tipoComida'] != null)
+            ? restaurantData['tipoComida']
+                  .toString()
+                  .split(',')
+                  .map((e) => e.trim())
+                  .toList()
+            : [],
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -200,15 +201,16 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                                     ),
                                   ]
                                 : foodTypes
-                                    .map(
-                                      (type) => Chip(
-                                        label: Text(type),
-                                        backgroundColor: Colors.grey.shade200,
-                                        labelStyle:
-                                            const TextStyle(fontSize: 13),
-                                      ),
-                                    )
-                                    .toList(),
+                                      .map(
+                                        (type) => Chip(
+                                          label: Text(type),
+                                          backgroundColor: Colors.grey.shade200,
+                                          labelStyle: const TextStyle(
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
                           ),
                           const SizedBox(height: 10),
                           Text(
@@ -244,6 +246,16 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       iconColor: Colors.green,
                       title: 'Gerenciar Ingredientes',
                       onTap: () {},
+                    ),
+                    _buildOption(
+                      icon: Icons.chat_bubble_outline,
+                      // ignore: deprecated_member_use
+                      color: Color.fromARGB(255, 255, 170, 0).withOpacity(0.15),
+                      iconColor: const Color.fromARGB(255, 255, 170, 0),
+                      title: 'Avaliações e Comentários',
+                      onTap: () {
+                        Navigator.pushNamed(context, '/ratingsAndComments');
+                      },
                     ),
                     _buildOption(
                       icon: Icons.settings_outlined,
