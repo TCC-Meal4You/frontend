@@ -44,7 +44,8 @@ class AdmLoginService {
           await SearchRestaurantDataService.searchMyRestaurant(token);
 
       if (restaurantData != null && restaurantData.isNotEmpty) {
-        await UserTokenSaving.saveRestaurantData(restaurantData);
+        await UserTokenSaving.saveRestaurantDataForUser(email, restaurantData);
+
         Navigator.of(context).pushNamedAndRemoveUntil(
           '/admRestaurantHome',
           (route) => false,
