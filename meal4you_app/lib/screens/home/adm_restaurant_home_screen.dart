@@ -21,27 +21,30 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
   }
 
   Future<void> _loadRestaurantData() async {
-    final restaurantData = await UserTokenSaving.getRestaurantData();
+  final email = await UserTokenSaving.getUserEmail();
+  if (email == null) return;
 
-    if (restaurantData != null && mounted) {
-      final provider =
-          Provider.of<RestaurantProvider>(context, listen: false);
+  final restaurantData = await UserTokenSaving.getRestaurantDataForUser(email);
 
-      provider.updateRestaurant(
-        name: restaurantData['nome'] ?? '',
-        description: restaurantData['descricao'] ?? '',
-        location: restaurantData['localizacao'] ?? '',
-        isActive: restaurantData['ativo'] ?? false,
-        foodTypes: (restaurantData['tipoComida'] != null)
-            ? restaurantData['tipoComida']
-                .toString()
-                .split(',')
-                .map((e) => e.trim())
-                .toList()
-            : [],
-      );
-    }
+  if (restaurantData != null && mounted) {
+    final provider = Provider.of<RestaurantProvider>(context, listen: false);
+
+    provider.updateRestaurant(
+      name: restaurantData['nome'] ?? '',
+      description: restaurantData['descricao'] ?? '',
+      location: restaurantData['localizacao'] ?? '',
+      isActive: restaurantData['ativo'] ?? false,
+      foodTypes: (restaurantData['tipoComida'] != null)
+          ? restaurantData['tipoComida']
+              .toString()
+              .split(',')
+              .map((e) => e.trim())
+              .toList()
+          : [],
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
