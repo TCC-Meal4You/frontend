@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/screens/ratings_and_comments/ratings_and_comments_screen.dart';
 import 'package:meal4you_app/screens/verify_email/verify_code_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:meal4you_app/screens/adm_menu/adm_menu.dart';
@@ -99,6 +100,8 @@ class Meal4You extends StatelessWidget {
           //   return MaterialPageRoute(builder: (_) => const RestaurantSettingsScreen());
           case '/verifyCode':
             return MaterialPageRoute(builder: (_) => const VerifyCodeScreen());
+            case '/ratingsAndComments':
+            return MaterialPageRoute(builder: (_) => const RatingsAndCommentsScreen());
           default:
             return MaterialPageRoute(
               builder: (_) => const Scaffold(
