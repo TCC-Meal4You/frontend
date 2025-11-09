@@ -12,9 +12,7 @@ class AdmLogoutService {
 
   Future<void> logout() async {
     final header = await UserTokenSaving.getAuthorizationHeader();
-    if (header == null) {
-      return;
-    }
+    if (header == null) return;
 
     final uri = Uri.parse('$_baseUrl/logout');
 
@@ -24,10 +22,9 @@ class AdmLogoutService {
         headers: {'Authorization': header, 'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        await UserTokenSaving.clearToken();
-        return;
-      } else {
+      await UserTokenSaving.clearAll();
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
         throw HttpException(
           'Falha ao tentar sair: ${response.statusCode} ${response.reasonPhrase}',
         );
