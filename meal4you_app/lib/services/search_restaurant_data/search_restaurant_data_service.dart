@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class SearchRestaurantDataService {
   static const String baseUrl =
@@ -17,7 +18,14 @@ class SearchRestaurantDataService {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final restaurantData = jsonDecode(response.body);
+
+      final email = await UserTokenSaving.getUserEmail();
+      if (email != null) {
+        await UserTokenSaving.saveRestaurantDataForUser(email, restaurantData);
+      }
+
+      return restaurantData;
     } else if (response.statusCode == 404) {
       return null;
     } else {
