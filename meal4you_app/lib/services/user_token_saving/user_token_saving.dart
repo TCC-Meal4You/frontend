@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserTokenSaving {
   static const String _tokenKey = 'user_token';
   static const String _userDataKey = 'user_data';
-  static const String _restaurantDataKey = 'restaurant_data';
+  static const String _userIdKey = 'user_id';
 
   static Future<String?> getAuthorizationHeader() async {
     final token = await getToken();
@@ -39,27 +39,89 @@ class UserTokenSaving {
     return jsonDecode(data);
   }
 
-  static Future<void> saveRestaurantData(Map<String, dynamic> restaurantData) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_restaurantDataKey, jsonEncode(restaurantData));
+  static Future<String?> getUserEmail() async {
+    final userData = await getUserData();
+    if (userData == null) return null;
+
+    if (userData.containsKey('email')) {
+      return userData['email'];
+    } else if (userData.containsKey('user') &&
+        userData['user'] is Map &&
+        userData['user']['email'] != null) {
+      return userData['user']['email'];
+    }
+    return null;
   }
 
-  static Future<Map<String, dynamic>?> getRestaurantData() async {
+  static Future<void> saveUserId(String email) async {
     final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(_restaurantDataKey);
+    await prefs.setString(_userIdKey, email);
+  }
+
+  static Future<String?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userIdKey);
+  }
+
+  static Future<void> clearUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userIdKey);
+  }
+
+  static Future<void> saveRestaurantDataForUser(
+      String email, Map<String, dynamic> restaurantData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('restaurant_data_$email', jsonEncode(restaurantData));
+  }
+
+  static Future<Map<String, dynamic>?> getRestaurantDataForUser(
+      String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString('restaurant_data_$email');
     if (data == null) return null;
     return jsonDecode(data);
   }
 
-  static Future<void> clearRestaurantData() async {
+  static Future<void> clearRestaurantDataForUser(String email) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_restaurantDataKey);
+    await prefs.remove('restaurant_data_$email');
+  }
+
+  static Future<Map<String, dynamic>?> getRestaurantDataForCurrentUser() async {
+    final email = await getUserId();
+    if (email == null) return null;
+    return getRestaurantDataForUser(email);
+  }
+
+  static Future<void> saveRestaurantDataForCurrentUser(
+      Map<String, dynamic> restaurantData) async {
+    final email = await getUserId();
+    if (email == null) return;
+    await saveRestaurantDataForUser(email, restaurantData);
+  }
+
+  static Future<void> clearRestaurantDataForCurrentUser() async {
+    final email = await getUserId();
+    if (email == null) return;
+    await clearRestaurantDataForUser(email);
+  }
+
+  static Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString(_userIdKey);
+
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_userDataKey);
+    await prefs.remove(_userIdKey);
+
+    if (email != null) {
+      await prefs.remove('restaurant_data_$email');
+    }
   }
 
   static Future<void> clearAllUserData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userDataKey);
-    await prefs.remove(_restaurantDataKey);
   }
 }
