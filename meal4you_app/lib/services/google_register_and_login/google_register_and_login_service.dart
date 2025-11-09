@@ -64,15 +64,16 @@ class GoogleRegisterAndLoginService {
         final jwt = data['token'];
         await UserTokenSaving.saveToken(jwt);
 
+        final email = googleUser.email;
+        await UserTokenSaving.saveUserId(email);
+
         if (isAdmin) {
           final restaurantData =
               await SearchRestaurantDataService.searchMyRestaurant(jwt);
 
           if (restaurantData != null) {
-            final restaurantProvider = Provider.of<RestaurantProvider>(
-              context,
-              listen: false,
-            );
+            final restaurantProvider =
+                Provider.of<RestaurantProvider>(context, listen: false);
 
             restaurantProvider.updateRestaurant(
               name: restaurantData['nome'] ?? '',
@@ -81,14 +82,17 @@ class GoogleRegisterAndLoginService {
               isActive: restaurantData['ativo'] ?? false,
               foodTypes: (restaurantData['tipoComida'] != null)
                   ? restaurantData['tipoComida']
-                        .toString()
-                        .split(',')
-                        .map((e) => e.trim())
-                        .toList()
+                      .toString()
+                      .split(',')
+                      .map((e) => e.trim())
+                      .toList()
                   : [],
             );
 
-            await UserTokenSaving.saveRestaurantData(restaurantData);
+            await UserTokenSaving.saveRestaurantDataForUser(
+              email,
+              restaurantData,
+            );
 
             Navigator.pushReplacementNamed(context, '/admRestaurantHome');
           } else {
