@@ -5,37 +5,36 @@ class RegisterRestaurantService {
   static const String baseUrl =
       "https://backend-production-7a83.up.railway.app/restaurantes";
 
-  static Future<void> registerRestaurant({
+  static Future<Map<String, dynamic>> registerRestaurant({
     required String name,
     required String description,
-    required List<String> foodTypes,
     required String location,
     required bool isActive,
+    required List<String> foodTypes,
     required String token,
   }) async {
-    final url = Uri.parse(baseUrl);
-
-    final foodTypesString = foodTypes.join(", ");
-
-    final body = jsonEncode({
-      "nome": name,
-      "descricao": description,
-      "localizacao": location,
-      "ativo": isActive,
-      "tipoComida": foodTypesString,
-    });
-
     final response = await http.post(
-      url,
+      Uri.parse(baseUrl),
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
       },
-      body: body,
+      body: jsonEncode({
+        "nome": name,
+        "descricao": description,
+        "localizacao": location,
+        "ativo": isActive,
+        "tipoComida": foodTypes.join(", "),
+      }),
     );
 
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception("Erro ${response.statusCode}: ${response.body}");
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception(
+        "Erro ao criar restaurante: ${response.statusCode} - ${response.body}",
+      );
     }
   }
 }
+
