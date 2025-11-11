@@ -72,27 +72,31 @@ class GoogleRegisterAndLoginService {
               await SearchRestaurantDataService.searchMyRestaurant(jwt);
 
           if (restaurantData != null) {
-            final restaurantProvider =
-                Provider.of<RestaurantProvider>(context, listen: false);
+            final restaurantProvider = Provider.of<RestaurantProvider>(
+              context,
+              listen: false,
+            );
+
+            final id = restaurantData['id'] ?? 0;
 
             restaurantProvider.updateRestaurant(
+              id: id,
               name: restaurantData['nome'] ?? '',
               description: restaurantData['descricao'] ?? '',
               location: restaurantData['localizacao'] ?? '',
               isActive: restaurantData['ativo'] ?? false,
               foodTypes: (restaurantData['tipoComida'] != null)
                   ? restaurantData['tipoComida']
-                      .toString()
-                      .split(',')
-                      .map((e) => e.trim())
-                      .toList()
+                        .toString()
+                        .split(',')
+                        .map((e) => e.trim())
+                        .toList()
                   : [],
             );
-
-            await UserTokenSaving.saveRestaurantDataForUser(
-              email,
-              restaurantData,
-            );
+            await UserTokenSaving.saveRestaurantDataForUser(email, {
+              ...restaurantData,
+              "id": id,
+            });
 
             Navigator.pushReplacementNamed(context, '/admRestaurantHome');
           } else {
