@@ -12,9 +12,9 @@ class AdmLogoutHandler {
   AdmLogoutHandler({
     AdmLogoutService? admLogoutService,
     AdmGlobalLogoutService? admGlobalLogoutService,
-  })  : _admLogoutService = admLogoutService ?? AdmLogoutService(),
-        _admGlobalLogoutService =
-            admGlobalLogoutService ?? AdmGlobalLogoutService();
+  }) : _admLogoutService = admLogoutService ?? AdmLogoutService(),
+       _admGlobalLogoutService =
+           admGlobalLogoutService ?? AdmGlobalLogoutService();
 
   Future<void> showLogoutDialog(BuildContext context) async {
     return showDialog<void>(
@@ -71,9 +71,12 @@ class AdmLogoutHandler {
 
       await UserTokenSaving.clearAllUserData();
 
-      final restaurantProvider =
-          Provider.of<RestaurantProvider>(context, listen: false);
+      final restaurantProvider = Provider.of<RestaurantProvider>(
+        context,
+        listen: false,
+      );
       restaurantProvider.updateRestaurant(
+        id: restaurantProvider.id ?? 0,
         name: '',
         description: '',
         location: '',
@@ -94,8 +97,9 @@ class AdmLogoutHandler {
         ),
       );
 
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil('/admLogin', (route) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/admLogin', (route) => false);
     } catch (e) {
       if (!context.mounted) return;
       Navigator.of(context).pop();
