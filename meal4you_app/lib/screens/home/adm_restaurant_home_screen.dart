@@ -33,6 +33,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
       final provider = Provider.of<RestaurantProvider>(context, listen: false);
 
       provider.updateRestaurant(
+        id: restaurantData['id'] ?? 0,
         name: restaurantData['nome'] ?? '',
         description: restaurantData['descricao'] ?? '',
         location: restaurantData['localizacao'] ?? '',
