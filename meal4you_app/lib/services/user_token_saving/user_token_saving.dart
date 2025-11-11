@@ -5,6 +5,7 @@ class UserTokenSaving {
   static const String _tokenKey = 'user_token';
   static const String _userDataKey = 'user_data';
   static const String _userIdKey = 'user_id';
+  static const String _restaurantIdKey = 'restaurant_id';
 
   static Future<String?> getAuthorizationHeader() async {
     final token = await getToken();
@@ -68,10 +69,30 @@ class UserTokenSaving {
     await prefs.remove(_userIdKey);
   }
 
+  static Future<void> saveRestaurantId(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_restaurantIdKey, id);
+  }
+
+  static Future<int?> getRestaurantId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_restaurantIdKey);
+  }
+
+  static Future<void> clearRestaurantId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_restaurantIdKey);
+  }
+
   static Future<void> saveRestaurantDataForUser(
       String email, Map<String, dynamic> restaurantData) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('restaurant_data_$email', jsonEncode(restaurantData));
+
+    // Se tiver ID no restaurante, salva também
+    if (restaurantData.containsKey('id') && restaurantData['id'] != null) {
+      await saveRestaurantId(restaurantData['id']);
+    }
   }
 
   static Future<Map<String, dynamic>?> getRestaurantDataForUser(
@@ -113,6 +134,7 @@ class UserTokenSaving {
     await prefs.remove(_tokenKey);
     await prefs.remove(_userDataKey);
     await prefs.remove(_userIdKey);
+    await prefs.remove(_restaurantIdKey);
 
     if (email != null) {
       await prefs.remove('restaurant_data_$email');
