@@ -46,14 +46,18 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
   @override
   void initState() {
     super.initState();
-    final restaurantProvider =
-        Provider.of<RestaurantProvider>(context, listen: false);
+    final restaurantProvider = Provider.of<RestaurantProvider>(
+      context,
+      listen: false,
+    );
 
     nameController = TextEditingController(text: restaurantProvider.name);
-    descriptionController =
-        TextEditingController(text: restaurantProvider.description);
-    locationController =
-        TextEditingController(text: restaurantProvider.location);
+    descriptionController = TextEditingController(
+      text: restaurantProvider.description,
+    );
+    locationController = TextEditingController(
+      text: restaurantProvider.location,
+    );
     _isActive = restaurantProvider.isActive;
 
     for (var food in restaurantProvider.foodTypes) {
@@ -270,18 +274,22 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             context: context,
                             builder: (context) => AlertDialog(
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               title: const Text(
                                 "Atenção!",
                                 style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Ubuntu'),
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Ubuntu',
+                                ),
                               ),
                               content: const Text(
                                 "Se você ativar agora, seu restaurante ficará visível "
                                 "para os clientes, mesmo sem pratos, ingredientes ou cardápio configurado.",
                                 style: TextStyle(
-                                    fontFamily: 'Ubuntu', fontSize: 14),
+                                  fontFamily: 'Ubuntu',
+                                  fontSize: 14,
+                                ),
                               ),
                               actions: [
                                 TextButton(
@@ -290,14 +298,18 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                   child: const Text(
                                     "Cancelar",
                                     style: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 157, 0, 255)),
+                                      color: Color.fromARGB(255, 157, 0, 255),
+                                    ),
                                   ),
                                 ),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color.fromARGB(
-                                        255, 15, 230, 135),
+                                      255,
+                                      15,
+                                      230,
+                                      135,
+                                    ),
                                   ),
                                   onPressed: () => Navigator.pop(context, true),
                                   child: const Text(
@@ -332,7 +344,8 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                           data: Theme.of(context).copyWith(
                             checkboxTheme: CheckboxThemeData(
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6)),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
                               checkColor: WidgetStateProperty.all(Colors.white),
                             ),
                           ),
@@ -362,8 +375,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 230,
                                 135,
                               ),
-                              controlAffinity:
-                                  ListTileControlAffinity.leading,
+                              controlAffinity: ListTileControlAffinity.leading,
                             ),
                           ),
                         );
@@ -387,7 +399,8 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                    "Preencha todos os campos obrigatórios."),
+                                  "Preencha todos os campos obrigatórios.",
+                                ),
                               ),
                             );
                             return;
@@ -398,7 +411,8 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                    "Token não encontrado. Faça login novamente."),
+                                  "Token não encontrado. Faça login novamente.",
+                                ),
                               ),
                             );
                             return;
@@ -415,6 +429,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             );
 
                             restaurantProvider.updateRestaurant(
+                              id: restaurantProvider.id ?? 0,
                               name: nameController.text,
                               description: descriptionController.text,
                               location: locationController.text,
@@ -425,14 +440,12 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                    "Restaurante criado com sucesso!"),
+                                  "Restaurante criado com sucesso!",
+                                ),
                               ),
                             );
 
-                            Navigator.pushNamed(
-                              context,
-                              '/admRestaurantHome',
-                            );
+                            Navigator.pushNamed(context, '/admRestaurantHome');
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -443,8 +456,12 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor:
-                              const Color.fromARGB(255, 15, 230, 135),
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            15,
+                            230,
+                            135,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -466,7 +483,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
 
               const SizedBox(height: 20),
 
-              // Texto explicativo
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Text(
