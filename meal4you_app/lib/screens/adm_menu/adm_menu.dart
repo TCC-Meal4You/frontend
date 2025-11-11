@@ -12,81 +12,83 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Gerenciar Cardápio',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-        ),
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pushNamed(context, '/admRestaurantHome');
-          },
-        ),
-        actions: [
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color.fromARGB(255, 15, 230, 135),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () {
-              // TODO: abrir tela de adicionar prato
-            },
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text(
-              'Adicionar',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+        appBar: AppBar(
+          title: const Text(
+            'Gerenciar Cardápio',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
           ),
-          const SizedBox(width: 12),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildStatsRow(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: dishes.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      itemCount: dishes.length,
-                      itemBuilder: (context, index) {
-                        final dish = dishes[index];
-                        return _buildDishCard(dish, index);
-                      },
-                    ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, '/admRestaurantHome');
+            },
+          ),
+          actions: [
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 15, 230, 135),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () {
+                // TODO: abrir tela de adicionar prato
+              },
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text(
+                'Adicionar',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
+            const SizedBox(width: 12),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.deepPurple,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.store_mall_directory_outlined),
-            label: 'Restaurante',
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              _buildStatsRow(),
+              const SizedBox(height: 16),
+              Expanded(
+                child: dishes.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        itemCount: dishes.length,
+                        itemBuilder: (context, index) {
+                          final dish = dishes[index];
+                          return _buildDishCard(dish, index);
+                        },
+                      ),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Meu Perfil',
-          ),
-        ],
-        currentIndex: 0,
-        onTap: (index) {},
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.deepPurple,
+          unselectedItemColor: Colors.grey,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.store_mall_directory_outlined),
+              label: 'Restaurante',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: 'Meu Perfil',
+            ),
+          ],
+          currentIndex: 0,
+          onTap: (index) {},
+        ),
       ),
     );
   }
