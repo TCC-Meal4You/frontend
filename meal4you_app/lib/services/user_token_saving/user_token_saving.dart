@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserTokenSaving {
   static const String _tokenKey = 'user_token';
   static const String _userDataKey = 'user_data';
+  static const String _userEmailKey = 'user_email';
   static const String _userIdKey = 'user_id';
   static const String _restaurantIdKey = 'restaurant_id';
 
@@ -31,6 +33,12 @@ class UserTokenSaving {
   static Future<void> saveUserData(Map<String, dynamic> userData) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userDataKey, jsonEncode(userData));
+
+    if (userData.containsKey('email')) {
+      await prefs.setString(_userEmailKey, userData['email']);
+    } else if (userData['user'] is Map && userData['user']['email'] != null) {
+      await prefs.setString(_userEmailKey, userData['user']['email']);
+    }
   }
 
   static Future<Map<String, dynamic>?> getUserData() async {
@@ -41,14 +49,14 @@ class UserTokenSaving {
   }
 
   static Future<String?> getUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString(_userEmailKey);
+    if (email != null) return email;
+
     final userData = await getUserData();
     if (userData == null) return null;
-
-    if (userData.containsKey('email')) {
-      return userData['email'];
-    } else if (userData.containsKey('user') &&
-        userData['user'] is Map &&
-        userData['user']['email'] != null) {
+    if (userData.containsKey('email')) return userData['email'];
+    if (userData['user'] is Map && userData['user']['email'] != null) {
       return userData['user']['email'];
     }
     return null;
@@ -69,7 +77,8 @@ class UserTokenSaving {
     await prefs.remove(_userIdKey);
   }
 
-  static Future<void> saveRestaurantId(int id) async {
+  static Future<void> saveRestaurantId(int? id) async {
+    if (id == null || id <= 0) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_restaurantIdKey, id);
   }
@@ -85,18 +94,45 @@ class UserTokenSaving {
   }
 
   static Future<void> saveRestaurantDataForUser(
-      String email, Map<String, dynamic> restaurantData) async {
+    String email,
+    Map<String, dynamic> restaurantData,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('restaurant_data_$email', jsonEncode(restaurantData));
 
-    // Se tiver ID no restaurante, salva também
-    if (restaurantData.containsKey('id') && restaurantData['id'] != null) {
-      await saveRestaurantId(restaurantData['id']);
+    try {
+      final rawId =
+          restaurantData['idRestaurante'] ??
+          restaurantData['id'] ??
+          restaurantData['id_restaurante'];
+
+      final int id = rawId is int
+          ? rawId
+          : int.tryParse(rawId?.toString() ?? '') ?? -1;
+
+      debugPrint(
+        '🧾 [UserTokenSaving] restaurantData recebido: $restaurantData',
+      );
+      debugPrint('🧠 [UserTokenSaving] Valor bruto do ID recebido: $rawId');
+      debugPrint('🧩 [UserTokenSaving] ID convertido final: $id');
+
+      if (id > 0) {
+        await prefs.setInt('restaurant_id', id);
+        await prefs.setString(
+          'restaurant_data_$email',
+          jsonEncode(restaurantData),
+        );
+        debugPrint('✅ Restaurante salvo (UserTokenSaving): id=$id para $email');
+      } else {
+        debugPrint('⚠️ [UserTokenSaving] ID inválido, não foi salvo.');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao salvar dados do restaurante: $e');
     }
   }
 
   static Future<Map<String, dynamic>?> getRestaurantDataForUser(
-      String email) async {
+    String email,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getString('restaurant_data_$email');
     if (data == null) return null;
@@ -109,41 +145,52 @@ class UserTokenSaving {
   }
 
   static Future<Map<String, dynamic>?> getRestaurantDataForCurrentUser() async {
-    final email = await getUserId();
+    final email = await getUserEmail();
     if (email == null) return null;
     return getRestaurantDataForUser(email);
   }
 
   static Future<void> saveRestaurantDataForCurrentUser(
-      Map<String, dynamic> restaurantData) async {
-    final email = await getUserId();
+    Map<String, dynamic> restaurantData,
+  ) async {
+    final email = await getUserEmail();
     if (email == null) return;
     await saveRestaurantDataForUser(email, restaurantData);
   }
 
+  static Future<void> saveCurrentUserEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userEmailKey, email);
+    debugPrint('✅ [UserTokenSaving] E-mail atual salvo: $email');
+  }
+
   static Future<void> clearRestaurantDataForCurrentUser() async {
-    final email = await getUserId();
+    final email = await getUserEmail();
     if (email == null) return;
     await clearRestaurantDataForUser(email);
   }
 
   static Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString(_userIdKey);
+    final email = prefs.getString(_userEmailKey);
 
     await prefs.remove(_tokenKey);
     await prefs.remove(_userDataKey);
+    await prefs.remove(_userEmailKey);
     await prefs.remove(_userIdKey);
     await prefs.remove(_restaurantIdKey);
 
     if (email != null) {
       await prefs.remove('restaurant_data_$email');
     }
+
+    print('🧹 [UserTokenSaving] Todos os dados foram limpos com sucesso.');
   }
 
   static Future<void> clearAllUserData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userDataKey);
+    await prefs.remove(_userEmailKey);
   }
 }
