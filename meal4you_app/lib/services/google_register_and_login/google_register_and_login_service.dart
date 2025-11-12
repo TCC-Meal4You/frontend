@@ -66,6 +66,7 @@ class GoogleRegisterAndLoginService {
 
         final email = googleUser.email;
         await UserTokenSaving.saveUserId(email);
+        await UserTokenSaving.saveCurrentUserEmail(email);
 
         if (isAdmin) {
           final restaurantData =
@@ -77,7 +78,10 @@ class GoogleRegisterAndLoginService {
               listen: false,
             );
 
-            final id = restaurantData['id'] ?? 0;
+            final id =
+                restaurantData['idRestaurante'] ?? restaurantData['id'] ?? 0;
+
+            debugPrint('🧾 [GoogleLogin] ID carregado do backend: $id');
 
             restaurantProvider.updateRestaurant(
               id: id,
@@ -93,13 +97,21 @@ class GoogleRegisterAndLoginService {
                         .toList()
                   : [],
             );
+
+            await UserTokenSaving.saveRestaurantId(id);
             await UserTokenSaving.saveRestaurantDataForUser(email, {
               ...restaurantData,
               "id": id,
             });
 
+            debugPrint('✅ [GoogleLogin] Restaurante salvo localmente: id=$id');
+            await Future.delayed(const Duration(milliseconds: 300));
+
             Navigator.pushReplacementNamed(context, '/admRestaurantHome');
           } else {
+            debugPrint(
+              '⚠️ [GoogleLogin] Nenhum restaurante encontrado — indo para criação.',
+            );
             Navigator.pushReplacementNamed(context, '/createAdmRestaurant');
           }
         } else {
