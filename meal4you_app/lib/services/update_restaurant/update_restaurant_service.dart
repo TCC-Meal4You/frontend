@@ -5,50 +5,57 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class UpdateRestaurantService {
   static const String baseUrl =
-      "https://backend-production-7a83.up.railway.app/restaurantes";
+      'https://backend-production-7a83.up.railway.app/restaurantes';
 
   static Future<Map<String, dynamic>?> updateRestaurant({
-    required int id,
     required RestaurantProvider provider,
   }) async {
     try {
+     int? id = provider.id ?? await UserTokenSaving.getRestaurantId();
+if (id == null || id == 0) {
+  throw Exception("ID do restaurante não encontrado. Faça login novamente.");
+}
+
+
       final token = await UserTokenSaving.getToken();
       if (token == null) {
-        throw Exception("Token de autenticação não encontrado.");
+        throw Exception("Token não encontrado.");
       }
 
-      final url = Uri.parse("$baseUrl/$id");
-
-      final body = {
-        "nome": provider.name,
-        "descricao": provider.description,
-        "localizacao": provider.location,
-        "ativo": provider.isActive,
-        'tipoComida': provider.foodTypes.join(', '),
-      };
+      final url = Uri.parse('$baseUrl/$id');
+      print("🔸 Atualizando restaurante ID: $id");
 
       final response = await http.put(
         url,
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: jsonEncode(body),
+        body: jsonEncode({
+          'nome': provider.name,
+          'descricao': provider.description,
+          'localizacao': provider.location,
+          'ativo': provider.isActive,
+          'tipoComida': provider.foodTypes.join(', '),
+        }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        await UserTokenSaving.saveRestaurantDataForCurrentUser(data);
+        if (data['id'] != null) {
+          await UserTokenSaving.saveRestaurantId(data['id']);
+        }
 
+        await UserTokenSaving.saveRestaurantDataForCurrentUser(data);
         return data;
       } else {
         throw Exception(
-          "Erro ao atualizar restaurante. Código: ${response.statusCode}",
-        );
+            'Erro ao atualizar restaurante: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      throw Exception("Falha ao atualizar restaurante: $e");
+      print('❌ Erro ao atualizar restaurante: $e');
+      rethrow;
     }
   }
 }
