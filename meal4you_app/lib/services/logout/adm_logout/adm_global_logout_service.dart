@@ -8,28 +8,26 @@ class AdmGlobalLogoutService {
 
   final http.Client adm;
 
-  AdmGlobalLogoutService({http.Client? adm})
-    : adm = adm ?? http.Client();
+  AdmGlobalLogoutService({http.Client? adm}) : adm = adm ?? http.Client();
 
   Future<void> logoutGlobal() async {
     final header = await UserTokenSaving.getAuthorizationHeader();
     final uri = Uri.parse('$_baseUrl/logout-global');
 
     try {
-      final headers = <String, String>{'Content-Type': 'application/json'};
-      if (header != null) {
-        headers['Authorization'] = header;
-      }
-
-      final response = await adm.post(uri, headers: headers);
+      final response = await adm.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (header != null) 'Authorization': header,
+        },
+      );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        await UserTokenSaving.clearAllUserData();
-        return;
+        await UserTokenSaving.clearAll();
       } else {
         throw HttpException(
-          'Falha ao tentar sair de todas as contas: '
-          '${response.statusCode} ${response.reasonPhrase}',
+          'Falha ao tentar sair de todas as contas: ${response.statusCode} ${response.reasonPhrase}',
         );
       }
     } on SocketException {
