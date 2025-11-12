@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/provider/restaurant_provider.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_global_logout_service.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_logout_service.dart';
-import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:provider/provider.dart';
 
 class AdmLogoutHandler {
@@ -12,9 +11,9 @@ class AdmLogoutHandler {
   AdmLogoutHandler({
     AdmLogoutService? admLogoutService,
     AdmGlobalLogoutService? admGlobalLogoutService,
-  }) : _admLogoutService = admLogoutService ?? AdmLogoutService(),
-       _admGlobalLogoutService =
-           admGlobalLogoutService ?? AdmGlobalLogoutService();
+  })  : _admLogoutService = admLogoutService ?? AdmLogoutService(),
+        _admGlobalLogoutService =
+            admGlobalLogoutService ?? AdmGlobalLogoutService();
 
   Future<void> showLogoutDialog(BuildContext context) async {
     return showDialog<void>(
@@ -23,14 +22,11 @@ class AdmLogoutHandler {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Sair'),
-          content: const Text('Deseja sair desta conta neste dispositivo?'),
+          content: const Text('Deseja sair desta conta?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('Cancelar', style: TextStyle(color: Colors.red)),
             ),
             TextButton(
               onPressed: () async {
@@ -39,13 +35,13 @@ class AdmLogoutHandler {
               },
               child: const Text('Sair neste dispositivo'),
             ),
-            // TextButton(
-            //   onPressed: () async {
-            //     Navigator.of(dialogContext).pop();
-            //     await _handleLogout(context, onlyThisDevice: false);
-            //   },
-            //   child: const Text('Todos os dispositivos'),
-            // ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await _handleLogout(context, onlyThisDevice: false);
+              },
+              child: const Text('Sair de todos os dispositivos'),
+            ),
           ],
         );
       },
@@ -69,24 +65,12 @@ class AdmLogoutHandler {
         await _admGlobalLogoutService.logoutGlobal();
       }
 
-      await UserTokenSaving.clearAllUserData();
-
-      final restaurantProvider = Provider.of<RestaurantProvider>(
-        context,
-        listen: false,
-      );
-      restaurantProvider.updateRestaurant(
-        id: restaurantProvider.id ?? 0,
-        name: '',
-        description: '',
-        location: '',
-        isActive: false,
-        foodTypes: [],
-      );
+      final provider = Provider.of<RestaurantProvider>(context, listen: false);
+      provider.clearRestaurant();
 
       if (!context.mounted) return;
-
       Navigator.of(context).pop();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -97,15 +81,12 @@ class AdmLogoutHandler {
         ),
       );
 
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil('/admLogin', (route) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil('/admLogin', (route) => false);
     } catch (e) {
       if (!context.mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao deslogar: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Erro ao deslogar: $e')));
     }
   }
 }
