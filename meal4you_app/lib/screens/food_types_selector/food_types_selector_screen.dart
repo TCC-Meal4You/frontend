@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 class FoodTypeSelectorScreen extends StatefulWidget {
   final int restaurantId;
-
   const FoodTypeSelectorScreen({super.key, required this.restaurantId});
 
   @override
@@ -49,10 +48,7 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
     provider.updateFoodTypes(selectedTypes);
 
     try {
-      await UpdateRestaurantService.updateRestaurant(
-        id: widget.restaurantId,
-        provider: provider,
-      );
+      await UpdateRestaurantService.updateRestaurant(provider: provider);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Tipos de comida atualizados com sucesso!"),
@@ -75,10 +71,8 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
           title: const Text("Selecionar Tipos de Comida"),
           backgroundColor: const Color.fromARGB(255, 15, 230, 135),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
         body: ListView.builder(
@@ -92,12 +86,7 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                 CheckboxListTile(
                   title: Text(type),
                   value: isSelected,
-                  activeColor: const Color.fromARGB(
-                    255,
-                    15,
-                    230,
-                    135,
-                  ),
+                  activeColor: const Color.fromARGB(255, 15, 230, 135),
                   onChanged: (value) {
                     setState(() {
                       if (value == true) {
@@ -109,12 +98,7 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                   },
                 ),
                 if (index < availableTypes.length - 1)
-                  const Divider(
-                    height: 1,
-                    color: Colors.grey,
-                    indent: 16,
-                    endIndent: 16,
-                  ),
+                  const Divider(height: 1, color: Colors.grey, indent: 16, endIndent: 16),
               ],
             );
           },
