@@ -61,4 +61,15 @@ class RestaurantProvider extends ChangeNotifier {
     _foodTypes = foodTypes;
     notifyListeners();
   }
+
+  void clearRestaurant() {
+  _id = null;
+  _name = '';
+  _description = '';
+  _location = '';
+  _isActive = false;
+  _foodTypes = [];
+  notifyListeners();
+}
+
 }
