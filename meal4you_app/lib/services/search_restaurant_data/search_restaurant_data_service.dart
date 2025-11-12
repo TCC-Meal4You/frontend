@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:flutter/foundation.dart';
 
 class SearchRestaurantDataService {
   static const String baseUrl =
@@ -9,27 +9,33 @@ class SearchRestaurantDataService {
   static Future<Map<String, dynamic>?> searchMyRestaurant(String token) async {
     final url = Uri.parse("$baseUrl/meu-restaurante");
 
-    final response = await http.get(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-    );
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final restaurantData = jsonDecode(response.body);
+      debugPrint('🔍 [SearchRestaurantDataService] Status code: ${response.statusCode}');
+      debugPrint('📦 [SearchRestaurantDataService] Body: ${response.body}');
 
-      final email = await UserTokenSaving.getUserEmail();
-      if (email != null) {
-        await UserTokenSaving.saveRestaurantDataForUser(email, restaurantData);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        debugPrint('✅ Restaurante encontrado: $data');
+        return data;
+      } else if (response.statusCode == 404) {
+        debugPrint('⚠️ Nenhum restaurante encontrado para este admin.');
+        return null;
+      } else {
+        debugPrint(
+            '❌ Erro ao buscar restaurante (status ${response.statusCode}): ${response.body}');
+        return null;
       }
-
-      return restaurantData;
-    } else if (response.statusCode == 404) {
+    } catch (e) {
+      debugPrint('💥 Erro ao buscar restaurante: $e');
       return null;
-    } else {
-      throw Exception("Erro ${response.statusCode}: ${response.body}");
     }
   }
 }
