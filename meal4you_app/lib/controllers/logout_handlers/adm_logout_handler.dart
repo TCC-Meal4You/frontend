@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:meal4you_app/providers/restaurant_provider.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_global_logout_service.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_logout_service.dart';
 import 'package:provider/provider.dart';
