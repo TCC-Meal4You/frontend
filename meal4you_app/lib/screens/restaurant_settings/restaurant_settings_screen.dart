@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:meal4you_app/providers/restaurant_provider.dart';
 import 'package:meal4you_app/screens/food_types_selector/food_types_selector_screen.dart';
+import 'package:meal4you_app/services/restaurant_delete/restaurant_delete_service.dart';
 import 'package:meal4you_app/services/update_restaurant/update_restaurant_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:provider/provider.dart';
@@ -190,7 +191,14 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                       ElevatedButton.icon(
                         onPressed: _updateBasicInfo,
                         icon: const Icon(Icons.save, color: Colors.white),
-                        label: const Text("Salvar Alterações"),
+                        label: const Text(
+                          "Salvar Alterações",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(
                             255,
@@ -198,7 +206,10 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                             230,
                             135,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
                         ),
                       ),
                     ],
@@ -230,7 +241,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         children: [
                           const Expanded(
                             child: Text(
-                              "Visibilidade no App\nSeu restaurante está ativo e visível para clientes",
+                              "Visibilidade no App\nSeu restaurante está ativo e visível para clientes.",
                               style: TextStyle(fontSize: 13),
                             ),
                           ),
@@ -297,10 +308,146 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                             230,
                             135,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
                         ),
-                        child: const Text("Alterar Tipos de Comida"),
+                        child: const Text(
+                          "Alterar Tipos de Comida",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Deletar meu Restaurante",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "Ao deletar seu restaurante, perderá todos os dados e informações relacionadas ao mesmo. Pense bem, pois não há como reverter essa decisão.",
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+  onPressed: () async {
+    final provider = Provider.of<RestaurantProvider>(
+      context,
+      listen: false,
+    );
+
+    final TextEditingController confirmationController =
+        TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmação"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Digite o nome do restaurante para confirmar a exclusão:",
+            ),
+            const SizedBox(height: 8),
+            TextField(controller: confirmationController),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text(
+              "Deletar",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      try {
+        await RestaurantDeleteService.deleteRestaurant(
+          restaurantId: provider.id ?? 0,
+          nomeConfirmacao: confirmationController.text.trim(),
+        );
+
+        await UserTokenSaving.clearRestaurantDataForCurrentUser();
+        await UserTokenSaving.clearRestaurantId();
+
+        provider.resetRestaurant();
+
+        nameController.clear();
+        descriptionController.clear();
+        locationController.clear();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Restaurante deletado com sucesso!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/createAdmRestaurant',
+          (route) => false,
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erro ao deletar: $e"),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.red,
+    padding: const EdgeInsets.symmetric(
+      vertical: 12,
+      horizontal: 16,
+    ),
+  ),
+  child: const Text(
+    "Deletar",
+    style: TextStyle(
+      color: Colors.white,
+      fontSize: 15,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
                     ],
                   ),
                 ),
