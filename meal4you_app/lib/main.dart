@@ -17,7 +17,7 @@ import 'package:meal4you_app/screens/profile_choice/profile_choice_screen.dart';
 import 'package:meal4you_app/screens/register/adm_register_screen.dart';
 import 'package:meal4you_app/screens/register/client_register_screen.dart';
 import 'package:meal4you_app/screens/restrictions_choice/restrictions_choice_screen.dart';
-import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:meal4you_app/providers/restaurant_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
