@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
-import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:meal4you_app/providers/restaurant_provider.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/register_restaurant/register_restaurant_service.dart';
 import 'package:provider/provider.dart';
@@ -65,6 +65,25 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
         _foodTypes[food] = true;
       }
     }
+  }
+
+  void resetForm() {
+    final restaurantProvider = Provider.of<RestaurantProvider>(
+      context,
+      listen: false,
+    );
+    restaurantProvider.resetRestaurant();
+
+    nameController.clear();
+    descriptionController.clear();
+    locationController.clear();
+    _isActive = false;
+
+    for (var key in _foodTypes.keys) {
+      _foodTypes[key] = false;
+    }
+
+    setState(() {});
   }
 
   @override
@@ -419,22 +438,41 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                           }
 
                           try {
-                            await RegisterRestaurantService.registerRestaurant(
-                              name: nameController.text,
-                              description: descriptionController.text,
-                              location: locationController.text,
-                              isActive: _isActive,
-                              foodTypes: selected,
-                              token: token,
-                            );
+                            final restaurantData =
+                                await RegisterRestaurantService.registerRestaurant(
+                                  name: nameController.text,
+                                  description: descriptionController.text,
+                                  location: locationController.text,
+                                  isActive: _isActive,
+                                  foodTypes: selected,
+                                  token: token,
+                                );
+
+                            final newRestaurantId =
+                                restaurantData['idRestaurante'] ??
+                                restaurantData['id'];
 
                             restaurantProvider.updateRestaurant(
-                              id: restaurantProvider.id ?? 0,
+                              id: newRestaurantId,
                               name: nameController.text,
                               description: descriptionController.text,
                               location: locationController.text,
                               isActive: _isActive,
                               foodTypes: selected,
+                            );
+
+                            await UserTokenSaving.saveRestaurantId(
+                              newRestaurantId,
+                            );
+                            await UserTokenSaving.saveRestaurantDataForCurrentUser(
+                              {
+                                'idRestaurante': newRestaurantId,
+                                'nome': nameController.text,
+                                'descricao': descriptionController.text,
+                                'localizacao': locationController.text,
+                                'ativo': _isActive,
+                                'tipoComida': selected,
+                              },
                             );
 
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -454,6 +492,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             );
                           }
                         },
+
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           backgroundColor: const Color.fromARGB(
