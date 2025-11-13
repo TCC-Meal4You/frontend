@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/search_restaurant_data/search_restaurant_data_service.dart';
-import 'package:meal4you_app/provider/restaurant_provider.dart';
+import 'package:meal4you_app/providers/restaurant_provider.dart';
 import 'package:provider/provider.dart';
 
 class GoogleRegisterAndLoginService {
