@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 class SearchRestaurantDataService {
   static const String baseUrl =
-      "https://backend-production-7a83.up.railway.app/restaurantes";
+      "https://backend-production-9aaf.up.railway.app/restaurantes";
 
   static Future<Map<String, dynamic>?> searchMyRestaurant(String token) async {
     final url = Uri.parse("$baseUrl/meu-restaurante");
