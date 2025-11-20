@@ -36,7 +36,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
         id: restaurantData['id'] ?? 0,
         name: restaurantData['nome'] ?? '',
         description: restaurantData['descricao'] ?? '',
-        location: restaurantData['localizacao'] ?? '',
         isActive: restaurantData['ativo'] ?? false,
         foodTypes: (restaurantData['tipoComida'] != null)
             ? restaurantData['tipoComida']
