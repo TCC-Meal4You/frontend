@@ -34,7 +34,6 @@ if (id == null || id == 0) {
         body: jsonEncode({
           'nome': provider.name,
           'descricao': provider.description,
-          'localizacao': provider.location,
           'ativo': provider.isActive,
           'tipoComida': provider.foodTypes.join(', '),
         }),
