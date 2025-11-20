@@ -17,7 +17,6 @@ class CreateAdmRestaurantScreen extends StatefulWidget {
 class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
   late TextEditingController nameController;
   late TextEditingController descriptionController;
-  late TextEditingController locationController;
 
   bool _isActive = false;
 
@@ -55,9 +54,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
     descriptionController = TextEditingController(
       text: restaurantProvider.description,
     );
-    locationController = TextEditingController(
-      text: restaurantProvider.location,
-    );
     _isActive = restaurantProvider.isActive;
 
     for (var food in restaurantProvider.foodTypes) {
@@ -76,7 +72,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
 
     nameController.clear();
     descriptionController.clear();
-    locationController.clear();
     _isActive = false;
 
     for (var key in _foodTypes.keys) {
@@ -257,28 +252,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    const Text(
-                      "Localização *",
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 4),
-                    TextField(
-                      controller: locationController,
-                      onChanged: (value) =>
-                          restaurantProvider.updateLocation(value),
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: "Informe o local do seu restaurante...",
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
                     SwitchListTile(
                       title: const Text(
                         "Ativar visibilidade: seu restaurante ficará visível para todos os clientes.\nVocê pode alterar isso depois.",
@@ -442,7 +415,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 await RegisterRestaurantService.registerRestaurant(
                                   name: nameController.text,
                                   description: descriptionController.text,
-                                  location: locationController.text,
                                   isActive: _isActive,
                                   foodTypes: selected,
                                   token: token,
@@ -456,7 +428,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               id: newRestaurantId,
                               name: nameController.text,
                               description: descriptionController.text,
-                              location: locationController.text,
                               isActive: _isActive,
                               foodTypes: selected,
                             );
@@ -469,7 +440,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 'idRestaurante': newRestaurantId,
                                 'nome': nameController.text,
                                 'descricao': descriptionController.text,
-                                'localizacao': locationController.text,
                                 'ativo': _isActive,
                                 'tipoComida': selected,
                               },
