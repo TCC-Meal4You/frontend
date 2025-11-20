@@ -87,7 +87,6 @@ class GoogleRegisterAndLoginService {
               id: id,
               name: restaurantData['nome'] ?? '',
               description: restaurantData['descricao'] ?? '',
-              location: restaurantData['localizacao'] ?? '',
               isActive: restaurantData['ativo'] ?? false,
               foodTypes: (restaurantData['tipoComida'] != null)
                   ? restaurantData['tipoComida']
