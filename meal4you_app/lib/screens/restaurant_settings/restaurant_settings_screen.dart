@@ -41,7 +41,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         id: id,
         name: restaurantData['nome'] ?? '',
         description: restaurantData['descricao'] ?? '',
-        location: restaurantData['localizacao'] ?? '',
         isActive: restaurantData['ativo'] ?? false,
         foodTypes: restaurantData['tipoComida'] != null
             ? (restaurantData['tipoComida'] is List
@@ -56,7 +55,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
 
       nameController.text = provider.name;
       descriptionController.text = provider.description;
-      locationController.text = provider.location;
     } else {
       print(
         "⚠️ [SettingsScreen] Nenhum dado de restaurante encontrado no storage.",
@@ -177,15 +175,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                           border: OutlineInputBorder(),
                         ),
                         maxLines: 3,
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: locationController,
-                        onChanged: (value) => provider.updateLocation(value),
-                        decoration: const InputDecoration(
-                          labelText: "Localização *",
-                          border: OutlineInputBorder(),
-                        ),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
