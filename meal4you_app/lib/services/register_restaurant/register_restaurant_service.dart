@@ -8,7 +8,6 @@ class RegisterRestaurantService {
   static Future<Map<String, dynamic>> registerRestaurant({
     required String name,
     required String description,
-    required String location,
     required bool isActive,
     required List<String> foodTypes,
     required String token,
@@ -22,7 +21,6 @@ class RegisterRestaurantService {
       body: jsonEncode({
         "nome": name,
         "descricao": description,
-        "localizacao": location,
         "ativo": isActive,
         "tipoComida": foodTypes.join(", "),
       }),
