@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meal4you_app/providers/restaurant_provider.dart';
+import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/screens/food_types_selector/food_types_selector_screen.dart';
 import 'package:meal4you_app/services/restaurant_delete/restaurant_delete_service.dart';
 import 'package:meal4you_app/services/update_restaurant/update_restaurant_service.dart';
