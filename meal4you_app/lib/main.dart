@@ -5,7 +5,7 @@ import 'package:meal4you_app/screens/ratings_and_comments/ratings_and_comments_s
 import 'package:meal4you_app/screens/restaurant_settings/restaurant_settings_screen.dart';
 import 'package:meal4you_app/screens/send_password_code/send_password_code_screen.dart';
 import 'package:meal4you_app/screens/verify_email/verify_code_screen.dart';
-import 'package:meal4you_app/services/password_reset_flow/password_reset_flow_service.dart';
+import 'package:meal4you_app/providers/password_reset/password_reset_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:meal4you_app/screens/adm_menu/adm_menu.dart';
 import 'package:meal4you_app/screens/create_adm_restaurant/create_adm_restaurant_screen.dart';
@@ -19,7 +19,7 @@ import 'package:meal4you_app/screens/profile_choice/profile_choice_screen.dart';
 import 'package:meal4you_app/screens/register/adm_register_screen.dart';
 import 'package:meal4you_app/screens/register/client_register_screen.dart';
 import 'package:meal4you_app/screens/restrictions_choice/restrictions_choice_screen.dart';
-import 'package:meal4you_app/providers/restaurant_provider.dart';
+import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -40,7 +40,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => RestaurantProvider()),
-        ChangeNotifierProvider(create: (_) => PasswordResetFlowService()),
+        ChangeNotifierProvider(create: (_) => PasswordResetProvider()),
       ],
       child: const Meal4You(),
     ),
