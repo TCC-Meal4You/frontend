@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/textfield/login_controllers.dart';
 import 'package:meal4you_app/services/login/client_login_service.dart';
+import 'package:meal4you_app/widgets/redirect_text/forgot_password.dart';
 import 'package:meal4you_app/widgets/textfield/custom_text_field.dart';
 import 'package:meal4you_app/widgets/forms_icons/client_login_forms_icon.dart';
 import 'package:meal4you_app/widgets/or_divider/or_divider.dart';
@@ -174,8 +175,8 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                           const RegisterRedirectText(
                             registerUserType: RegisterUserType.client,
                           ),
-
                           const SizedBox(height: 10),
+                          ForgotPasswordRedirectText(isAdm: false),
                         ],
                       ),
                     ),

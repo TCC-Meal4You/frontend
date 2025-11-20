@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/textfield/login_controllers.dart';
 import 'package:meal4you_app/services/login/adm_login_service.dart';
 import 'package:meal4you_app/widgets/forms_icons/adm_login_forms_icon.dart';
+import 'package:meal4you_app/widgets/redirect_text/forgot_password.dart';
 import 'package:meal4you_app/widgets/textfield/custom_text_field.dart';
 import 'package:meal4you_app/widgets/or_divider/or_divider.dart';
 import 'package:meal4you_app/widgets/redirect_text/register_redirect_text.dart';
@@ -23,9 +24,9 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
     final senha = LoginControllers.senhaController.text.trim();
 
     if (email.isEmpty || senha.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Preencha email e senha")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Preencha email e senha")));
       return;
     }
 
@@ -37,9 +38,9 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
       LoginControllers.emailController.clear();
       LoginControllers.senhaController.clear();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erro ao logar: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro ao logar: $e")));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -166,8 +167,8 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
                           const RegisterRedirectText(
                             registerUserType: RegisterUserType.adm,
                           ),
-
                           const SizedBox(height: 10),
+                          ForgotPasswordRedirectText(isAdm: true),
                         ],
                       ),
                     ),
