@@ -20,7 +20,7 @@ class ClientRegisterScreen extends StatefulWidget {
 class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
   bool _isLoading = false;
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
-    baseUrl: 'https://backend-production-7a83.up.railway.app',
+    baseUrl: 'https://backend-production-9aaf.up.railway.app',
   );
 
   Future<void> _sendCode() async {
