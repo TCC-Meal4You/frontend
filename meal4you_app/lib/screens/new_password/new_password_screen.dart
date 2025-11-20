@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/screens/confirm_password_code/confirm_password_code_screen.dart';
-import 'package:meal4you_app/services/password_reset_flow/password_reset_flow_service.dart';
+import 'package:meal4you_app/providers/password_reset/password_reset_provider.dart';
 import 'package:provider/provider.dart';
 
 class NewPasswordScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final flow = Provider.of<PasswordResetFlowService>(context);
+    final flow = Provider.of<PasswordResetProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Nova Senha")),
