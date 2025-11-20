@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/screens/confirm_password_code/confirm_password_code_screen.dart';
+import 'package:meal4you_app/screens/new_password/new_password_screen.dart';
 import 'package:meal4you_app/screens/ratings_and_comments/ratings_and_comments_screen.dart';
 import 'package:meal4you_app/screens/restaurant_settings/restaurant_settings_screen.dart';
+import 'package:meal4you_app/screens/send_password_code/send_password_code_screen.dart';
 import 'package:meal4you_app/screens/verify_email/verify_code_screen.dart';
+import 'package:meal4you_app/services/password_reset_flow/password_reset_flow_service.dart';
 import 'package:provider/provider.dart';
 import 'package:meal4you_app/screens/adm_menu/adm_menu.dart';
-import 'package:meal4you_app/screens/change_data/change_adm_data_screen.dart';
-import 'package:meal4you_app/screens/change_data/change_client_data_screen.dart';
 import 'package:meal4you_app/screens/create_adm_restaurant/create_adm_restaurant_screen.dart';
 import 'package:meal4you_app/screens/home/adm_restaurant_home_screen.dart';
 import 'package:meal4you_app/screens/home/client_home_screen.dart';
@@ -36,7 +38,10 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => RestaurantProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => RestaurantProvider()),
+        ChangeNotifierProvider(create: (_) => PasswordResetFlowService()),
+      ],
       child: const Meal4You(),
     ),
   );
@@ -50,17 +55,9 @@ class Meal4You extends StatelessWidget {
     return MaterialApp(
       title: 'Meal4You',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/admRegister',
+      initialRoute: '/clientLogin',
       onGenerateRoute: (settings) {
         switch (settings.name) {
-          case '/changeAdmData':
-            return MaterialPageRoute(
-              builder: (_) => const ChangeAdmDataScreen(),
-            );
-          case '/changeClientData':
-            return MaterialPageRoute(
-              builder: (_) => const ChangeClientDataScreen(),
-            );
           case '/admLogin':
             return MaterialPageRoute(builder: (_) => const AdmLoginScreen());
           case '/clientLogin':
@@ -107,6 +104,22 @@ class Meal4You extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => const RatingsAndCommentsScreen(),
             );
+          case '/sendPasswordCode':
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (_) => SendPasswordCodeScreen(isAdm: args['isAdm']),
+            );
+            case '/newPassword':
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (_) => NewPasswordScreen(isAdm: args['isAdm'],),
+            );
+             case '/confirmPasswordCode':
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (_) => ConfirmPasswordCodeScreen(isAdm: args['isAdm'],),
+            );
+
           default:
             return MaterialPageRoute(
               builder: (_) => const Scaffold(
