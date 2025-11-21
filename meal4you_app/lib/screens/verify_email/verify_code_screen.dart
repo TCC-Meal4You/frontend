@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:meal4you_app/services/email_verification/verify_email_service.dart';
 import 'package:meal4you_app/services/login/adm_login_service.dart';
 import 'package:meal4you_app/services/login/client_login_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:meal4you_app/utils/formatter/paste_code_formatter.dart';
 
 class VerifyCodeScreen extends StatefulWidget {
   const VerifyCodeScreen({super.key});
@@ -31,83 +33,102 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
   @override
   void dispose() {
     _codeController.dispose();
-    for (var controller in _digitControllers) {
-      controller.dispose();
+    for (var c in _digitControllers) {
+      c.dispose();
     }
-    for (var node in _focusNodes) {
-      node.dispose();
+    for (var n in _focusNodes) {
+      n.dispose();
     }
     super.dispose();
   }
 
+  void _handlePastedCode(String fullCode) {
+    for (int i = 0; i < 6; i++) {
+      _digitControllers[i].text = fullCode[i];
+    }
+
+    _codeController.text = fullCode;
+
+    FocusScope.of(context).unfocus();
+
+    setState(() => _isButtonEnabled = true);
+  }
+
   void _onDigitChanged(int index, String value) {
-    if (value.isNotEmpty && index < 5) _focusNodes[index + 1].requestFocus();
-    if (value.isEmpty && index > 0) _focusNodes[index - 1].requestFocus();
+    if (value.length > 1) return;
+
+    if (value.isNotEmpty && index < 5) {
+      _focusNodes[index + 1].requestFocus();
+    } else if (value.isEmpty && index > 0) {
+      _focusNodes[index - 1].requestFocus();
+    }
 
     _codeController.text = _digitControllers.map((e) => e.text).join();
+
     setState(() {
       _isButtonEnabled = _codeController.text.length == 6;
     });
   }
 
   Future<void> _confirmCode() async {
-  setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('register_email')!;
-    final nome = prefs.getString('register_nome')!;
-    final senha = prefs.getString('register_senha')!;
-    final isAdmin = prefs.getBool('register_isAdmin')!;
-    final codigo = _codeController.text.trim();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final email = prefs.getString('register_email')!;
+      final nome = prefs.getString('register_nome')!;
+      final senha = prefs.getString('register_senha')!;
+      final isAdmin = prefs.getBool('register_isAdmin')!;
+      final codigo = _codeController.text.trim();
 
-    await _verifyEmailService.confirmCode(
-      email: email,
-      nome: nome,
-      senha: senha,
-      codigo: codigo,
-      isAdmin: isAdmin,
-    );
-
-    Map<String, dynamic> loginResponse;
-
-    if (isAdmin) {
-      loginResponse = await AdmLoginService.loginAdm(
+      await _verifyEmailService.confirmCode(
         email: email,
+        nome: nome,
         senha: senha,
+        codigo: codigo,
+        isAdmin: isAdmin,
       );
-    } else {
-      loginResponse = await ClientLoginService.loginClient(
-        email: email,
-        senha: senha,
+
+      Map<String, dynamic> loginResponse;
+
+      if (isAdmin) {
+        loginResponse = await AdmLoginService.loginAdm(
+          email: email,
+          senha: senha,
+        );
+      } else {
+        loginResponse = await ClientLoginService.loginClient(
+          email: email,
+          senha: senha,
+        );
+      }
+
+      final token = loginResponse['token'] ?? loginResponse['accessToken'];
+      if (token != null) {
+        await UserTokenSaving.saveToken(token);
+        await UserTokenSaving.saveUserData(loginResponse);
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cadastro realizado com sucesso!')),
       );
+
+      Navigator.pushReplacementNamed(
+        context,
+        isAdmin ? '/createAdmRestaurant' : '/restrictionsChoice',
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-
-   final token = loginResponse['token'] ?? loginResponse['accessToken'];
-if (token != null) {
-  await UserTokenSaving.saveToken(token);
-  await UserTokenSaving.saveUserData(loginResponse);
-}
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cadastro realizado com sucesso!')),
-    );
-
-    Navigator.pushReplacementNamed(
-      context,
-      isAdmin ? '/createAdmRestaurant' : '/restrictionsChoice',
-    );
-  } catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Erro: $e')),
-    );
-  } finally {
-    if (mounted) setState(() => _isLoading = false);
   }
-}
-
 
   Future<void> _resendCode() async {
     setState(() => _isResendLoading = true);
@@ -123,14 +144,16 @@ if (token != null) {
       );
 
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Código reenviado com sucesso!')),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Código inválido ou expirado. Detalhes: $e')),
-      );
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao reenviar: $e')));
     } finally {
       if (mounted) setState(() => _isResendLoading = false);
     }
@@ -187,17 +210,26 @@ if (token != null) {
                     child: TextField(
                       controller: _digitControllers[index],
                       focusNode: _focusNodes[index],
-                      onChanged: (value) => _onDigitChanged(index, value),
+
+                      onChanged: (v) => _onDigitChanged(index, v),
+
+                      inputFormatters: [
+                        PasteCodeFormatter(onCodeComplete: _handlePastedCode),
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       maxLength: 1,
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
+                        height: 1.1,
                       ),
                       decoration: InputDecoration(
                         counterText: "",
+                        contentPadding: const EdgeInsets.symmetric(vertical: 6),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: Colors.grey),
@@ -214,6 +246,7 @@ if (token != null) {
                   );
                 }),
               ),
+
               const SizedBox(height: 40),
 
               SizedBox(
@@ -250,6 +283,7 @@ if (token != null) {
                         ),
                 ),
               ),
+
               const SizedBox(height: 20),
 
               SizedBox(
@@ -257,13 +291,12 @@ if (token != null) {
                 child: ElevatedButton(
                   onPressed: !_isResendLoading ? _resendCode : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 15, 230, 135),
+                    backgroundColor: const Color.fromARGB(255, 15, 230, 135),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    elevation: 2,
                   ),
                   child: _isResendLoading
                       ? const SizedBox(
