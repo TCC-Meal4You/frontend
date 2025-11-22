@@ -21,36 +21,90 @@ class _SendPasswordCodeScreenState extends State<SendPasswordCodeScreen> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text("Redefinir Senha")),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              const Text("Digite o e-mail para redefinir sua senha:"),
-              const SizedBox(height: 12),
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "E-mail"),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  flow.saveEmail(emailController.text.trim());
+        backgroundColor: Colors.white,
 
-                  bool ok = await flow.sendCode(widget.isAdm);
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
 
-                  if (ok) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => NewPasswordScreen(isAdm: widget.isAdm),
+              children: [
+                const Text(
+                  "Redefinição de Senha",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF7B3AED),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                const Text(
+                  "Digite o e-mail associado à sua conta. Enviaremos um código que servirá para confirmar a redefinição de sua senha.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+
+                const SizedBox(height: 32),
+
+                TextField(
+                  controller: emailController,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    labelText: "E-mail",
+                    labelStyle: const TextStyle(color: Colors.black54),
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      flow.saveEmail(emailController.text.trim());
+                      bool ok = await flow.sendCode(widget.isAdm);
+
+                      if (ok) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                NewPasswordScreen(isAdm: widget.isAdm),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7B3AED),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                  }
-                },
-                child: const Text("Enviar código"),
-              ),
-            ],
+                      elevation: 2,
+                    ),
+                    child: const Text(
+                      "Enviar código",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
