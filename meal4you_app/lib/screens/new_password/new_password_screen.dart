@@ -15,6 +15,8 @@ class NewPasswordScreen extends StatefulWidget {
 class _NewPasswordScreenState extends State<NewPasswordScreen> {
   final TextEditingController passwordController = TextEditingController();
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     final flow = Provider.of<PasswordResetProvider>(context);
@@ -43,7 +45,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                 const SizedBox(height: 10),
 
                 const Text(
-                  "Sua nova senha deve ser forte e segura.",
+                  "Insira sua nova Senha. Após isso, você será levado para a tela onde poderá inserir o código que lhe foi enviado.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, color: Colors.black87),
                 ),
@@ -71,17 +73,55 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      flow.saveNewPassword(passwordController.text.trim());
+                    onPressed: isLoading
+                        ? null
+                        : () async {
+                            final password = passwordController.text.trim();
+                            if (password.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "A senha não pode estar vazia.",
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              return;
+                            }
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ConfirmPasswordCodeScreen(isAdm: widget.isAdm),
-                        ),
-                      );
-                    },
+                            if (password.length < 6) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "A senha deve ter pelo menos 6 caracteres.",
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              return;
+                            }
+
+                            setState(() => isLoading = true);
+
+                            await Future.delayed(
+                              const Duration(milliseconds: 500),
+                            );
+
+                            flow.saveNewPassword(password);
+
+                            setState(() => isLoading = false);
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ConfirmPasswordCodeScreen(
+                                  isAdm: widget.isAdm,
+                                ),
+                              ),
+                            );
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7B3AED),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -89,14 +129,23 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      "Continuar",
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            "Continuar",
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ],
