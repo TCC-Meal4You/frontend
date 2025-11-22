@@ -146,7 +146,10 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Código reenviado com sucesso!')),
+        const SnackBar(
+          content: Text('Código reenviado com sucesso!'),
+          backgroundColor: Color.fromARGB(255, 157, 0, 255),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
