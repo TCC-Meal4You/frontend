@@ -9,7 +9,13 @@ class ResetPasswordService {
       "$baseUrl/${isAdm ? "admins" : "usuarios"}/redefinir-senha/solicitar?email=$email",
     );
 
-    final response = await http.post(url);
+    final response = await http.post(
+      url,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+    );
 
     return response.statusCode == 200;
   }
