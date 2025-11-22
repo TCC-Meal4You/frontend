@@ -99,7 +99,7 @@ class _SendPasswordCodeScreenState extends State<SendPasswordCodeScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text("Código enviado com sucesso!"),
-                                  backgroundColor: Colors.green,
+                                  backgroundColor: Color.fromARGB(255, 157, 0, 255),
                                   duration: Duration(seconds: 2),
                                 ),
                               );
