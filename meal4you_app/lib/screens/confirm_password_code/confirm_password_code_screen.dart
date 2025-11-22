@@ -14,6 +14,7 @@ class ConfirmPasswordCodeScreen extends StatefulWidget {
 
 class _ConfirmPasswordCodeScreenState extends State<ConfirmPasswordCodeScreen> {
   final TextEditingController codeController = TextEditingController();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +39,11 @@ class _ConfirmPasswordCodeScreenState extends State<ConfirmPasswordCodeScreen> {
                       color: Color(0xFF7B3AED),
                     ),
                   ),
+
                   const SizedBox(height: 10),
 
                   const Text(
-                    "Digite o código enviado ao seu e-mail.",
+                    "Digite o código enviado ao seu e-mail para concluir a redefinição de senha.",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16, color: Colors.black87),
                   ),
@@ -67,19 +69,60 @@ class _ConfirmPasswordCodeScreenState extends State<ConfirmPasswordCodeScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () async {
-                        bool ok = await flow.confirmResetCode(
-                          codeController.text.trim(),
-                          widget.isAdm,
-                        );
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              String code = codeController.text.trim();
+                              if (code.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "O código não pode estar vazio.",
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
 
-                        if (ok) {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            widget.isAdm ? "/admLogin" : "/clientLogin",
-                          );
-                        }
-                      },
+                              setState(() => isLoading = true);
+
+                              bool ok = await flow.confirmResetCode(
+                                code,
+                                widget.isAdm,
+                              );
+
+                              setState(() => isLoading = false);
+
+                              if (ok) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Senha alterada com sucesso!",
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+
+                                await Future.delayed(
+                                  const Duration(milliseconds: 400),
+                                );
+
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  widget.isAdm ? "/admLogin" : "/clientLogin",
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Código inválido. Tente novamente ou solicite um novo código.",
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: const Color(0xFF7B3AED),
@@ -87,14 +130,23 @@ class _ConfirmPasswordCodeScreenState extends State<ConfirmPasswordCodeScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        "Confirmar",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              "Confirmar",
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
 
@@ -104,6 +156,13 @@ class _ConfirmPasswordCodeScreenState extends State<ConfirmPasswordCodeScreen> {
                     child: TextButton(
                       onPressed: () {
                         flow.sendCode(widget.isAdm);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Código reenviado para o e-mail."),
+                            backgroundColor: Color(0xFF7B3AED),
+                          ),
+                        );
                       },
                       child: const Text(
                         "Reenviar código",
