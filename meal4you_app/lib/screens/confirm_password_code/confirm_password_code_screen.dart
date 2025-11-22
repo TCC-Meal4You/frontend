@@ -100,7 +100,7 @@ class _ConfirmPasswordCodeScreenState extends State<ConfirmPasswordCodeScreen> {
                                     content: Text(
                                       "Senha alterada com sucesso!",
                                     ),
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: Color.fromARGB(255, 157, 0, 255),
                                   ),
                                 );
 
