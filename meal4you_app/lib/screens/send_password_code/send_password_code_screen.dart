@@ -14,6 +14,7 @@ class SendPasswordCodeScreen extends StatefulWidget {
 
 class _SendPasswordCodeScreenState extends State<SendPasswordCodeScreen> {
   final TextEditingController emailController = TextEditingController();
+  bool isLoading = false; // 🔥 controle de loading
 
   @override
   Widget build(BuildContext context) {
@@ -71,20 +72,57 @@ class _SendPasswordCodeScreenState extends State<SendPasswordCodeScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      flow.saveEmail(emailController.text.trim());
-                      bool ok = await flow.sendCode(widget.isAdm);
+                    onPressed: isLoading
+                        ? null
+                        : () async {
+                            String email = emailController.text.trim();
 
-                      if (ok) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                NewPasswordScreen(isAdm: widget.isAdm),
-                          ),
-                        );
-                      }
-                    },
+                            if (email.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Digite um e-mail válido."),
+                                  backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              return;
+                            }
+
+                            setState(() => isLoading = true);
+
+                            flow.saveEmail(email);
+                            bool ok = await flow.sendCode(widget.isAdm);
+
+                            setState(() => isLoading = false);
+
+                            if (ok) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Código enviado com sucesso!"),
+                                  backgroundColor: Colors.green,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      NewPasswordScreen(isAdm: widget.isAdm),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Este e-mail não está registrado.",
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7B3AED),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -93,14 +131,23 @@ class _SendPasswordCodeScreenState extends State<SendPasswordCodeScreen> {
                       ),
                       elevation: 2,
                     ),
-                    child: const Text(
-                      "Enviar código",
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            "Enviar código",
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ],
