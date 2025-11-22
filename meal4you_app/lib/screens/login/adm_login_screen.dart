@@ -24,9 +24,12 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
     final senha = LoginControllers.senhaController.text.trim();
 
     if (email.isEmpty || senha.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Preencha email e senha")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Preencha email e senha"),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -34,6 +37,13 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
 
     try {
       await AdmLoginService.handleLogin(context, email, senha);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Login realizado: $email"),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
 
       LoginControllers.emailController.clear();
       LoginControllers.senhaController.clear();

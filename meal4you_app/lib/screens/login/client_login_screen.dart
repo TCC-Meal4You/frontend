@@ -41,6 +41,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Login realizado: ${response['email'] ?? email}"),
+          backgroundColor: Color.fromARGB(255, 157, 0, 255),
         ),
       );
 
