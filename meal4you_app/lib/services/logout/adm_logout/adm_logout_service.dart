@@ -12,28 +12,19 @@ class AdmLogoutService {
 
   Future<void> logout() async {
     final header = await UserTokenSaving.getAuthorizationHeader();
-    final uri = Uri.parse('$_baseUrl/logout');
 
-    try {
-      final response = await adm.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          if (header != null) 'Authorization': header,
-        },
-      );
+    final response = await adm.post(
+      Uri.parse('$_baseUrl/logout'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (header != null) 'Authorization': header,
+      },
+    );
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        await UserTokenSaving.clearAll();
-      } else {
-        throw HttpException(
-          'Falha ao tentar sair: ${response.statusCode} ${response.reasonPhrase}',
-        );
-      }
-    } on SocketException {
-      throw const SocketException('Sem conexão com a internet');
-    } catch (e) {
-      rethrow;
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      await UserTokenSaving.clearAll();
+    } else {
+      throw HttpException("Erro logout ADM: ${response.statusCode}");
     }
   }
 }

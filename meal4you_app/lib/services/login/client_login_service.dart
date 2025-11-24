@@ -6,26 +6,19 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 class ClientLoginService {
   static const String baseUrl =
       "https://backend-production-9aaf.up.railway.app/usuarios/login";
-
   static Future<Map<String, dynamic>> loginClient({
     required String email,
     required String senha,
   }) async {
-    final url = Uri.parse(baseUrl);
-
     final response = await http.post(
-      url,
+      Uri.parse(baseUrl),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "email": email,
-        "senha": senha,
-      }),
+      body: jsonEncode({"email": email, "senha": senha}),
     );
-
     if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
+      return jsonDecode(response.body);
     } else {
-      throw Exception("Erro ao fazer login: ${response.body}");
+      throw Exception("Erro ao logar: ${response.body}");
     }
   }
 
@@ -35,42 +28,32 @@ class ClientLoginService {
     String senha,
   ) async {
     try {
-      await UserTokenSaving.clearAll();
-
       final response = await loginClient(email: email, senha: senha);
-
       final token = response["token"] ?? response["accessToken"];
-      if (token == null) {
-        throw Exception("Token não retornado pelo servidor.");
-      }
-
+      if (token == null) throw Exception("Token não retornado.");
+      await UserTokenSaving.clearAll();
+      response['userType'] = 'client';
       await UserTokenSaving.saveToken(token);
       await UserTokenSaving.saveUserData(response);
-
       final savedEmail = await UserTokenSaving.getUserEmail();
-      if (savedEmail == null) {
-        throw Exception("Email não encontrado após o login.");
-      }
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Login realizado: $savedEmail"),
-            backgroundColor: const Color.fromARGB(255, 157, 0, 255),
-          ),
-        );
-
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/clientProfile',
-          (_) => false,
-        );
-      }
+      if (savedEmail == null) throw Exception("Email não encontrado.");
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Login realizado: $savedEmail"),
+          backgroundColor: const Color.fromARGB(255, 157, 0, 255),
+        ),
+      );
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/clientProfile',
+        (_) => false,
+      );
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erro ao logar: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Erro ao logar: $e")));
       }
     }
   }

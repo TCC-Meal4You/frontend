@@ -14,10 +14,8 @@ class AdmLoginService {
     required String email,
     required String senha,
   }) async {
-    final url = Uri.parse(baseUrl);
-
     final response = await http.post(
-      url,
+      Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'senha': senha}),
     );
@@ -30,90 +28,89 @@ class AdmLoginService {
   }
 
   static Future<void> handleLogin(
-  BuildContext context,
-  String email,
-  String senha,
-) async {
-  try {
-    await UserTokenSaving.clearAll();
+    BuildContext context,
+    String email,
+    String senha,
+  ) async {
+    try {
+      await UserTokenSaving.clearAll();
 
-    final response = await loginAdm(email: email, senha: senha);
+      final response = await loginAdm(email: email, senha: senha);
 
-    final token = response['token'] ?? response['accessToken'];
-    if (token == null) throw Exception('Token não retornado pelo servidor.');
+      final token = response['token'] ?? response['accessToken'];
+      if (token == null) throw Exception('Token não retornado.');
 
-    await UserTokenSaving.saveToken(token);
-    await UserTokenSaving.saveUserData(response);
+      response['userType'] = 'adm';
 
-    final savedEmail = await UserTokenSaving.getUserEmail();
-    if (savedEmail == null) {
-      throw Exception('Email do usuário não encontrado.');
-    }
+      await UserTokenSaving.saveToken(token);
+      await UserTokenSaving.saveUserData(response);
 
-    final provider = Provider.of<RestaurantProvider>(context, listen: false);
-    provider.clearRestaurant();
+      await UserTokenSaving.saveCurrentUserEmail(email);
 
-    final restaurantData =
-        await SearchRestaurantDataService.searchMyRestaurant(token);
+      final savedEmail = await UserTokenSaving.getUserEmail();
+      if (savedEmail == null) throw Exception('Email não encontrado após salvar.');
 
-    if (restaurantData == null || restaurantData.isEmpty) {
-      debugPrint('⚠️ Nenhum restaurante encontrado. Indo para criar restaurante.');
+      final provider =
+          Provider.of<RestaurantProvider>(context, listen: false);
+
+      provider.clearRestaurant();
+
+      final restaurantData =
+          await SearchRestaurantDataService.searchMyRestaurant(token);
+
+      if (restaurantData == null || restaurantData.isEmpty) {
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/createAdmRestaurant',
+            (_) => false,
+          );
+        }
+        return;
+      }
+
+      final rawId = restaurantData['idRestaurante'] ??
+          restaurantData['id'] ??
+          restaurantData['id_restaurante'];
+
+      final id = rawId is int ? rawId : int.tryParse(rawId.toString()) ?? -1;
+
+      if (id <= 0) throw Exception('ID inválido.');
+
+      await UserTokenSaving.saveRestaurantId(id);
+      await UserTokenSaving.saveRestaurantDataForUser(
+        savedEmail,
+        restaurantData,
+      );
+
+      provider.updateRestaurant(
+        id: id,
+        name: restaurantData['nome'] ?? '',
+        description: restaurantData['descricao'] ?? '',
+        isActive: restaurantData['ativo'] ?? false,
+        foodTypes: (restaurantData['tipoComida'] is String)
+            ? restaurantData['tipoComida']
+                .split(',')
+                .map((e) => e.trim())
+                .toList()
+            : (restaurantData['tipoComida'] as List? ?? [])
+                .map((e) => e.toString())
+                .toList(),
+      );
 
       if (context.mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,
-          '/createAdmRestaurant',
+          '/admRestaurantHome',
           (_) => false,
         );
       }
-      return;
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao logar: $e')),
+        );
+      }
     }
-
-    dynamic rawId =
-        restaurantData['idRestaurante'] ??
-        restaurantData['id'] ??
-        restaurantData['id_restaurante'];
-
-    final int id = rawId is int
-        ? rawId
-        : int.tryParse(rawId?.toString() ?? '') ?? -1;
-
-    if (id <= 0) {
-      throw Exception('ID do restaurante inválido.');
-    }
-
-    await UserTokenSaving.saveRestaurantId(id);
-    await UserTokenSaving.saveRestaurantDataForUser(savedEmail, restaurantData);
-
-    provider.updateRestaurant(
-      id: id,
-      name: restaurantData['nome'] ?? '',
-      description: restaurantData['descricao'] ?? '',
-      isActive: restaurantData['ativo'] ?? false,
-      foodTypes: (restaurantData['tipoComida'] is String)
-          ? (restaurantData['tipoComida'] as String)
-              .split(',')
-              .map((e) => e.trim())
-              .toList()
-          : (restaurantData['tipoComida'] as List<dynamic>? ?? [])
-              .map((e) => e.toString())
-              .toList(),
-    );
-
-    debugPrint('✅ Restaurante encontrado. Indo para HOME ADM.');
-
-    if (context.mounted) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/admRestaurantHome',
-        (_) => false,
-      );
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Erro ao fazer login: $e')),
-    );
   }
-}
-
 }

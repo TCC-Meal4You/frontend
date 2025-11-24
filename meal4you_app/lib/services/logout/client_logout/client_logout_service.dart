@@ -12,30 +12,19 @@ class ClientLogoutService {
 
   Future<void> logout() async {
     final header = await UserTokenSaving.getAuthorizationHeader();
-    if (header == null) {
-      return;
-    }
+    if (header == null) return;
 
     final uri = Uri.parse('$_baseUrl/logout');
 
-    try {
-      final response = await client.post(
-        uri,
-        headers: {'Authorization': header, 'Content-Type': 'application/json'},
-      );
+    final response = await client.post(
+      uri,
+      headers: {'Authorization': header},
+    );
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        await UserTokenSaving.clearToken();
-        return;
-      } else {
-        throw HttpException(
-          'Falha ao tentar sair: ${response.statusCode} ${response.reasonPhrase}',
-        );
-      }
-    } on SocketException {
-      throw const SocketException('Sem conexão com a internet');
-    } catch (e) {
-      rethrow;
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      await UserTokenSaving.clearAll();
+    } else {
+      throw HttpException("Erro ao deslogar: ${response.statusCode}");
     }
   }
 }
