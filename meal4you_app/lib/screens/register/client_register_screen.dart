@@ -203,7 +203,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
 
                           const SizedBox(height: 15),
 
-                          const LoginRedirectText(userType: UserType.adm),
+                          const LoginRedirectText(userType: UserType.client),
 
                           const SizedBox(height: 20),
                         ],
