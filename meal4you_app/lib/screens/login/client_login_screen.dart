@@ -33,20 +33,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await ClientLoginService.loginClient(
-        email: email,
-        senha: senha,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Login realizado: ${response['email'] ?? email}"),
-          backgroundColor: Color.fromARGB(255, 157, 0, 255),
-        ),
-      );
-
-      if (!mounted) return;
-      Navigator.pushNamed(context, '/clientProfile');
+      await ClientLoginService.handleLogin(context, email, senha);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -169,6 +156,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                             isLoading: _isLoading,
                             onPressed: _loginClient,
                             buttonText: "Logar",
+
                           ),
 
                           const SizedBox(height: 20),
