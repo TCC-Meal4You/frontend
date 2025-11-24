@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class ClientLoginService {
-  static const String baseUrl = "https://backend-production-9aaf.up.railway.app/usuarios/login";
+  static const String baseUrl =
+      "https://backend-production-9aaf.up.railway.app/usuarios/login";
 
   static Future<Map<String, dynamic>> loginClient({
     required String email,
@@ -23,6 +26,52 @@ class ClientLoginService {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
       throw Exception("Erro ao fazer login: ${response.body}");
+    }
+  }
+
+  static Future<void> handleLogin(
+    BuildContext context,
+    String email,
+    String senha,
+  ) async {
+    try {
+      await UserTokenSaving.clearAll();
+
+      final response = await loginClient(email: email, senha: senha);
+
+      final token = response["token"] ?? response["accessToken"];
+      if (token == null) {
+        throw Exception("Token não retornado pelo servidor.");
+      }
+
+      await UserTokenSaving.saveToken(token);
+      await UserTokenSaving.saveUserData(response);
+
+      final savedEmail = await UserTokenSaving.getUserEmail();
+      if (savedEmail == null) {
+        throw Exception("Email não encontrado após o login.");
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Login realizado: $savedEmail"),
+            backgroundColor: const Color.fromARGB(255, 157, 0, 255),
+          ),
+        );
+
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/clientProfile',
+          (_) => false,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao logar: $e")),
+        );
+      }
     }
   }
 }
