@@ -23,45 +23,56 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
     baseUrl: 'https://backend-production-9aaf.up.railway.app',
   );
 
-  Future<void> _sendCode() async {
-    if (RegisterControllers.senhaController.text !=
-        RegisterControllers.confirmarSenhaController.text) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("As senhas não conferem!")));
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    final email = RegisterControllers.emailController.text.trim();
-    final nome = RegisterControllers.nomeController.text;
-    final senha = RegisterControllers.senhaController.text.trim();
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('register_email', email);
-      await prefs.setString('register_nome', nome);
-      await prefs.setString('register_senha', senha);
-      await prefs.setBool('register_isAdmin', false);
-
-      await _verifyEmailService.sendVerificationCode(
-        email: email,
-        isAdmin: false,
-      );
-
-      if (!mounted) return;
-      Navigator.pushNamed(context, '/verifyCode');
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao enviar código: $e')));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+ Future<void> _sendCode() async {
+  if (RegisterControllers.senhaController.text !=
+      RegisterControllers.confirmarSenhaController.text) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("As senhas não conferem!")),
+    );
+    return;
   }
+
+  if (RegisterControllers.senhaController.text.trim().length < 6) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("A senha deve ter no mínimo 6 caracteres."),
+      ),
+    );
+    return;
+  }
+
+  setState(() => _isLoading = true);
+
+  final email = RegisterControllers.emailController.text.trim();
+  final nome = RegisterControllers.nomeController.text;
+  final senha = RegisterControllers.senhaController.text.trim();
+
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('register_email', email);
+    await prefs.setString('register_nome', nome);
+    await prefs.setString('register_senha', senha);
+    await prefs.setBool('register_isAdmin', false);
+
+    await _verifyEmailService.sendVerificationCode(
+      email: email,
+      isAdmin: false,
+    );
+
+    if (!mounted) return;
+    Navigator.pushNamed(context, '/verifyCode');
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Erro ao enviar código: $e')),
+    );
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -34,6 +34,16 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
       return;
     }
 
+    if (RegisterControllers.senhaController.text.trim().length < 6) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("A senha deve ter no mínimo 6 caracteres."),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     final email = RegisterControllers.emailController.text.trim();
