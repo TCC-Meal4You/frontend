@@ -67,25 +67,39 @@ class _SplashScreenState extends State<SplashScreen>
   final token = await UserTokenSaving.getToken();
   final userData = await UserTokenSaving.getUserData();
 
+  
   if (token == null || userData == null) {
     _goTo('/profileChoice');
     return;
   }
 
-  final isAdm =
-      userData['tipo'] == 'adm' ||
-      userData['isAdm'] == true ||
-      userData['userType'] == 'adm';
+  final userType = userData['userType'];
+  final tipo = userData['tipo'];
+  final isAdmField = userData['isAdm'];
+  
+  final restaurantId = await UserTokenSaving.getRestaurantId();
+  
+  final restaurantData = await UserTokenSaving.getRestaurantDataForCurrentUser();
+
+  final isAdmByUserType = userType == 'adm';
+  final isAdmByTipo = tipo == 'adm';
+  final isAdmByField = isAdmField == true;
+  final hasRestaurantId = restaurantId != null && restaurantId > 0;
+  final hasRestaurantData = restaurantData != null && restaurantData.isNotEmpty;
+  
+  final isAdm = isAdmByUserType || isAdmByTipo || isAdmByField || hasRestaurantId || hasRestaurantData;
+
 
   if (isAdm) {
-    final restaurantData = await UserTokenSaving.getRestaurantDataForCurrentUser();
-
-    if (restaurantData != null) {
+    if (hasRestaurantData) {
+      print('➡️ Indo para admRestaurantHome');
       _goTo('/admRestaurantHome');
     } else {
+      print('➡️ Indo para createAdmRestaurant');
       _goTo('/createAdmRestaurant');
     }
   } else {
+    print('➡️ Indo para clientProfile');
     _goTo('/clientProfile');
   }
 }
