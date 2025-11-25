@@ -4,7 +4,17 @@ import 'package:meal4you_app/screens/food_types_selector/food_types_selector_scr
 import 'package:meal4you_app/services/restaurant_delete/restaurant_delete_service.dart';
 import 'package:meal4you_app/services/update_restaurant/update_restaurant_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/services/viacep/viacep_service.dart';
+import 'package:meal4you_app/utils/formatter/cep_input_formatter.dart';
 import 'package:provider/provider.dart';
+
+String formatCep(String cep) {
+  final cleaned = cep.replaceAll(RegExp(r'[^0-9]'), '');
+  if (cleaned.length == 8) {
+    return '${cleaned.substring(0, 5)}-${cleaned.substring(5)}';
+  }
+  return cleaned;
+}
 
 class RestaurantSettingsScreen extends StatefulWidget {
   const RestaurantSettingsScreen({super.key});
@@ -18,6 +28,16 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
+  final TextEditingController cepController = TextEditingController();
+  final TextEditingController logradouroController = TextEditingController();
+  final TextEditingController numeroController = TextEditingController();
+  final TextEditingController complementoController = TextEditingController();
+  final TextEditingController bairroController = TextEditingController();
+  final TextEditingController cidadeController = TextEditingController();
+  final TextEditingController ufController = TextEditingController();
+
+  bool _isLoadingCep = false;
+  bool _cepFetchSuccess = false;
 
   @override
   void initState() {
@@ -42,19 +62,33 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         name: restaurantData['nome'] ?? '',
         description: restaurantData['descricao'] ?? '',
         isActive: restaurantData['ativo'] ?? false,
-        foodTypes: restaurantData['tipoComida'] != null
-            ? (restaurantData['tipoComida'] is List
-                  ? List<String>.from(restaurantData['tipoComida'])
-                  : restaurantData['tipoComida']
-                        .toString()
-                        .split(',')
-                        .map((e) => e.trim())
-                        .toList())
-            : [],
+        foodTypes: restaurantData['tipoComida'] is List
+            ? restaurantData['tipoComida']
+            : (restaurantData['tipoComida'] != null
+                ? restaurantData['tipoComida']
+                    .toString()
+                    .split(',')
+                    .map((e) => e.trim())
+                    .toList()
+                : []),
+        cep: restaurantData['cep']?.toString() ?? '',
+        logradouro: restaurantData['logradouro']?.toString() ?? '',
+        numero: restaurantData['numero']?.toString() ?? '',
+        complemento: restaurantData['complemento']?.toString() ?? '',
+        bairro: restaurantData['bairro']?.toString() ?? '',
+        cidade: restaurantData['cidade']?.toString() ?? '',
+        uf: restaurantData['uf']?.toString() ?? '',
       );
 
       nameController.text = provider.name;
       descriptionController.text = provider.description;
+      cepController.text = formatCep(provider.cep);
+      logradouroController.text = provider.logradouro;
+      numeroController.text = provider.numero;
+      complementoController.text = provider.complemento;
+      bairroController.text = provider.bairro;
+      cidadeController.text = provider.cidade;
+      ufController.text = provider.uf;
     } else {
       print(
         "⚠️ [SettingsScreen] Nenhum dado de restaurante encontrado no storage.",
@@ -114,6 +148,75 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
     );
 
     setState(() {});
+  }
+
+  Future<void> _buscarCep() async {
+    final provider = Provider.of<RestaurantProvider>(context, listen: false);
+    final cep = cepController.text.replaceAll('-', '').trim();
+
+    if (cep.length != 8) {
+      return;
+    }
+
+    setState(() {
+      _isLoadingCep = true;
+      _cepFetchSuccess = false;
+    });
+
+    try {
+      final endereco = await ViaCepService.consultarCep(cep);
+
+      if (endereco != null) {
+        final logradouro = endereco['logradouro'] ?? '';
+        final bairro = endereco['bairro'] ?? '';
+        final cidade = endereco['localidade'] ?? endereco['cidade'] ?? '';
+        final uf = endereco['uf'] ?? '';
+
+        setState(() {
+          logradouroController.text = logradouro;
+          bairroController.text = bairro;
+          cidadeController.text = cidade;
+          ufController.text = uf;
+          _cepFetchSuccess = true;
+        });
+
+        provider.updateLogradouro(logradouro);
+        provider.updateBairro(bairro);
+        provider.updateCidade(cidade);
+        provider.updateEstado(uf);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('CEP encontrado com sucesso!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        logradouroController.clear();
+        bairroController.clear();
+        cidadeController.clear();
+        ufController.clear();
+      });
+
+      provider.updateLogradouro('');
+      provider.updateBairro('');
+      provider.updateCidade('');
+      provider.updateEstado('');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao buscar CEP: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoadingCep = false;
+      });
+    }
   }
 
   @override
@@ -176,6 +279,173 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         ),
                         maxLines: 3,
                       ),
+                      const SizedBox(height: 12),
+                      Divider(color: Colors.black),
+                      const SizedBox(height: 12),
+
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            color: Color.fromARGB(255, 15, 230, 135),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Endereço do Restaurante",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      TextField(
+                        controller: cepController,
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          final cepLimpo = value.replaceAll('-', '').replaceAll(RegExp(r'[^0-9]'), '');
+                          provider.updateCep(cepLimpo);
+                          setState(() {
+                            _cepFetchSuccess = false;
+                          });
+
+                          if (cepLimpo.length == 8) {
+                            _buscarCep();
+                          } else if (cepLimpo.length < 8) {
+                            setState(() {
+                              logradouroController.clear();
+                              bairroController.clear();
+                              cidadeController.clear();
+                              ufController.clear();
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: "CEP *",
+                          hintText: "00000-000",
+                          border: const OutlineInputBorder(),
+                          suffixIcon: _isLoadingCep
+                              ? const Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                )
+                              : (logradouroController.text.isNotEmpty
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(12.0),
+                                        child: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                        ),
+                                      )
+                                    : null),
+                        ),
+                        inputFormatters: [
+                          CepInputFormatter(),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: logradouroController,
+                        enabled: false,
+                        decoration: InputDecoration(
+                          labelText: "Logradouro *",
+                          hintText: "Preenchido automaticamente pelo CEP",
+                          border: const OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: TextField(
+                              controller: numeroController,
+                              onChanged: (value) =>
+                                  provider.updateNumero(value),
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: "Número *",
+                                hintText: "123",
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 2,
+                            child: TextField(
+                              controller: complementoController,
+                              onChanged: (value) =>
+                                  provider.updateComplemento(value),
+                              decoration: const InputDecoration(
+                                labelText: "Complemento",
+                                hintText: "Apto, Bloco...",
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: bairroController,
+                        enabled: false,
+                        decoration: InputDecoration(
+                          labelText: "Bairro *",
+                          hintText: "Preenchido automaticamente pelo CEP",
+                          border: const OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: TextField(
+                              controller: cidadeController,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                labelText: "Cidade *",
+                                hintText: "Preenchido automaticamente pelo CEP",
+                                border: const OutlineInputBorder(),
+                                filled: true,
+                                fillColor: Colors.grey[200],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 1,
+                            child: TextField(
+                              controller: ufController,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                labelText: "UF *",
+                                hintText: "Automático",
+                                border: const OutlineInputBorder(),
+                                filled: true,
+                                fillColor: Colors.grey[200],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
                         onPressed: _updateBasicInfo,
@@ -205,7 +475,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+
               // Card de status
               Card(
                 shape: RoundedRectangleBorder(
@@ -340,103 +610,106 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton(
-  onPressed: () async {
-    final provider = Provider.of<RestaurantProvider>(
-      context,
-      listen: false,
-    );
+                        onPressed: () async {
+                          final provider = Provider.of<RestaurantProvider>(
+                            context,
+                            listen: false,
+                          );
 
-    final TextEditingController confirmationController =
-        TextEditingController();
+                          final TextEditingController confirmationController =
+                              TextEditingController();
 
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirmação"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "Digite o nome do restaurante para confirmar a exclusão:",
-            ),
-            const SizedBox(height: 8),
-            TextField(controller: confirmationController),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text(
-              "Deletar",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
+                          final result = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Confirmação"),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    "Digite o nome do restaurante para confirmar a exclusão:",
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextField(controller: confirmationController),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text("Cancelar"),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  child: const Text(
+                                    "Deletar",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
 
-    if (result == true) {
-      try {
-        await RestaurantDeleteService.deleteRestaurant(
-          restaurantId: provider.id ?? 0,
-          nomeConfirmacao: confirmationController.text.trim(),
-        );
+                          if (result == true) {
+                            try {
+                              await RestaurantDeleteService.deleteRestaurant(
+                                restaurantId: provider.id ?? 0,
+                                nomeConfirmacao: confirmationController.text
+                                    .trim(),
+                              );
 
-        await UserTokenSaving.clearRestaurantDataForCurrentUser();
-        await UserTokenSaving.clearRestaurantId();
+                              await UserTokenSaving.clearRestaurantDataForCurrentUser();
+                              await UserTokenSaving.clearRestaurantId();
 
-        provider.resetRestaurant();
+                              provider.resetRestaurant();
 
-        nameController.clear();
-        descriptionController.clear();
-        locationController.clear();
+                              nameController.clear();
+                              descriptionController.clear();
+                              locationController.clear();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Restaurante deletado com sucesso!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Restaurante deletado com sucesso!",
+                                  ),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
 
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/createAdmRestaurant',
-          (route) => false,
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Erro ao deletar: $e"),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
-    }
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.red,
-    padding: const EdgeInsets.symmetric(
-      vertical: 12,
-      horizontal: 16,
-    ),
-  ),
-  child: const Text(
-    "Deletar",
-    style: TextStyle(
-      color: Colors.white,
-      fontSize: 15,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
-
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                '/createAdmRestaurant',
+                                (route) => false,
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Erro ao deletar: $e"),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                        ),
+                        child: const Text(
+                          "Deletar",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
