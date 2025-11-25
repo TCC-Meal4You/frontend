@@ -36,6 +36,13 @@ if (id == null || id == 0) {
           'descricao': provider.description,
           'ativo': provider.isActive,
           'tipoComida': provider.foodTypes.join(', '),
+          'cep': provider.cep,
+          'logradouro': provider.logradouro,
+          'numero': provider.numero,
+          'complemento': provider.complemento.isNotEmpty ? provider.complemento : null,
+          'bairro': provider.bairro,
+          'cidade': provider.cidade,
+          'uf': provider.uf,
         }),
       );
 
