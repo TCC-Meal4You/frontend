@@ -4,7 +4,17 @@ import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/register_restaurant/register_restaurant_service.dart';
+import 'package:meal4you_app/services/viacep/viacep_service.dart';
+import 'package:meal4you_app/utils/formatter/cep_input_formatter.dart';
 import 'package:provider/provider.dart';
+
+String formatCep(String cep) {
+  final cleaned = cep.replaceAll(RegExp(r'[^0-9]'), '');
+  if (cleaned.length == 8) {
+    return '${cleaned.substring(0, 5)}-${cleaned.substring(5)}';
+  }
+  return cleaned;
+}
 
 class CreateAdmRestaurantScreen extends StatefulWidget {
   const CreateAdmRestaurantScreen({super.key});
@@ -15,10 +25,18 @@ class CreateAdmRestaurantScreen extends StatefulWidget {
 }
 
 class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
-  late TextEditingController nameController;
-  late TextEditingController descriptionController;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController cepController = TextEditingController();
+  final TextEditingController logradouroController = TextEditingController();
+  final TextEditingController numeroController = TextEditingController();
+  final TextEditingController complementoController = TextEditingController();
+  final TextEditingController bairroController = TextEditingController();
+  final TextEditingController cidadeController = TextEditingController();
+  final TextEditingController ufController = TextEditingController();
 
   bool _isActive = false;
+  bool _isLoadingCep = false;
 
   final Map<String, bool> _foodTypes = {
     "Brasileira": false,
@@ -50,10 +68,16 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
       listen: false,
     );
 
-    nameController = TextEditingController(text: restaurantProvider.name);
-    descriptionController = TextEditingController(
-      text: restaurantProvider.description,
-    );
+    nameController.text = restaurantProvider.name;
+    descriptionController.text = restaurantProvider.description;
+    cepController.text = formatCep(restaurantProvider.cep);
+    logradouroController.text = restaurantProvider.logradouro;
+    numeroController.text = restaurantProvider.numero;
+    complementoController.text = restaurantProvider.complemento;
+    bairroController.text = restaurantProvider.bairro;
+    cidadeController.text = restaurantProvider.cidade;
+    ufController.text = restaurantProvider.uf;
+
     _isActive = restaurantProvider.isActive;
 
     for (var food in restaurantProvider.foodTypes) {
@@ -61,6 +85,20 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
         _foodTypes[food] = true;
       }
     }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    descriptionController.dispose();
+    cepController.dispose();
+    logradouroController.dispose();
+    numeroController.dispose();
+    complementoController.dispose();
+    bairroController.dispose();
+    cidadeController.dispose();
+    ufController.dispose();
+    super.dispose();
   }
 
   void resetForm() {
@@ -72,6 +110,13 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
 
     nameController.clear();
     descriptionController.clear();
+    cepController.clear();
+    logradouroController.clear();
+    numeroController.clear();
+    complementoController.clear();
+    bairroController.clear();
+    cidadeController.clear();
+    ufController.clear();
     _isActive = false;
 
     for (var key in _foodTypes.keys) {
@@ -79,6 +124,69 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
     }
 
     setState(() {});
+  }
+
+  Future<void> _buscarCep() async {
+    final cep = cepController.text.replaceAll('-', '').trim();
+
+    if (cep.isEmpty || cep.length != 8) {
+      return;
+    }
+
+    setState(() => _isLoadingCep = true);
+
+    try {
+      final resultado = await ViaCepService.consultarCep(cep);
+
+      if (resultado != null) {
+        setState(() {
+          logradouroController.text = resultado['logradouro'] ?? '';
+          complementoController.text = resultado['complemento'] ?? '';
+          bairroController.text = resultado['bairro'] ?? '';
+          cidadeController.text = resultado['cidade'] ?? '';
+          ufController.text = resultado['uf'] ?? '';
+        });
+
+        final provider = Provider.of<RestaurantProvider>(
+          context,
+          listen: false,
+        );
+        provider.updateCep(cep);
+        provider.updateLogradouro(logradouroController.text);
+        provider.updateBairro(bairroController.text);
+        provider.updateCidade(cidadeController.text);
+        provider.updateEstado(ufController.text);
+
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Endereço encontrado!"),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        logradouroController.clear();
+        bairroController.clear();
+        cidadeController.clear();
+        ufController.clear();
+      });
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingCep = false);
+      }
+    }
   }
 
   @override
@@ -251,6 +359,199 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          color: Color.fromARGB(255, 15, 230, 135),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          "Endereço do Restaurante",
+                          style: TextStyle(
+                            fontFamily: 'Ubuntu',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    TextField(
+                      controller: cepController,
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        final restaurantProvider = Provider.of<RestaurantProvider>(
+                          context,
+                          listen: false,
+                        );
+
+                        final cepLimpo = value.replaceAll('-', '').replaceAll(RegExp(r'[^0-9]'), '');
+                        restaurantProvider.updateCep(cepLimpo);
+                        
+                        if (cepLimpo.length == 8) {
+                          _buscarCep();
+                        } else if (cepLimpo.length < 8) {
+                          setState(() {
+                            logradouroController.clear();
+                            bairroController.clear();
+                            cidadeController.clear();
+                            ufController.clear();
+                          });
+                        }
+                      },
+                      decoration: InputDecoration(
+                        labelText: "CEP *",
+                        hintText: "00000-000",
+                        counterText: "",
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        suffixIcon: _isLoadingCep
+                            ? const Padding(
+                                padding: EdgeInsets.all(12.0),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : (logradouroController.text.isNotEmpty
+                                ? const Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    ),
+                                  )
+                                : null),
+                      ),
+                      inputFormatters: [
+                        CepInputFormatter(),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    TextField(
+                      controller: logradouroController,
+                      enabled: false,
+                      decoration: InputDecoration(
+                        labelText: "Logradouro *",
+                        hintText: "Preenchido automaticamente pelo CEP",
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: TextField(
+                            controller: numeroController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: "Número *",
+                              hintText: "123",
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 2,
+                          child: TextField(
+                            controller: complementoController,
+                            decoration: InputDecoration(
+                              labelText: "Complemento",
+                              hintText: "Apto, Bloco...",
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    TextField(
+                      controller: bairroController,
+                      enabled: false,
+                      decoration: InputDecoration(
+                        labelText: "Bairro *",
+                        hintText: "Preenchido automaticamente pelo CEP",
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: TextField(
+                            controller: cidadeController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                              labelText: "Cidade *",
+                              hintText: "Preenchido automaticamente pelo CEP",
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 1,
+                          child: TextField(
+                            controller: ufController,
+                            enabled: false,
+                            maxLength: 2,
+                            decoration: InputDecoration(
+                              labelText: "UF *",
+                              hintText: "Automático",
+                              counterText: "",
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
 
                     SwitchListTile(
                       title: const Text(
@@ -387,12 +688,29 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
 
                           if (nameController.text.isEmpty ||
                               descriptionController.text.isEmpty ||
-                              selected.isEmpty) {
+                              selected.isEmpty ||
+                              cepController.text.isEmpty ||
+                              logradouroController.text.isEmpty ||
+                              numeroController.text.isEmpty ||
+                              bairroController.text.isEmpty ||
+                              cidadeController.text.isEmpty ||
+                              ufController.text.isEmpty) {
+                            
+                            String mensagemErro = "Preencha todos os campos obrigatórios.";
+
+                            if (cepController.text.isNotEmpty && 
+                                (logradouroController.text.isEmpty || 
+                                 bairroController.text.isEmpty || 
+                                 cidadeController.text.isEmpty || 
+                                 ufController.text.isEmpty)) {
+                              mensagemErro = "Digite um CEP válido de 8 dígitos para preencher o endereço automaticamente.";
+                            }
+                            
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Preencha todos os campos obrigatórios.",
-                                ),
+                              SnackBar(
+                                content: Text(mensagemErro),
+                                backgroundColor: Colors.orange,
+                                duration: const Duration(seconds: 4),
                               ),
                             );
                             return;
@@ -410,7 +728,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             return;
                           }
 
-                          try {
+                          try {                       
                             final restaurantData =
                                 await RegisterRestaurantService.registerRestaurant(
                                   name: nameController.text,
@@ -418,6 +736,16 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                   isActive: _isActive,
                                   foodTypes: selected,
                                   token: token,
+                                  cep: cepController.text.trim(),
+                                  logradouro: logradouroController.text.trim(),
+                                  numero: numeroController.text.trim(),
+                                  complemento:
+                                      complementoController.text.isNotEmpty
+                                      ? complementoController.text.trim()
+                                      : null,
+                                  bairro: bairroController.text.trim(),
+                                  cidade: cidadeController.text.trim(),
+                                  uf: ufController.text.trim(),
                                 );
 
                             final newRestaurantId =
@@ -430,6 +758,13 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               description: descriptionController.text,
                               isActive: _isActive,
                               foodTypes: selected,
+                              cep: cepController.text,
+                              logradouro: logradouroController.text,
+                              numero: numeroController.text,
+                              complemento: complementoController.text,
+                              bairro: bairroController.text,
+                              cidade: cidadeController.text,
+                              uf: ufController.text,
                             );
 
                             await UserTokenSaving.saveRestaurantId(
@@ -442,6 +777,15 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 'descricao': descriptionController.text,
                                 'ativo': _isActive,
                                 'tipoComida': selected,
+                                'endereco': {
+                                  'cep': cepController.text,
+                                  'logradouro': logradouroController.text,
+                                  'numero': numeroController.text,
+                                  'complemento': complementoController.text,
+                                  'bairro': bairroController.text,
+                                  'cidade': cidadeController.text,
+                                  'uf': ufController.text,
+                                },
                               },
                             );
 
