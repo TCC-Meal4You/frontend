@@ -337,7 +337,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                                     ),
                                   ),
                                 )
-                              : (logradouroController.text.isNotEmpty
+                              : (_cepFetchSuccess
                                     ? const Padding(
                                         padding: EdgeInsets.all(12.0),
                                         child: Icon(
