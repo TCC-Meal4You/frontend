@@ -55,146 +55,161 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
     double containerHeight = MediaQuery.of(context).size.height / 3;
     double imageHeight = 500;
 
-    return SafeArea(
-      child: Scaffold(
-        body: GestureDetector(
-          onHorizontalDragEnd: _onSwipe,
-          child: Stack(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: _gradients[_currentIndex],
-                  ),
-                ),
-              ),
-              Positioned(
-                top:
-                    MediaQuery.of(context).size.height -
-                    containerHeight -
-                    (imageHeight / 1.5),
-                left: MediaQuery.of(context).size.width / 2 - 240,
-                child: Image.asset(
-                  _texts[_currentIndex]["image"]!,
-                  width: 500,
-                  height: imageHeight,
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: double.infinity,
-                  height: containerHeight,
-                  padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          return;
+        }
+      },
+      child: SafeArea(
+        child: Scaffold(
+          body: GestureDetector(
+            onHorizontalDragEnd: _onSwipe,
+            child: Stack(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: _gradients[_currentIndex],
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Escolha seu perfil",
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Color.fromARGB(255, 106, 105, 105),
-                          fontWeight: FontWeight.bold,
-                        ),
+                ),
+                Positioned(
+                  top:
+                      MediaQuery.of(context).size.height -
+                      containerHeight -
+                      (imageHeight / 1.5),
+                  left: MediaQuery.of(context).size.width / 2 - 240,
+                  child: Image.asset(
+                    _texts[_currentIndex]["image"]!,
+                    width: 500,
+                    height: imageHeight,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: double.infinity,
+                    height: containerHeight,
+                    padding: const EdgeInsets.all(20),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(24),
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _texts[_currentIndex]["title"]!,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Escolha seu perfil",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color.fromARGB(255, 106, 105, 105),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _texts[_currentIndex]["description"]!,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
+                        const SizedBox(height: 10),
+                        Text(
+                          _texts[_currentIndex]["title"]!,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (_currentIndex == 0) {
-                              Navigator.pushNamed(context, '/clientRegister');
-                            } else if (_currentIndex == 1) {
-                              Navigator.pushNamed(context, '/admRegister');
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _buttonColors[_currentIndex],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        const SizedBox(height: 8),
+                        Text(
+                          _texts[_currentIndex]["description"]!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (_currentIndex == 0) {
+                                Navigator.pushNamed(context, '/clientRegister');
+                              } else if (_currentIndex == 1) {
+                                Navigator.pushNamed(context, '/admRegister');
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _buttonColors[_currentIndex],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: const Text(
+                              "Continuar",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
-                          child: const Text(
-                            "Continuar",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (_currentIndex == 0)
+                  Positioned(
+                    right: 20,
+                    top: MediaQuery.of(context).size.height / 2 - 50,
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        SizedBox(width: 2),
+                        Text(
+                          "Arraste",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ),
-              if (_currentIndex == 0)
-                Positioned(
-                  right: 20,
-                  top: MediaQuery.of(context).size.height / 2 - 50,
-                  child: Row(
-                    children: const [
-                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 24),
-                      SizedBox(width: 2),
-                      Text(
-                        "Arraste",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                if (_currentIndex == 1)
+                  Positioned(
+                    left: 20,
+                    top: MediaQuery.of(context).size.height / 2 - 20,
+                    child: Row(
+                      children: const [
+                        Text(
+                          "Arraste",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (_currentIndex == 1)
-                Positioned(
-                  left: 20,
-                  top: MediaQuery.of(context).size.height / 2 - 20,
-                  child: Row(
-                    children: const [
-                      Text(
-                        "Arraste",
-                        style: TextStyle(
+                        SizedBox(width: 2),
+                        Icon(
+                          Icons.arrow_forward_ios,
                           color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          size: 24,
                         ),
-                      ),
-                      SizedBox(width: 2),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
