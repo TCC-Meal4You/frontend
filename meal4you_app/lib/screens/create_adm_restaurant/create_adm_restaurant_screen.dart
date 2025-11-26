@@ -328,7 +328,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       decoration: InputDecoration(
                         hintText: "Ex: Cantinho da Vovó",
                         filled: true,
-                        fillColor: Colors.grey[100],
+                        fillColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide.none,
@@ -351,7 +351,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                         hintText:
                             "Descreva seu restaurante, especialidades, ambiente...",
                         filled: true,
-                        fillColor: Colors.grey[100],
+                        fillColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide.none,
@@ -378,18 +378,26 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                     ),
                     const SizedBox(height: 16),
 
+                    const Text(
+                      "CEP *",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 4),
                     TextField(
                       controller: cepController,
                       keyboardType: TextInputType.number,
                       onChanged: (value) {
-                        final restaurantProvider = Provider.of<RestaurantProvider>(
-                          context,
-                          listen: false,
-                        );
+                        final restaurantProvider =
+                            Provider.of<RestaurantProvider>(
+                              context,
+                              listen: false,
+                            );
 
-                        final cepLimpo = value.replaceAll('-', '').replaceAll(RegExp(r'[^0-9]'), '');
+                        final cepLimpo = value
+                            .replaceAll('-', '')
+                            .replaceAll(RegExp(r'[^0-9]'), '');
                         restaurantProvider.updateCep(cepLimpo);
-                        
+
                         if (cepLimpo.length == 8) {
                           _buscarCep();
                         } else if (cepLimpo.length < 8) {
@@ -402,11 +410,10 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                         }
                       },
                       decoration: InputDecoration(
-                        labelText: "CEP *",
                         hintText: "00000-000",
                         counterText: "",
                         filled: true,
-                        fillColor: Colors.grey[100],
+                        fillColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide.none,
@@ -423,27 +430,29 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 ),
                               )
                             : (logradouroController.text.isNotEmpty
-                                ? const Padding(
-                                    padding: EdgeInsets.all(12.0),
-                                    child: Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green,
-                                    ),
-                                  )
-                                : null),
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                      ),
+                                    )
+                                  : null),
                       ),
-                      inputFormatters: [
-                        CepInputFormatter(),
-                      ],
+                      inputFormatters: [CepInputFormatter()],
                     ),
                     const SizedBox(height: 12),
 
+                    const Text(
+                      "Logradouro *",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 4),
                     TextField(
                       controller: logradouroController,
                       enabled: false,
                       decoration: InputDecoration(
-                        labelText: "Logradouro *",
-                        hintText: "Preenchido automaticamente pelo CEP",
+                        hintText: "Automático pelo CEP",
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -455,51 +464,74 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                     const SizedBox(height: 12),
 
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           flex: 1,
-                          child: TextField(
-                            controller: numeroController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: "Número *",
-                              hintText: "123",
-                              filled: true,
-                              fillColor: Colors.grey[100],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Número *",
+                                style: TextStyle(fontWeight: FontWeight.w500),
                               ),
-                            ),
+                              const SizedBox(height: 4),
+                              TextField(
+                                controller: numeroController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: "123",
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           flex: 2,
-                          child: TextField(
-                            controller: complementoController,
-                            decoration: InputDecoration(
-                              labelText: "Complemento",
-                              hintText: "Apto, Bloco...",
-                              filled: true,
-                              fillColor: Colors.grey[100],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Complemento",
+                                style: TextStyle(fontWeight: FontWeight.w500),
                               ),
-                            ),
+                              const SizedBox(height: 4),
+                              TextField(
+                                controller: complementoController,
+                                decoration: InputDecoration(
+                                  hintText: "Bloco, Apto...",
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
 
+                    const Text(
+                      "Bairro *",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 4),
                     TextField(
                       controller: bairroController,
                       enabled: false,
                       decoration: InputDecoration(
-                        labelText: "Bairro *",
-                        hintText: "Preenchido automaticamente pelo CEP",
+                        hintText: "Automático pelo CEP",
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -511,42 +543,61 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                     const SizedBox(height: 12),
 
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           flex: 3,
-                          child: TextField(
-                            controller: cidadeController,
-                            enabled: false,
-                            decoration: InputDecoration(
-                              labelText: "Cidade *",
-                              hintText: "Preenchido automaticamente pelo CEP",
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Cidade *",
+                                style: TextStyle(fontWeight: FontWeight.w500),
                               ),
-                            ),
+                              const SizedBox(height: 4),
+                              TextField(
+                                controller: cidadeController,
+                                enabled: false,
+                                decoration: InputDecoration(
+                                  hintText: "Automático pelo CEP",
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           flex: 1,
-                          child: TextField(
-                            controller: ufController,
-                            enabled: false,
-                            maxLength: 2,
-                            decoration: InputDecoration(
-                              labelText: "UF *",
-                              hintText: "Automático",
-                              counterText: "",
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "UF *",
+                                style: TextStyle(fontWeight: FontWeight.w500),
                               ),
-                            ),
+                              const SizedBox(height: 4),
+                              TextField(
+                                controller: ufController,
+                                enabled: false,
+                                maxLength: 2,
+                                decoration: InputDecoration(
+                                  hintText: "Aut.",
+                                  counterText: "",
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -695,17 +746,18 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               bairroController.text.isEmpty ||
                               cidadeController.text.isEmpty ||
                               ufController.text.isEmpty) {
-                            
-                            String mensagemErro = "Preencha todos os campos obrigatórios.";
+                            String mensagemErro =
+                                "Preencha todos os campos obrigatórios.";
 
-                            if (cepController.text.isNotEmpty && 
-                                (logradouroController.text.isEmpty || 
-                                 bairroController.text.isEmpty || 
-                                 cidadeController.text.isEmpty || 
-                                 ufController.text.isEmpty)) {
-                              mensagemErro = "Digite um CEP válido de 8 dígitos para preencher o endereço automaticamente.";
+                            if (cepController.text.isNotEmpty &&
+                                (logradouroController.text.isEmpty ||
+                                    bairroController.text.isEmpty ||
+                                    cidadeController.text.isEmpty ||
+                                    ufController.text.isEmpty)) {
+                              mensagemErro =
+                                  "Digite um CEP válido de 8 dígitos para preencher o endereço automaticamente.";
                             }
-                            
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(mensagemErro),
@@ -728,7 +780,9 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             return;
                           }
 
-                          try {                       
+                          try {
+                            final cepLimpo = cepController.text.replaceAll('-', '').trim();
+                            
                             final restaurantData =
                                 await RegisterRestaurantService.registerRestaurant(
                                   name: nameController.text,
@@ -736,7 +790,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                   isActive: _isActive,
                                   foodTypes: selected,
                                   token: token,
-                                  cep: cepController.text.trim(),
+                                  cep: cepLimpo,
                                   logradouro: logradouroController.text.trim(),
                                   numero: numeroController.text.trim(),
                                   complemento:
@@ -758,7 +812,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               description: descriptionController.text,
                               isActive: _isActive,
                               foodTypes: selected,
-                              cep: cepController.text,
+                              cep: cepLimpo,
                               logradouro: logradouroController.text,
                               numero: numeroController.text,
                               complemento: complementoController.text,
@@ -778,7 +832,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 'ativo': _isActive,
                                 'tipoComida': selected,
                                 'endereco': {
-                                  'cep': cepController.text,
+                                  'cep': cepLimpo,
                                   'logradouro': logradouroController.text,
                                   'numero': numeroController.text,
                                   'complemento': complementoController.text,
