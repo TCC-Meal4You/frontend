@@ -66,46 +66,57 @@ class _SplashScreenState extends State<SplashScreen>
     final token = await UserTokenSaving.getToken();
     final userData = await UserTokenSaving.getUserData();
 
+    print('🔍 DEBUG SPLASH - Token: ${token != null ? "existe" : "null"}');
+    print('🔍 DEBUG SPLASH - UserData: $userData');
+
     if (token == null || userData == null) {
+      print('➡️ Sem token ou userData, indo para profileChoice');
       _goTo('/profileChoice');
       return;
     }
+
+    final restaurantId = await UserTokenSaving.getRestaurantId();
+    final restaurantData =
+        await UserTokenSaving.getRestaurantDataForCurrentUser();
+
+    print('🔍 DEBUG SPLASH - RestaurantId: $restaurantId');
+    print(
+      '🔍 DEBUG SPLASH - RestaurantData: ${restaurantData != null ? "existe" : "null"}',
+    );
 
     final userType = userData['userType'];
     final tipo = userData['tipo'];
     final isAdmField = userData['isAdm'];
 
-    final restaurantId = await UserTokenSaving.getRestaurantId();
+    print('🔍 DEBUG SPLASH - userType: $userType');
+    print('🔍 DEBUG SPLASH - tipo: $tipo');
+    print('🔍 DEBUG SPLASH - isAdm: $isAdmField');
 
-    final restaurantData =
-        await UserTokenSaving.getRestaurantDataForCurrentUser();
+
+    if (restaurantData != null && restaurantData.isNotEmpty) {
+      print('✅ Admin com restaurante -> admRestaurantHome');
+      _goTo('/admRestaurantHome');
+      return;
+    }
+
+    if (restaurantId != null && restaurantId > 0) {
+      print('⚠️ Admin sem restaurante (tem ID) -> createAdmRestaurant');
+      _goTo('/createAdmRestaurant');
+      return;
+    }
 
     final isAdmByUserType = userType == 'adm';
     final isAdmByTipo = tipo == 'adm';
     final isAdmByField = isAdmField == true;
-    final hasRestaurantId = restaurantId != null && restaurantId > 0;
-    final hasRestaurantData =
-        restaurantData != null && restaurantData.isNotEmpty;
 
-    final isAdm =
-        isAdmByUserType ||
-        isAdmByTipo ||
-        isAdmByField ||
-        hasRestaurantId ||
-        hasRestaurantData;
-
-    if (isAdm) {
-      if (hasRestaurantData) {
-        print('➡️ Indo para admRestaurantHome');
-        _goTo('/admRestaurantHome');
-      } else {
-        print('➡️ Indo para createAdmRestaurant');
-        _goTo('/createAdmRestaurant');
-      }
-    } else {
-      print('➡️ Indo para clientProfile');
-      _goTo('/clientProfile');
+    if (isAdmByUserType || isAdmByTipo || isAdmByField) {
+      print('✅ Admin sem restaurante (por tipo) -> createAdmRestaurant');
+      _goTo('/createAdmRestaurant');
+      return;
     }
+
+    print('👤 Cliente -> clientProfile');
+    _goTo('/clientProfile');
   }
 
   void _goTo(String route) {
