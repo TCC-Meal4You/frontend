@@ -38,11 +38,15 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
         description: restaurantData['descricao'] ?? '',
         isActive: restaurantData['ativo'] ?? false,
         foodTypes: (restaurantData['tipoComida'] != null)
-            ? restaurantData['tipoComida']
-                  .toString()
-                  .split(',')
-                  .map((e) => e.trim())
-                  .toList()
+            ? (restaurantData['tipoComida'] is List
+                  ? (restaurantData['tipoComida'] as List)
+                        .map((e) => e.toString())
+                        .toList()
+                  : restaurantData['tipoComida']
+                        .toString()
+                        .split(',')
+                        .map((e) => e.trim())
+                        .toList())
             : [],
       );
     }
