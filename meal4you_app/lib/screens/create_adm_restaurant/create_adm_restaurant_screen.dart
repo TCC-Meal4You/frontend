@@ -835,7 +835,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               await UserTokenSaving.saveUserData(
                                 currentUserData,
                               );
-                              print('✅ UserData atualizado com userType=adm');
                             }
 
                             await UserTokenSaving.saveRestaurantDataForCurrentUser(
@@ -860,10 +859,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
 
                             await Future.delayed(
                               const Duration(milliseconds: 100),
-                            );
-
-                            print(
-                              '✅ Restaurante criado e dados salvos, navegando...',
                             );
 
                             if (!mounted) return;
