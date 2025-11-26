@@ -48,10 +48,10 @@ class AdmLoginService {
       await UserTokenSaving.saveCurrentUserEmail(email);
 
       final savedEmail = await UserTokenSaving.getUserEmail();
-      if (savedEmail == null) throw Exception('Email não encontrado após salvar.');
+      if (savedEmail == null)
+        throw Exception('Email não encontrado após salvar.');
 
-      final provider =
-          Provider.of<RestaurantProvider>(context, listen: false);
+      final provider = Provider.of<RestaurantProvider>(context, listen: false);
 
       provider.clearRestaurant();
 
@@ -69,7 +69,8 @@ class AdmLoginService {
         return;
       }
 
-      final rawId = restaurantData['idRestaurante'] ??
+      final rawId =
+          restaurantData['idRestaurante'] ??
           restaurantData['id'] ??
           restaurantData['id_restaurante'];
 
@@ -90,12 +91,12 @@ class AdmLoginService {
         isActive: restaurantData['ativo'] ?? false,
         foodTypes: (restaurantData['tipoComida'] is String)
             ? restaurantData['tipoComida']
-                .split(',')
-                .map((e) => e.trim())
-                .toList()
+                  .split(',')
+                  .map((e) => e.trim())
+                  .toList()
             : (restaurantData['tipoComida'] as List? ?? [])
-                .map((e) => e.toString())
-                .toList(),
+                  .map((e) => e.toString())
+                  .toList(),
       );
 
       if (context.mounted) {
@@ -108,9 +109,13 @@ class AdmLoginService {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao logar: $e')),
+          SnackBar(
+            content: Text('Erro ao logar: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
+      rethrow;
     }
   }
 }
