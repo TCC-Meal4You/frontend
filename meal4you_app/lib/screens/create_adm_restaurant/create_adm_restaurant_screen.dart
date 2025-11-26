@@ -781,8 +781,10 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                           }
 
                           try {
-                            final cepLimpo = cepController.text.replaceAll('-', '').trim();
-                            
+                            final cepLimpo = cepController.text
+                                .replaceAll('-', '')
+                                .trim();
+
                             final restaurantData =
                                 await RegisterRestaurantService.registerRestaurant(
                                   name: nameController.text,
