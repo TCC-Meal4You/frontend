@@ -147,6 +147,4 @@ class RestaurantProvider extends ChangeNotifier {
     _uf = '';
     notifyListeners();
   }
-
-
 }
