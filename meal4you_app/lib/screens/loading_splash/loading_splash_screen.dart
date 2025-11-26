@@ -40,16 +40,15 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 900),
     );
 
-    _textOpacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _textController, curve: Curves.easeIn),
-    );
+    _textOpacity = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeIn));
 
     _textSlide = Tween<Offset>(
       begin: const Offset(0, 0.4),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _textController, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
 
     Future.delayed(const Duration(milliseconds: 600), () {
       _textController.forward();
@@ -64,46 +63,50 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkLogin() async {
-  final token = await UserTokenSaving.getToken();
-  final userData = await UserTokenSaving.getUserData();
+    final token = await UserTokenSaving.getToken();
+    final userData = await UserTokenSaving.getUserData();
 
-  
-  if (token == null || userData == null) {
-    _goTo('/profileChoice');
-    return;
-  }
-
-  final userType = userData['userType'];
-  final tipo = userData['tipo'];
-  final isAdmField = userData['isAdm'];
-  
-  final restaurantId = await UserTokenSaving.getRestaurantId();
-  
-  final restaurantData = await UserTokenSaving.getRestaurantDataForCurrentUser();
-
-  final isAdmByUserType = userType == 'adm';
-  final isAdmByTipo = tipo == 'adm';
-  final isAdmByField = isAdmField == true;
-  final hasRestaurantId = restaurantId != null && restaurantId > 0;
-  final hasRestaurantData = restaurantData != null && restaurantData.isNotEmpty;
-  
-  final isAdm = isAdmByUserType || isAdmByTipo || isAdmByField || hasRestaurantId || hasRestaurantData;
-
-
-  if (isAdm) {
-    if (hasRestaurantData) {
-      print('➡️ Indo para admRestaurantHome');
-      _goTo('/admRestaurantHome');
-    } else {
-      print('➡️ Indo para createAdmRestaurant');
-      _goTo('/createAdmRestaurant');
+    if (token == null || userData == null) {
+      _goTo('/profileChoice');
+      return;
     }
-  } else {
-    print('➡️ Indo para clientProfile');
-    _goTo('/clientProfile');
-  }
-}
 
+    final userType = userData['userType'];
+    final tipo = userData['tipo'];
+    final isAdmField = userData['isAdm'];
+
+    final restaurantId = await UserTokenSaving.getRestaurantId();
+
+    final restaurantData =
+        await UserTokenSaving.getRestaurantDataForCurrentUser();
+
+    final isAdmByUserType = userType == 'adm';
+    final isAdmByTipo = tipo == 'adm';
+    final isAdmByField = isAdmField == true;
+    final hasRestaurantId = restaurantId != null && restaurantId > 0;
+    final hasRestaurantData =
+        restaurantData != null && restaurantData.isNotEmpty;
+
+    final isAdm =
+        isAdmByUserType ||
+        isAdmByTipo ||
+        isAdmByField ||
+        hasRestaurantId ||
+        hasRestaurantData;
+
+    if (isAdm) {
+      if (hasRestaurantData) {
+        print('➡️ Indo para admRestaurantHome');
+        _goTo('/admRestaurantHome');
+      } else {
+        print('➡️ Indo para createAdmRestaurant');
+        _goTo('/createAdmRestaurant');
+      }
+    } else {
+      print('➡️ Indo para clientProfile');
+      _goTo('/clientProfile');
+    }
+  }
 
   void _goTo(String route) {
     if (!mounted) return;
@@ -152,8 +155,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ScaleTransition(
                     scale: _logoScale,
                     child: Transform.rotate(
-                      angle:
-                          math.sin(_logoController.value * math.pi) * 0.05,
+                      angle: math.sin(_logoController.value * math.pi) * 0.05,
                       child: const Icon(
                         Icons.restaurant_menu_rounded,
                         size: 130,
