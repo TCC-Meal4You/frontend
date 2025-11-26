@@ -44,11 +44,10 @@ class RegisterRestaurantService {
 
     if (response.statusCode == 201 || response.statusCode == 200) {
       return jsonDecode(response.body);
-    } else { 
+    } else {
       throw Exception(
         "Erro ao criar restaurante: ${response.statusCode} - ${response.body}",
       );
     }
   }
 }
-

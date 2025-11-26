@@ -8,7 +8,7 @@ class ViaCepService {
 
   static Future<Map<String, dynamic>?> consultarCep(String cep) async {
     final cepLimpo = cep.replaceAll(RegExp(r'[^0-9]'), '');
-    
+
     if (cepLimpo.length != 8) {
       throw Exception("CEP deve conter exatamente 8 dígitos");
     }
@@ -48,7 +48,7 @@ class ViaCepService {
         throw Exception("Erro ao consultar CEP: ${response.statusCode}");
       }
     } catch (e) {
-      if (e.toString().contains("CEP inválido") || 
+      if (e.toString().contains("CEP inválido") ||
           e.toString().contains("Sessão expirada")) {
         rethrow;
       }
@@ -58,11 +58,11 @@ class ViaCepService {
 
   static String formatarCep(String cep) {
     final cepLimpo = cep.replaceAll(RegExp(r'[^0-9]'), '');
-    
+
     if (cepLimpo.length == 8) {
       return "${cep.substring(0, 5)}-${cep.substring(5)}";
     }
-    
+
     return cep;
   }
 

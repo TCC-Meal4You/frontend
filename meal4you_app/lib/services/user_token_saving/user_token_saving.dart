@@ -31,12 +31,12 @@ class UserTokenSaving {
 
   static Future<void> saveUserData(Map<String, dynamic> userData) async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     final existingData = await getUserData();
     if (existingData != null) {
       userData['userType'] ??= existingData['userType'];
     }
-    
+
     await prefs.setString(_userDataKey, jsonEncode(userData));
 
     String? email;

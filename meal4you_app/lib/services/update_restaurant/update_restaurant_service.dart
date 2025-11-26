@@ -11,11 +11,12 @@ class UpdateRestaurantService {
     required RestaurantProvider provider,
   }) async {
     try {
-     int? id = provider.id ?? await UserTokenSaving.getRestaurantId();
-if (id == null || id == 0) {
-  throw Exception("ID do restaurante não encontrado. Faça login novamente.");
-}
-
+      int? id = provider.id ?? await UserTokenSaving.getRestaurantId();
+      if (id == null || id == 0) {
+        throw Exception(
+          "ID do restaurante não encontrado. Faça login novamente.",
+        );
+      }
 
       final token = await UserTokenSaving.getToken();
       if (token == null) {
@@ -39,7 +40,9 @@ if (id == null || id == 0) {
           'cep': provider.cep,
           'logradouro': provider.logradouro,
           'numero': provider.numero,
-          'complemento': provider.complemento.isNotEmpty ? provider.complemento : null,
+          'complemento': provider.complemento.isNotEmpty
+              ? provider.complemento
+              : null,
           'bairro': provider.bairro,
           'cidade': provider.cidade,
           'uf': provider.uf,
@@ -57,7 +60,8 @@ if (id == null || id == 0) {
         return data;
       } else {
         throw Exception(
-            'Erro ao atualizar restaurante: ${response.statusCode} - ${response.body}');
+          'Erro ao atualizar restaurante: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       print('❌ Erro ao atualizar restaurante: $e');
