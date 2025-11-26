@@ -55,7 +55,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
 
     if (restaurantData != null) {
       final id = restaurantData['idRestaurante'] ?? restaurantData['id'] ?? 0;
-      print("🧾 [SettingsScreen] ID carregado do storage: $id");
+      final endereco = restaurantData['endereco'] as Map<String, dynamic>?;
 
       provider.updateRestaurant(
         id: id,
@@ -71,13 +71,22 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         .map((e) => e.trim())
                         .toList()
                   : []),
-        cep: restaurantData['cep']?.toString() ?? '',
-        logradouro: restaurantData['logradouro']?.toString() ?? '',
-        numero: restaurantData['numero']?.toString() ?? '',
-        complemento: restaurantData['complemento']?.toString() ?? '',
-        bairro: restaurantData['bairro']?.toString() ?? '',
-        cidade: restaurantData['cidade']?.toString() ?? '',
-        uf: restaurantData['uf']?.toString() ?? '',
+        cep: (endereco?['cep'] ?? restaurantData['cep'])?.toString() ?? '',
+        logradouro:
+            (endereco?['logradouro'] ?? restaurantData['logradouro'])
+                ?.toString() ??
+            '',
+        numero:
+            (endereco?['numero'] ?? restaurantData['numero'])?.toString() ?? '',
+        complemento:
+            (endereco?['complemento'] ?? restaurantData['complemento'])
+                ?.toString() ??
+            '',
+        bairro:
+            (endereco?['bairro'] ?? restaurantData['bairro'])?.toString() ?? '',
+        cidade:
+            (endereco?['cidade'] ?? restaurantData['cidade'])?.toString() ?? '',
+        uf: (endereco?['uf'] ?? restaurantData['uf'])?.toString() ?? '',
       );
 
       nameController.text = provider.name;
@@ -142,6 +151,10 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      transitionAnimationController: AnimationController(
+        duration: const Duration(milliseconds: 600),
+        vsync: Navigator.of(context),
       ),
       builder: (context) =>
           FoodTypeSelectorScreen(restaurantId: provider.id ?? 0),
