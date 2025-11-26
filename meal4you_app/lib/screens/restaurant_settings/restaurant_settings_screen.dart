@@ -65,12 +65,12 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         foodTypes: restaurantData['tipoComida'] is List
             ? restaurantData['tipoComida']
             : (restaurantData['tipoComida'] != null
-                ? restaurantData['tipoComida']
-                    .toString()
-                    .split(',')
-                    .map((e) => e.trim())
-                    .toList()
-                : []),
+                  ? restaurantData['tipoComida']
+                        .toString()
+                        .split(',')
+                        .map((e) => e.trim())
+                        .toList()
+                  : []),
         cep: restaurantData['cep']?.toString() ?? '',
         logradouro: restaurantData['logradouro']?.toString() ?? '',
         numero: restaurantData['numero']?.toString() ?? '',
@@ -305,7 +305,9 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         controller: cepController,
                         keyboardType: TextInputType.number,
                         onChanged: (value) {
-                          final cepLimpo = value.replaceAll('-', '').replaceAll(RegExp(r'[^0-9]'), '');
+                          final cepLimpo = value
+                              .replaceAll('-', '')
+                              .replaceAll(RegExp(r'[^0-9]'), '');
                           provider.updateCep(cepLimpo);
                           setState(() {
                             _cepFetchSuccess = false;
@@ -347,9 +349,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                                       )
                                     : null),
                         ),
-                        inputFormatters: [
-                          CepInputFormatter(),
-                        ],
+                        inputFormatters: [CepInputFormatter()],
                       ),
                       const SizedBox(height: 12),
 
