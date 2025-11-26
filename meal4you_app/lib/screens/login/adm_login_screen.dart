@@ -37,20 +37,21 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
 
     try {
       await AdmLoginService.handleLogin(context, email, senha);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Login realizado: $email"),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
 
       LoginControllers.emailController.clear();
       LoginControllers.senhaController.clear();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Login realizado: $email"),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Erro ao logar: $e")));
+      print('Erro no login: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
