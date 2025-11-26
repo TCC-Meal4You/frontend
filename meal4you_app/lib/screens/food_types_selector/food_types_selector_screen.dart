@@ -65,58 +65,211 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Selecionar Tipos de Comida"),
-          backgroundColor: const Color.fromARGB(255, 15, 230, 135),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: ListView.builder(
-          itemCount: availableTypes.length,
-          itemBuilder: (context, index) {
-            final type = availableTypes[index];
-            final isSelected = selectedTypes.contains(type);
+    final initiallySelected = List<String>.from(
+      Provider.of<RestaurantProvider>(context, listen: false).foodTypes,
+    );
+    final availableToSelect = availableTypes
+        .where((type) => !initiallySelected.contains(type))
+        .toList();
 
-            return Column(
+    final newlyAdded = selectedTypes
+        .where((type) => !initiallySelected.contains(type))
+        .toList();
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.85,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+            child: Row(
               children: [
-                CheckboxListTile(
-                  title: Text(type),
-                  value: isSelected,
-                  activeColor: const Color.fromARGB(255, 15, 230, 135),
-                  onChanged: (value) {
-                    setState(() {
-                      if (value == true) {
-                        selectedTypes.add(type);
-                      } else {
-                        selectedTypes.remove(type);
-                      }
-                    });
-                  },
+                const Spacer(),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                if (index < availableTypes.length - 1)
-                  const Divider(height: 1, color: Colors.grey, indent: 16, endIndent: 16),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.black87,
+                    size: 24,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
               ],
-            );
-          },
-        ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(16),
-          child: ElevatedButton(
-            onPressed: _saveSelection,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 15, 230, 135),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-            ),
-            child: const Text(
-              "Salvar",
-              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
-        ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  if (newlyAdded.isNotEmpty) ...[
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Selecionados:",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: newlyAdded.map((type) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 157, 0, 255),
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                // ignore: deprecated_member_use
+                                color: Colors.deepPurple.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                type,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedTypes.remove(type);
+                                  });
+                                },
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                  ],
+
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.center,
+                    children: availableToSelect.map((type) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedTypes.add(type);
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              color: Colors.grey[300]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            type,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 60),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  // ignore: deprecated_member_use
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saveSelection,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 15, 230, 135),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "Salvar",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
