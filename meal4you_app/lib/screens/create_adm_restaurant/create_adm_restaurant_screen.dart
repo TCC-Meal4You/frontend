@@ -826,9 +826,22 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             await UserTokenSaving.saveRestaurantId(
                               newRestaurantId,
                             );
+
+                            final currentUserData =
+                                await UserTokenSaving.getUserData();
+                            if (currentUserData != null) {
+                              currentUserData['userType'] = 'adm';
+                              currentUserData['isAdm'] = true;
+                              await UserTokenSaving.saveUserData(
+                                currentUserData,
+                              );
+                              print('✅ UserData atualizado com userType=adm');
+                            }
+
                             await UserTokenSaving.saveRestaurantDataForCurrentUser(
                               {
                                 'idRestaurante': newRestaurantId,
+                                'id': newRestaurantId,
                                 'nome': nameController.text,
                                 'descricao': descriptionController.text,
                                 'ativo': _isActive,
@@ -845,6 +858,16 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               },
                             );
 
+                            await Future.delayed(
+                              const Duration(milliseconds: 100),
+                            );
+
+                            print(
+                              '✅ Restaurante criado e dados salvos, navegando...',
+                            );
+
+                            if (!mounted) return;
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
@@ -853,7 +876,10 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               ),
                             );
 
-                            Navigator.pushNamed(context, '/admRestaurantHome');
+                            Navigator.pushReplacementNamed(
+                              context,
+                              '/admRestaurantHome',
+                            );
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
