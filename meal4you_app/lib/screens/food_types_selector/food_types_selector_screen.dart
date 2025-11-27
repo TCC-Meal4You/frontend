@@ -68,12 +68,17 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
     final initiallySelected = List<String>.from(
       Provider.of<RestaurantProvider>(context, listen: false).foodTypes,
     );
-    final availableToSelect = availableTypes
-        .where((type) => !initiallySelected.contains(type))
+
+    final currentlySelected = selectedTypes
+        .where((type) => initiallySelected.contains(type))
         .toList();
 
     final newlyAdded = selectedTypes
         .where((type) => !initiallySelected.contains(type))
+        .toList();
+
+    final availableToSelect = availableTypes
+        .where((type) => !selectedTypes.contains(type))
         .toList();
 
     return Container(
@@ -118,11 +123,90 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
+                  if (currentlySelected.isNotEmpty) ...[
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Comidas atuais do restaurante:",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: currentlySelected.map((type) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 15, 230, 135),
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color.fromARGB(
+                                  255,
+                                  15,
+                                  230,
+                                  135,
+                                  // ignore: deprecated_member_use
+                                ).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.check_circle,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                type,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedTypes.remove(type);
+                                  });
+                                },
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                  ],
+
                   if (newlyAdded.isNotEmpty) ...[
                     const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Selecionados:",
+                        "Adicionados agora:",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -141,7 +225,7 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 157, 0, 255),
+                            color: const Color.fromARGB(255, 157, 0, 255),
                             borderRadius: BorderRadius.circular(25),
                             boxShadow: [
                               BoxShadow(
@@ -184,6 +268,21 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                     const SizedBox(height: 24),
                     const Divider(),
                     const SizedBox(height: 16),
+                  ],
+
+                  if (availableToSelect.isNotEmpty) ...[
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Disponíveis para adicionar:",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                   ],
 
                   Wrap(
