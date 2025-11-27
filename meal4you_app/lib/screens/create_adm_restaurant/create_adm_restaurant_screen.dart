@@ -823,9 +823,11 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               uf: ufController.text,
                             );
 
-                            print('🏪 CRIAR RESTAURANTE - Iniciando salvamento...');
+                            print(
+                              '🏪 CRIAR RESTAURANTE - Iniciando salvamento...',
+                            );
                             print('🏪 ID do restaurante: $newRestaurantId');
-                            
+
                             await UserTokenSaving.saveRestaurantId(
                               newRestaurantId,
                             );
@@ -834,18 +836,23 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             final currentUserData =
                                 await UserTokenSaving.getUserData();
                             print('📦 UserData atual: $currentUserData');
-                            
+
                             if (currentUserData != null) {
-                              final email = currentUserData['email'] ?? 
-                                          (currentUserData['user']?['email']);
-                              
+                              final email =
+                                  currentUserData['email'] ??
+                                  (currentUserData['user']?['email']);
+
                               if (email != null) {
-                                await UserTokenSaving.saveCurrentUserEmail(email);
+                                await UserTokenSaving.saveCurrentUserEmail(
+                                  email,
+                                );
                                 print('✅ Email garantido: $email');
                               } else {
-                                print('⚠️ AVISO: Email não encontrado no userData!');
+                                print(
+                                  '⚠️ AVISO: Email não encontrado no userData!',
+                                );
                               }
-                              
+
                               currentUserData['userType'] = 'adm';
                               currentUserData['isAdm'] = true;
                               await UserTokenSaving.saveUserData(
@@ -855,14 +862,19 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             }
 
                             // Validar que email existe antes de salvar restaurantData
-                            final emailCheck = await UserTokenSaving.getUserEmail();
-                            print('📧 Email disponível para vincular: $emailCheck');
-                            
+                            final emailCheck =
+                                await UserTokenSaving.getUserEmail();
+                            print(
+                              '📧 Email disponível para vincular: $emailCheck',
+                            );
+
                             if (emailCheck == null) {
                               print('❌ ERRO CRÍTICO: Email não disponível!');
-                              throw Exception('Email do usuário não encontrado');
+                              throw Exception(
+                                'Email do usuário não encontrado',
+                              );
                             }
-                            
+
                             final restaurantDataToSave = {
                               'idRestaurante': newRestaurantId,
                               'id': newRestaurantId,
@@ -880,15 +892,18 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 'uf': ufController.text,
                               },
                             };
-                            
+
                             await UserTokenSaving.saveRestaurantDataForCurrentUser(
                               restaurantDataToSave,
                             );
                             print('✅ RestaurantData salvo com sucesso');
-                            
+
                             // Validar que foi salvo corretamente
-                            final savedData = await UserTokenSaving.getRestaurantDataForCurrentUser();
-                            print('🔍 Verificação - RestaurantData recuperado: ${savedData != null}');
+                            final savedData =
+                                await UserTokenSaving.getRestaurantDataForCurrentUser();
+                            print(
+                              '🔍 Verificação - RestaurantData recuperado: ${savedData != null}',
+                            );
 
                             await Future.delayed(
                               const Duration(milliseconds: 100),
