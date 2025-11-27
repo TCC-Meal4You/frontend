@@ -92,7 +92,6 @@ class _SplashScreenState extends State<SplashScreen>
     print('🔍 DEBUG SPLASH - tipo: $tipo');
     print('🔍 DEBUG SPLASH - isAdm: $isAdmField');
 
-
     if (restaurantData != null && restaurantData.isNotEmpty) {
       print('✅ Admin com restaurante -> admRestaurantHome');
       _goTo('/admRestaurantHome');
@@ -134,70 +133,73 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _bgController,
-      builder: (context, child) {
-        final t = _bgController.value;
+    return PopScope(
+      canPop: false,
+      child: AnimatedBuilder(
+        animation: _bgController,
+        builder: (context, child) {
+          final t = _bgController.value;
 
-        final color1 = Color.lerp(
-          const Color(0xFF9D00FF),
-          const Color(0xFF00FFA3),
-          t,
-        )!;
-        final color2 = Color.lerp(
-          const Color(0xFF00FFA3),
-          const Color(0xFF9D00FF),
-          t,
-        )!;
+          final color1 = Color.lerp(
+            const Color(0xFF9D00FF),
+            const Color(0xFF00FFA3),
+            t,
+          )!;
+          final color2 = Color.lerp(
+            const Color(0xFF00FFA3),
+            const Color(0xFF9D00FF),
+            t,
+          )!;
 
-        return Scaffold(
-          body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color1, color2],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          return Scaffold(
+            body: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [color1, color2],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ScaleTransition(
-                    scale: _logoScale,
-                    child: Transform.rotate(
-                      angle: math.sin(_logoController.value * math.pi) * 0.05,
-                      child: const Icon(
-                        Icons.restaurant_menu_rounded,
-                        size: 130,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  SlideTransition(
-                    position: _textSlide,
-                    child: FadeTransition(
-                      opacity: _textOpacity,
-                      child: const Text(
-                        "Meal4You",
-                        style: TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ScaleTransition(
+                      scale: _logoScale,
+                      child: Transform.rotate(
+                        angle: math.sin(_logoController.value * math.pi) * 0.05,
+                        child: const Icon(
+                          Icons.restaurant_menu_rounded,
+                          size: 130,
                           color: Colors.white,
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 20),
+
+                    SlideTransition(
+                      position: _textSlide,
+                      child: FadeTransition(
+                        opacity: _textOpacity,
+                        child: const Text(
+                          "Meal4You",
+                          style: TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
