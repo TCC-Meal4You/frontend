@@ -13,6 +13,7 @@ class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _logoController;
   late Animation<double> _logoScale;
+  late Animation<double> _logoRotation;
 
   late AnimationController _textController;
   late Animation<double> _textOpacity;
@@ -20,44 +21,69 @@ class _SplashScreenState extends State<SplashScreen>
 
   late AnimationController _bgController;
 
+  late AnimationController _pulseController;
+  late Animation<double> _pulseScale;
+
+  late AnimationController _particlesController;
+
   @override
   void initState() {
     super.initState();
 
     _logoController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1800),
     );
 
-    _logoScale = Tween<double>(begin: 0.2, end: 1.0).animate(
+    _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
+    );
+
+    _logoRotation = Tween<double>(begin: -math.pi * 2, end: 0.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.easeOutBack),
     );
 
     _logoController.forward();
 
     _textController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 1200),
     );
 
-    _textOpacity = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeIn));
+    _textOpacity = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _textController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
+      ),
+    );
 
-    _textSlide = Tween<Offset>(
-      begin: const Offset(0, 0.4),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
+    _textSlide = Tween<Offset>(begin: const Offset(0, 1.5), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic),
+        );
 
-    Future.delayed(const Duration(milliseconds: 600), () {
+    Future.delayed(const Duration(milliseconds: 800), () {
       _textController.forward();
     });
 
     _bgController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 4),
+      duration: const Duration(seconds: 6),
     )..repeat(reverse: true);
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _pulseScale = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    _particlesController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
 
     Future.delayed(const Duration(seconds: 5), _checkLogin);
   }
@@ -128,6 +154,8 @@ class _SplashScreenState extends State<SplashScreen>
     _logoController.dispose();
     _textController.dispose();
     _bgController.dispose();
+    _pulseController.dispose();
+    _particlesController.dispose();
     super.dispose();
   }
 
@@ -136,7 +164,7 @@ class _SplashScreenState extends State<SplashScreen>
     return PopScope(
       canPop: false,
       child: AnimatedBuilder(
-        animation: _bgController,
+        animation: Listenable.merge([_bgController, _particlesController]),
         builder: (context, child) {
           final t = _bgController.value;
 
@@ -152,50 +180,200 @@ class _SplashScreenState extends State<SplashScreen>
           )!;
 
           return Scaffold(
-            body: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color1, color2],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            body: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [color1, color2],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
                 ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ScaleTransition(
-                      scale: _logoScale,
-                      child: Transform.rotate(
-                        angle: math.sin(_logoController.value * math.pi) * 0.05,
-                        child: const Icon(
-                          Icons.restaurant_menu_rounded,
-                          size: 130,
+
+                ...List.generate(8, (index) {
+                  final delay = index * 0.125;
+                  final progress = (_particlesController.value + delay) % 1.0;
+                  final offset = Offset(
+                    (index % 4) * 0.25 + math.sin(progress * math.pi * 2) * 0.1,
+                    progress,
+                  );
+
+                  return Positioned(
+                    left: MediaQuery.of(context).size.width * offset.dx,
+                    top: MediaQuery.of(context).size.height * offset.dy,
+                    child: Opacity(
+                      opacity: (math.sin(progress * math.pi) * 0.3).clamp(
+                        0.0,
+                        1.0,
+                      ),
+                      child: Container(
+                        width: 4 + (index % 3) * 2,
+                        height: 4 + (index % 3) * 2,
+                        decoration: BoxDecoration(
                           color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              // ignore: deprecated_member_use
+                              color: Colors.white.withOpacity(0.5),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                            ),
+                          ],
                         ),
                       ),
                     ),
+                  );
+                }),
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedBuilder(
+                        animation: _pulseController,
+                        builder: (context, child) {
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Transform.scale(
+                                scale: _pulseScale.value * 1.8,
+                                child: Container(
+                                  width: 200,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      // ignore: deprecated_member_use
+                                      color: Colors.white.withOpacity(
+                                        0.2 * (1 - _pulseController.value),
+                                      ),
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Transform.scale(
+                                scale: _pulseScale.value * 1.3,
+                                child: Container(
+                                  width: 160,
+                                  height: 160,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      // ignore: deprecated_member_use
+                                      color: Colors.white.withOpacity(
+                                        0.3 *
+                                            (1 - _pulseController.value * 0.7),
+                                      ),
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              ScaleTransition(
+                                scale: _logoScale,
+                                child: AnimatedBuilder(
+                                  animation: _logoRotation,
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _logoRotation.value,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              // ignore: deprecated_member_use
+                                              color: Colors.white.withOpacity(
+                                                0.3,
+                                              ),
+                                              blurRadius: 40,
+                                              spreadRadius: 10,
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.restaurant_menu_rounded,
+                                          size: 100,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 40),
 
-                    SlideTransition(
-                      position: _textSlide,
-                      child: FadeTransition(
-                        opacity: _textOpacity,
-                        child: const Text(
-                          "Meal4You",
-                          style: TextStyle(
-                            fontSize: 34,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
-                            color: Colors.white,
+                      SlideTransition(
+                        position: _textSlide,
+                        child: FadeTransition(
+                          opacity: _textOpacity,
+                          child: Column(
+                            children: [
+                              ShaderMask(
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: [
+                                    Colors.white,
+                                    // ignore: deprecated_member_use
+                                    Colors.white.withOpacity(0.95),
+                                  ],
+                                ).createShader(bounds),
+                                child: const Text(
+                                  "Meal4You",
+                                  style: TextStyle(
+                                    fontSize: 42,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Ubuntu',
+                                    letterSpacing: 2,
+                                    color: Colors.white,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black26,
+                                        offset: Offset(0, 4),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                "comida consciente",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Ubuntu',
+                                  letterSpacing: 1.2,
+                                  // ignore: deprecated_member_use
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Um impacto que vai além da fome",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'Ubuntu',
+                                  letterSpacing: 1.2,
+                                  // ignore: deprecated_member_use
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
           );
         },
