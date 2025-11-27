@@ -40,12 +40,16 @@ class AdmLoginService {
       final token = response['token'] ?? response['accessToken'];
       if (token == null) throw Exception('Token não retornado.');
 
-      response['userType'] = 'adm';
-
-      await UserTokenSaving.saveToken(token);
-      await UserTokenSaving.saveUserData(response);
-
       await UserTokenSaving.saveCurrentUserEmail(email);
+      await UserTokenSaving.saveToken(token);
+
+      final userData = <String, dynamic>{
+        ...Map<String, dynamic>.from(response),
+        'email': email,
+        'userType': 'adm',
+        'isAdm': true,
+      };
+      await UserTokenSaving.saveUserData(userData);
 
       final savedEmail = await UserTokenSaving.getUserEmail();
       if (savedEmail == null)

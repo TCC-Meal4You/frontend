@@ -28,13 +28,23 @@ class ClientLoginService {
     String senha,
   ) async {
     try {
+      await UserTokenSaving.clearAll();
+
       final response = await loginClient(email: email, senha: senha);
       final token = response["token"] ?? response["accessToken"];
       if (token == null) throw Exception("Token não retornado.");
-      await UserTokenSaving.clearAll();
-      response['userType'] = 'client';
+
+      await UserTokenSaving.saveCurrentUserEmail(email);
       await UserTokenSaving.saveToken(token);
-      await UserTokenSaving.saveUserData(response);
+
+      final userData = <String, dynamic>{
+        ...Map<String, dynamic>.from(response),
+        'email': email,
+        'userType': 'client',
+        'isAdm': false,
+      };
+      await UserTokenSaving.saveUserData(userData);
+
       final savedEmail = await UserTokenSaving.getUserEmail();
       if (savedEmail == null) throw Exception("Email não encontrado.");
       if (!context.mounted) return;
