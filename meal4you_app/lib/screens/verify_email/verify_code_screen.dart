@@ -105,13 +105,24 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
       final token = loginResponse['token'] ?? loginResponse['accessToken'];
       if (token != null) {
+        // CRÍTICO: Salvar email PRIMEIRO
         await UserTokenSaving.saveCurrentUserEmail(email);
         await UserTokenSaving.saveToken(token);
-        await UserTokenSaving.saveUserData(loginResponse);
+
+        final userData = <String, dynamic>{
+          ...Map<String, dynamic>.from(loginResponse),
+          'email': email,
+          'userType': isAdmin ? 'adm' : 'client',
+          'isAdm': isAdmin,
+        };
+        await UserTokenSaving.saveUserData(userData);
 
         print('✅ REGISTRO - Email salvo: $email');
         print('✅ REGISTRO - Token salvo');
-        print('✅ REGISTRO - UserData salvo');
+        print(
+          '✅ REGISTRO - UserData salvo com userType: ${isAdmin ? "adm" : "client"}',
+        );
+        print('✅ REGISTRO - UserData completo: $userData');
       }
 
       if (!mounted) return;
