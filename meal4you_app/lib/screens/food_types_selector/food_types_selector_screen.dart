@@ -65,8 +65,8 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
             ],
           ),
           content: const Text(
-            "Seu restaurante deve ter pelo menos 1 tipo de comida cadastrado. Por favor, selecione pelo menos um tipo.",
-            style: TextStyle(fontSize: 16),
+            "Seu restaurante deve ter PELO MENOS 1 tipo de comida cadastrado. Por favor, selecione pelo menos um tipo.",
+            style: TextStyle(fontSize: 16, fontFamily: 'Ubuntu'),
           ),
           actions: [
             SizedBox(
@@ -95,15 +95,7 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
 
   Future<void> _saveSelection() async {
     if (selectedTypes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Selecione pelo menos 1 tipo de comida para o restaurante!",
-          ),
-          backgroundColor: Colors.redAccent,
-          duration: Duration(seconds: 3),
-        ),
-      );
+      _showValidationDialog();
       return;
     }
 
