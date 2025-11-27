@@ -105,8 +105,13 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
       final token = loginResponse['token'] ?? loginResponse['accessToken'];
       if (token != null) {
+        await UserTokenSaving.saveCurrentUserEmail(email);
         await UserTokenSaving.saveToken(token);
         await UserTokenSaving.saveUserData(loginResponse);
+
+        print('✅ REGISTRO - Email salvo: $email');
+        print('✅ REGISTRO - Token salvo');
+        print('✅ REGISTRO - UserData salvo');
       }
 
       if (!mounted) return;
