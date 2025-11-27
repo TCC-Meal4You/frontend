@@ -153,7 +153,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       transitionAnimationController: AnimationController(
-        duration: const Duration(milliseconds: 600),
+        duration: const Duration(milliseconds: 300),
         vsync: Navigator.of(context),
       ),
       builder: (context) =>
