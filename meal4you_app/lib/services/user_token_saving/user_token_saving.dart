@@ -49,6 +49,11 @@ class UserTokenSaving {
 
     if (email != null) {
       await prefs.setString(_userEmailKey, email);
+      debugPrint('✅ UserTokenSaving - Email salvo automaticamente: $email');
+    } else {
+      debugPrint(
+        '⚠️ UserTokenSaving - AVISO: Email não encontrado no userData!',
+      );
     }
   }
 
@@ -118,6 +123,8 @@ class UserTokenSaving {
     final prefs = await SharedPreferences.getInstance();
 
     try {
+      debugPrint('🏪 saveRestaurantDataForUser - Email: $email');
+
       final rawId =
           restaurantData['idRestaurante'] ??
           restaurantData['id'] ??
@@ -125,15 +132,23 @@ class UserTokenSaving {
 
       final id = rawId is int ? rawId : int.tryParse(rawId.toString()) ?? -1;
 
+      debugPrint('🏪 saveRestaurantDataForUser - ID extraído: $id');
+
       if (id > 0) {
         await prefs.setInt(_restaurantIdKey, id);
+        debugPrint('✅ RestaurantId salvo: $id');
+
         await prefs.setString(
           'restaurant_data_$email',
           jsonEncode(restaurantData),
         );
+        debugPrint('✅ RestaurantData salvo para: restaurant_data_$email');
+      } else {
+        debugPrint('❌ ID inválido ($id) - RestaurantData NÃO foi salvo');
       }
     } catch (e) {
-      debugPrint("Erro ao salvar restaurante: $e");
+      debugPrint("❌ ERRO ao salvar restaurante: $e");
+      rethrow;
     }
   }
 
@@ -161,8 +176,19 @@ class UserTokenSaving {
     Map<String, dynamic> restaurantData,
   ) async {
     final email = await getUserEmail();
+    debugPrint(
+      '🔍 saveRestaurantDataForCurrentUser - Email encontrado: $email',
+    );
+
     if (email != null) {
       await saveRestaurantDataForUser(email, restaurantData);
+    } else {
+      debugPrint(
+        '❌ ERRO CRÍTICO: Email null em saveRestaurantDataForCurrentUser!',
+      );
+      throw Exception(
+        'Email do usuário não disponível para salvar dados do restaurante',
+      );
     }
   }
 
