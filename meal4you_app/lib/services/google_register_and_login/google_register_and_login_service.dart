@@ -62,58 +62,101 @@ class GoogleRegisterAndLoginService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final jwt = data['token'];
-        await UserTokenSaving.saveToken(jwt);
 
         final email = googleUser.email;
-        await UserTokenSaving.saveUserId(email);
+
         await UserTokenSaving.saveCurrentUserEmail(email);
+        await UserTokenSaving.saveToken(jwt);
+
+        final userData = <String, dynamic>{
+          ...Map<String, dynamic>.from(data),
+          'email': email,
+          'userType': isAdmin ? 'adm' : 'client',
+          'isAdm': isAdmin,
+        };
+        await UserTokenSaving.saveUserData(userData);
+
+        debugPrint('✅ GOOGLE LOGIN - Email salvo: $email');
+        debugPrint('✅ GOOGLE LOGIN - Token salvo');
+        debugPrint(
+          '✅ GOOGLE LOGIN - UserData salvo com userType: ${isAdmin ? "adm" : "client"}',
+        );
 
         if (isAdmin) {
+          debugPrint('🔍 GOOGLE LOGIN - Buscando dados do restaurante...');
+
           final restaurantData =
               await SearchRestaurantDataService.searchMyRestaurant(jwt);
 
-          if (restaurantData != null) {
+          if (restaurantData != null && restaurantData.isNotEmpty) {
+            debugPrint('✅ GOOGLE LOGIN - Restaurante encontrado no backend');
+
             final restaurantProvider = Provider.of<RestaurantProvider>(
               context,
               listen: false,
             );
 
-            final id =
-                restaurantData['idRestaurante'] ?? restaurantData['id'] ?? 0;
+            final rawId =
+                restaurantData['idRestaurante'] ??
+                restaurantData['id'] ??
+                restaurantData['id_restaurante'];
+            final id = rawId is int
+                ? rawId
+                : int.tryParse(rawId.toString()) ?? 0;
 
-            debugPrint('🧾 [GoogleLogin] ID carregado do backend: $id');
+            debugPrint('🆔 GOOGLE LOGIN - ID do restaurante: $id');
 
-            restaurantProvider.updateRestaurant(
-              id: id,
-              name: restaurantData['nome'] ?? '',
-              description: restaurantData['descricao'] ?? '',
-              isActive: restaurantData['ativo'] ?? false,
-              foodTypes: (restaurantData['tipoComida'] != null)
-                  ? restaurantData['tipoComida']
-                        .toString()
-                        .split(',')
-                        .map((e) => e.trim())
-                        .toList()
-                  : [],
-            );
+            if (id > 0) {
+              restaurantProvider.updateRestaurant(
+                id: id,
+                name: restaurantData['nome'] ?? '',
+                description: restaurantData['descricao'] ?? '',
+                isActive: restaurantData['ativo'] ?? false,
+                foodTypes: (restaurantData['tipoComida'] is String)
+                    ? restaurantData['tipoComida']
+                          .split(',')
+                          .map((e) => e.trim())
+                          .toList()
+                    : (restaurantData['tipoComida'] as List? ?? [])
+                          .map((e) => e.toString())
+                          .toList(),
+              );
 
-            await UserTokenSaving.saveRestaurantId(id);
-            await UserTokenSaving.saveRestaurantDataForUser(email, {
-              ...restaurantData,
-              "id": id,
-            });
+              await UserTokenSaving.saveRestaurantId(id);
 
-            debugPrint('✅ [GoogleLogin] Restaurante salvo localmente: id=$id');
-            await Future.delayed(const Duration(milliseconds: 300));
+              final restaurantDataToSave = <String, dynamic>{
+                ...Map<String, dynamic>.from(restaurantData),
+                'id': id,
+                'idRestaurante': id,
+              };
 
-            Navigator.pushReplacementNamed(context, '/admRestaurantHome');
+              await UserTokenSaving.saveRestaurantDataForCurrentUser(
+                restaurantDataToSave,
+              );
+
+              debugPrint('✅ GOOGLE LOGIN - Restaurante salvo localmente');
+
+              final savedData =
+                  await UserTokenSaving.getRestaurantDataForCurrentUser();
+              debugPrint(
+                '🔍 GOOGLE LOGIN - Verificação: ${savedData != null ? "OK" : "FALHOU"}',
+              );
+
+              await Future.delayed(const Duration(milliseconds: 300));
+
+              Navigator.pushReplacementNamed(context, '/admRestaurantHome');
+            } else {
+              debugPrint('⚠️ GOOGLE LOGIN - ID inválido, indo para criação');
+              Navigator.pushReplacementNamed(context, '/createAdmRestaurant');
+            }
           } else {
             debugPrint(
-              '⚠️ [GoogleLogin] Nenhum restaurante encontrado — indo para criação.',
+              '⚠️ GOOGLE LOGIN - Nenhum restaurante encontrado, indo para criação',
             );
             Navigator.pushReplacementNamed(context, '/createAdmRestaurant');
           }
         } else {
+          debugPrint('👤 GOOGLE LOGIN - Cliente, indo para restrictionsChoice');
           Navigator.pushReplacementNamed(context, '/restrictionsChoice');
         }
       } else {
