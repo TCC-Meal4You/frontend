@@ -8,6 +8,7 @@ class UserTokenSaving {
   static const String _userEmailKey = 'user_email';
   static const String _userIdKey = 'user_id';
   static const String _restaurantIdKey = 'restaurant_id';
+  static const String _userPasswordKey = 'user_password';
 
   static Future<String?> getAuthorizationHeader() async {
     final token = await getToken();
@@ -83,6 +84,21 @@ class UserTokenSaving {
   static Future<void> saveCurrentUserEmail(String email) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userEmailKey, email);
+  }
+
+  static Future<void> saveUserPassword(String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userPasswordKey, password);
+  }
+
+  static Future<String?> getUserPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userPasswordKey);
+  }
+
+  static Future<void> clearUserPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userPasswordKey);
   }
 
   static Future<void> saveUserId(String email) async {
@@ -207,6 +223,7 @@ class UserTokenSaving {
     await prefs.remove(_userEmailKey);
     await prefs.remove(_userIdKey);
     await prefs.remove(_restaurantIdKey);
+    await prefs.remove(_userPasswordKey);
 
     if (email != null) {
       await prefs.remove('restaurant_data_$email');
@@ -218,5 +235,6 @@ class UserTokenSaving {
     await prefs.remove(_tokenKey);
     await prefs.remove(_userDataKey);
     await prefs.remove(_userEmailKey);
+    await prefs.remove(_userPasswordKey);
   }
 }

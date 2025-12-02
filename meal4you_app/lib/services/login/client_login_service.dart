@@ -36,6 +36,7 @@ class ClientLoginService {
 
       await UserTokenSaving.saveCurrentUserEmail(email);
       await UserTokenSaving.saveToken(token);
+      await UserTokenSaving.saveUserPassword(senha);
 
       final userData = <String, dynamic>{
         ...Map<String, dynamic>.from(response),
