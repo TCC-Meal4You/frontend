@@ -1,8 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
-class AdmProfileScreen extends StatelessWidget {
+class AdmProfileScreen extends StatefulWidget {
   const AdmProfileScreen({super.key});
+
+  @override
+  State<AdmProfileScreen> createState() => _AdmProfileScreenState();
+}
+
+class _AdmProfileScreenState extends State<AdmProfileScreen> {
+  String _email = '';
+  String _nome = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userData = await UserTokenSaving.getUserData();
+
+    if (userData != null && mounted) {
+      setState(() {
+        _email =
+            userData['email'] ?? (userData['user']?['email']) ?? 'Sem email';
+        _nome =
+            userData['nome'] ??
+            userData['name'] ??
+            (userData['user']?['nome']) ??
+            'Sem nome';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,122 +42,305 @@ class AdmProfileScreen extends StatelessWidget {
 
     return SafeArea(
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            color: Colors.black,
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 27, 28, 28),
-                Color.fromARGB(223, 0, 203, 166),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 30),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.account_circle, size: 100, color: Colors.white),
-              const SizedBox(height: 30),
-              Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text(
-                        'Bem-vindo, (nome)!',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+              Container(
+                height: 190,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromARGB(255, 157, 0, 255),
+                      Color.fromARGB(255, 15, 230, 135),
                     ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
                   ),
-                  const SizedBox(height: 50),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text(
-                        'Você está logado\ncomo ADMINISTRADOR',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
                       ),
-                    ],
-                  ),
-                ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                'MEAL4YOU',
+                                style: TextStyle(
+                                  fontFamily: 'Ubuntu',
+                                  fontSize: 27,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                'c  o  m  i  d  a    c  o  n  s  c  i  e  n  t  e',
+                                style: TextStyle(
+                                  fontFamily: 'Ubuntu',
+                                  fontSize: 8,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                            onPressed: () =>
+                                admLogoutHandler.showLogoutDialog(context),
+                            icon: const FaIcon(
+                              FontAwesomeIcons.rightFromBracket,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Meu Perfil',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 15,
+                        fontFamily: 'Ubuntu',
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 100),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: const [
+                                  Icon(
+                                    Icons.person_outline,
+                                    color: Color.fromARGB(255, 15, 230, 135),
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Informações Pessoais',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              TextButton.icon(
+                                onPressed: () {
+                                  // TODO: Navegar para tela de edição
+                                },
+                                icon: const Icon(Icons.edit_outlined, size: 18),
+                                label: const Text('Editar'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
 
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 0, 140, 255),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  fixedSize: const Size(300, 55),
-                  elevation: 20,
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'GERENCIAR RESTAURANTE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 0, 140, 255),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  fixedSize: const Size(300, 55),
-                  elevation: 20,
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/changeAdmData');
-                },
-                child: const Text(
-                  'ALTERAR MEUS DADOS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  fixedSize: const Size(200, 50),
-                  elevation: 20,
-                ),
-                onPressed: () => admLogoutHandler.showLogoutDialog(context),
-                child: const Text(
-                  'SAIR',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.email_outlined,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Email',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _email,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.badge_outlined,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Nome',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _nome,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(
+                                Icons.account_circle_outlined,
+                                color: Color.fromARGB(255, 15, 230, 135),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Informações da Conta',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+
+                          const Text(
+                            'Tipo de Conta',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Proprietário de Restaurante',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          const Text(
+                            'Status da Conta',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Ativa',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.deepPurple,
+          unselectedItemColor: Colors.grey,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.store_mall_directory_outlined),
+              label: 'Restaurante',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: 'Perfil',
+            ),
+          ],
+          currentIndex: 1,
+          onTap: (index) {
+            if (index == 1) {
+              Navigator.pushReplacementNamed(context, '/admProfile');
+            } else if (index == 0) {
+              Navigator.pushNamed(context, '/admRestaurantHome');
+            }
+          },
         ),
       ),
     );
