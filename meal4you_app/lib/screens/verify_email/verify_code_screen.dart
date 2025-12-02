@@ -105,9 +105,9 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
       final token = loginResponse['token'] ?? loginResponse['accessToken'];
       if (token != null) {
-        // CRÍTICO: Salvar email PRIMEIRO
         await UserTokenSaving.saveCurrentUserEmail(email);
         await UserTokenSaving.saveToken(token);
+        await UserTokenSaving.saveUserPassword(senha);
 
         final userData = <String, dynamic>{
           ...Map<String, dynamic>.from(loginResponse),
