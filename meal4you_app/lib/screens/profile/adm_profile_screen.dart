@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
+import 'package:meal4you_app/services/search_profile/search_adm_profile_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class AdmProfileScreen extends StatefulWidget {
@@ -13,6 +14,9 @@ class AdmProfileScreen extends StatefulWidget {
 class _AdmProfileScreenState extends State<AdmProfileScreen> {
   String _email = '';
   String _nome = '';
+  String _senha = '';
+  bool _isLoading = true;
+  bool _obscureSenha = false;
 
   @override
   void initState() {
@@ -21,18 +25,30 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
   }
 
   Future<void> _loadUserData() async {
-    final userData = await UserTokenSaving.getUserData();
+    try {
+      final profileData = await SearchAdmProfileService.buscarMeuPerfil();
+      final senhaLocal = await UserTokenSaving.getUserPassword();
 
-    if (userData != null && mounted) {
-      setState(() {
-        _email =
-            userData['email'] ?? (userData['user']?['email']) ?? 'Sem email';
-        _nome =
-            userData['nome'] ??
-            userData['name'] ??
-            (userData['user']?['nome']) ??
-            'Sem nome';
-      });
+      if (mounted) {
+        setState(() {
+          _email = profileData['email'] ?? 'Sem email';
+          _nome = profileData['nome'] ?? 'Sem nome';
+          _senha = senhaLocal ?? profileData['senha'] ?? '';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar perfil: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -120,199 +136,282 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: const [
-                                  Icon(
-                                    Icons.person_outline,
-                                    color: Color.fromARGB(255, 15, 230, 135),
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Informações Pessoais',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              TextButton.icon(
-                                onPressed: () {
-                                  // TODO: Navegar para tela de edição
-                                },
-                                icon: const Icon(Icons.edit_outlined, size: 18),
-                                label: const Text('Editar'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.black87,
-                                ),
-                              ),
-                            ],
+                    if (_isLoading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(40),
+                          child: CircularProgressIndicator(
+                            color: Color.fromARGB(255, 157, 0, 255),
                           ),
-                          const SizedBox(height: 20),
-
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.email_outlined,
-                                color: Colors.grey,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Email',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                        ),
+                      )
+                    else ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.person_outline,
+                                      color: Color.fromARGB(255, 15, 230, 135),
+                                      size: 20,
                                     ),
-                                    const SizedBox(height: 4),
+                                    SizedBox(width: 8),
                                     Text(
-                                      _email,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
+                                      'Informações Pessoais',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.badge_outlined,
-                                color: Colors.grey,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Nome',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _nome,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ],
+                                TextButton.icon(
+                                  onPressed: () {
+                                    // TODO: Navegar para tela de edição
+                                  },
+                                  icon: const Icon(
+                                    Icons.edit_outlined,
+                                    size: 18,
+                                  ),
+                                  label: const Text('Editar'),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
 
-                    const SizedBox(height: 20),
-
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: const [
-                              Icon(
-                                Icons.account_circle_outlined,
-                                color: Color.fromARGB(255, 15, 230, 135),
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Informações da Conta',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.email_outlined,
+                                  color: Colors.grey,
+                                  size: 20,
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Email',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _email,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
 
-                          const Text(
-                            'Tipo de Conta',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Proprietário de Restaurante',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                            ),
-                          ),
+                            const SizedBox(height: 20),
 
-                          const SizedBox(height: 16),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.badge_outlined,
+                                  color: Colors.grey,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Nome',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _nome,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
 
-                          const Text(
-                            'Status da Conta',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black54,
+                            const SizedBox(height: 20),
+
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.lock_outline,
+                                  color: Colors.grey,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Senha',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              !_obscureSenha
+                                                  ? '•' *
+                                                        (_senha.length > 0
+                                                            ? _senha.length
+                                                            : 8)
+                                                  : _senha,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.black87,
+                                                letterSpacing: !_obscureSenha
+                                                    ? 2
+                                                    : 0,
+                                              ),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                              !_obscureSenha
+                                                  ? Icons.visibility_outlined
+                                                  : Icons
+                                                        .visibility_off_outlined,
+                                              size: 20,
+                                              color: Colors.grey,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                _obscureSenha = !_obscureSenha;
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Ativa',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.green,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
+
+                      const SizedBox(height: 20),
+
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(
+                                  Icons.account_circle_outlined,
+                                  color: Color.fromARGB(255, 15, 230, 135),
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Informações da Conta',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+
+                            const Text(
+                              'Tipo de Conta',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Proprietário de Restaurante',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            const Text(
+                              'Status da Conta',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Ativa',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.green,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
