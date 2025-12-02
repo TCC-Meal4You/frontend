@@ -289,11 +289,17 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
-              label: 'Meu Perfil',
+              label: 'Perfil',
             ),
           ],
           currentIndex: 0,
-          onTap: (index) {},
+          onTap: (index) {
+            if (index == 0) {
+              Navigator.pushReplacementNamed(context, '/admRestaurantHome');
+            } else if (index == 1) {
+              Navigator.pushNamed(context, '/admProfile');
+            }
+          },
         ),
       ),
     );
