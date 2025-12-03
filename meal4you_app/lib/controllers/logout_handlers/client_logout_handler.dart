@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/controllers/textfield/login_controllers.dart';
 import 'package:meal4you_app/services/logout/client_logout/client_global_logout_service.dart';
 import 'package:meal4you_app/services/logout/client_logout/client_logout_service.dart';
 
@@ -67,6 +68,9 @@ class ClientLogoutHandler {
       }
 
       if (!context.mounted) return;
+
+      LoginControllers.emailController.clear();
+      LoginControllers.senhaController.clear();
 
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(

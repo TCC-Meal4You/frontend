@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/controllers/textfield/login_controllers.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_global_logout_service.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_logout_service.dart';
@@ -11,9 +12,9 @@ class AdmLogoutHandler {
   AdmLogoutHandler({
     AdmLogoutService? admLogoutService,
     AdmGlobalLogoutService? admGlobalLogoutService,
-  })  : _admLogoutService = admLogoutService ?? AdmLogoutService(),
-        _admGlobalLogoutService =
-            admGlobalLogoutService ?? AdmGlobalLogoutService();
+  }) : _admLogoutService = admLogoutService ?? AdmLogoutService(),
+       _admGlobalLogoutService =
+           admGlobalLogoutService ?? AdmGlobalLogoutService();
 
   Future<void> showLogoutDialog(BuildContext context) async {
     return showDialog<void>(
@@ -26,7 +27,10 @@ class AdmLogoutHandler {
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.red)),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.red),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -68,6 +72,9 @@ class AdmLogoutHandler {
       final provider = Provider.of<RestaurantProvider>(context, listen: false);
       provider.clearRestaurant();
 
+      LoginControllers.emailController.clear();
+      LoginControllers.senhaController.clear();
+
       if (!context.mounted) return;
       Navigator.of(context).pop();
 
@@ -81,12 +88,15 @@ class AdmLogoutHandler {
         ),
       );
 
-      Navigator.of(context).pushNamedAndRemoveUntil('/admLogin', (route) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/admLogin', (route) => false);
     } catch (e) {
       if (!context.mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Erro ao deslogar: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao deslogar: $e')));
     }
   }
 }
