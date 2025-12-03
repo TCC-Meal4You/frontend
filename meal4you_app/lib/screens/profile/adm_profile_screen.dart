@@ -44,15 +44,13 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
     try {
       final profileData = await SearchAdmProfileService.buscarMeuPerfil();
       final senhaLocal = await UserTokenSaving.getUserPassword();
-      final senhaBackend = profileData['senha'];
 
       if (mounted) {
         setState(() {
           _email = profileData['email'] ?? 'Sem email';
           _nome = profileData['nome'] ?? 'Sem nome';
-          _senha = senhaLocal ?? senhaBackend ?? '';
-          _isSocialLogin =
-              (senhaBackend == null || senhaBackend.toString().isEmpty);
+          _senha = senhaLocal ?? '';
+          _isSocialLogin = (senhaLocal == null || senhaLocal.isEmpty);
           _nomeController.text = _nome;
           _isLoading = false;
         });
