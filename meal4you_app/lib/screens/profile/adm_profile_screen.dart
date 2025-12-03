@@ -92,13 +92,33 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
   Future<void> _saveChanges() async {
     if (_isSaving) return;
 
-    final novoNome = _nomeController.text;
+    final novoNome = _nomeController.text.trim();
     final novaSenha = _senhaController.text.trim();
 
     if (novoNome.isEmpty && novaSenha.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Preencha pelo menos um campo para atualizar'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (novoNome.isNotEmpty && novoNome.length < 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('O nome deve ter no mínimo 3 caracteres'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (novaSenha.isNotEmpty && novaSenha.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('A senha deve ter no mínimo 6 caracteres'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -202,60 +222,88 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
 
   Future<void> _showEmailChangeDialog() async {
     final emailController = TextEditingController();
+    String? errorMessage;
 
     final novoEmail = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Alterar E-mail'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Digite o novo endereço de e-mail:',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                labelText: 'Novo Email',
-                hintText: 'exemplo@email.com',
-                prefixIcon: const Icon(Icons.email_outlined),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Alterar E-mail'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Digite o novo endereço de e-mail:',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                onChanged: (_) {
+                  if (errorMessage != null) {
+                    setState(() {
+                      errorMessage = null;
+                    });
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: 'Novo Email',
+                  hintText: 'exemplo@email.com',
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
                 ),
               ),
+              if (errorMessage != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  errorMessage!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final email = emailController.text.trim();
+
+                if (email.isEmpty) {
+                  setState(() {
+                    errorMessage = 'Digite um email';
+                  });
+                  return;
+                }
+
+                final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                if (!emailRegex.hasMatch(email)) {
+                  setState(() {
+                    errorMessage = 'Digite um e-mail válido';
+                  });
+                  return;
+                }
+
+                Navigator.pop(context, email);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 15, 230, 135),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Continuar'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final email = emailController.text.trim();
-              if (email.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Digite um email válido'),
-                    backgroundColor: Colors.orange,
-                  ),
-                );
-                return;
-              }
-              Navigator.pop(context, email);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 15, 230, 135),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Continuar'),
-          ),
-        ],
       ),
     );
 
