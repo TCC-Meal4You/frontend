@@ -18,7 +18,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
   String _nome = '';
   String _senha = '';
   bool _isLoading = true;
-  bool _obscureSenha = false;
+  bool _obscureSenha = true;
   bool _isEditing = false;
   bool _isSaving = false;
 
@@ -82,7 +82,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       _isEditing = false;
       _nomeController.text = _nome;
       _senhaController.clear();
-      _obscureSenha = false;
+      _obscureSenha = true;
     });
   }
 
@@ -102,6 +102,13 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       return;
     }
 
+    if (novaSenha.isNotEmpty) {
+      final confirmed = await _showPasswordChangeWarningDialog();
+      if (confirmed != true) {
+        return;
+      }
+    }
+
     setState(() {
       _isSaving = true;
     });
@@ -114,16 +121,31 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
 
       if (novaSenha.isNotEmpty) {
         await UserTokenSaving.saveUserPassword(novaSenha);
+
+        if (!mounted) return;
+        await UserTokenSaving.clearAll();
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Senha alterada com sucesso! Faça login novamente.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+
+        Navigator.pushNamedAndRemoveUntil(context, '/admLogin', (_) => false);
+        return;
       }
 
       if (mounted) {
         setState(() {
           if (novoNome.isNotEmpty) _nome = novoNome;
-          if (novaSenha.isNotEmpty) _senha = novaSenha;
           _isEditing = false;
           _isSaving = false;
           _senhaController.clear();
-          _obscureSenha = false;
+          _obscureSenha = true;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,6 +168,33 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         );
       }
     }
+  }
+
+  Future<bool?> _showPasswordChangeWarningDialog() async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Atenção!'),
+        content: const Text(
+          'Ao alterar sua senha, você será desconectado de todos os dispositivos e precisará fazer login novamente.\n\nDeseja continuar?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 15, 230, 135),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Continuar'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showEmailChangeDialog() async {
@@ -547,14 +596,39 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                     ),
                                   )
                                 else
-                                  Text(
-                                    '•' *
-                                        (_senha.length > 0 ? _senha.length : 8),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                      letterSpacing: 2,
-                                    ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        _obscureSenha
+                                            ? '•' *
+                                                  (_senha.length > 0
+                                                      ? _senha.length
+                                                      : 8)
+                                            : _senha.isNotEmpty
+                                            ? _senha
+                                            : '••••••••',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          _obscureSenha
+                                              ? Icons.visibility_outlined
+                                              : Icons.visibility_off_outlined,
+                                          color: Colors.grey,
+                                          size: 20,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _obscureSenha = !_obscureSenha;
+                                          });
+                                        },
+                                      ),
+                                    ],
                                   ),
                               ],
                             ),
