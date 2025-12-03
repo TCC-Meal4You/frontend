@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
+import 'package:meal4you_app/controllers/textfield/register_controllers.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/delete_account/delete_adm_account_service.dart';
 import 'package:meal4you_app/services/search_profile/search_adm_profile_service.dart';
@@ -491,6 +492,11 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         listen: false,
       );
       restaurantProvider.clearRestaurant();
+
+      RegisterControllers.nomeController.clear();
+      RegisterControllers.emailController.clear();
+      RegisterControllers.senhaController.clear();
+      RegisterControllers.confirmarSenhaController.clear();
 
       if (!mounted) return;
       Navigator.pop(context);
