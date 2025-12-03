@@ -22,6 +22,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
   bool _obscureSenha = true;
   bool _isEditing = false;
   bool _isSaving = false;
+  bool _isSocialLogin = false;
 
   final _nomeController = TextEditingController();
   final _senhaController = TextEditingController();
@@ -43,12 +44,15 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
     try {
       final profileData = await SearchAdmProfileService.buscarMeuPerfil();
       final senhaLocal = await UserTokenSaving.getUserPassword();
+      final senhaBackend = profileData['senha'];
 
       if (mounted) {
         setState(() {
           _email = profileData['email'] ?? 'Sem email';
           _nome = profileData['nome'] ?? 'Sem nome';
-          _senha = senhaLocal ?? profileData['senha'] ?? '';
+          _senha = senhaLocal ?? senhaBackend ?? '';
+          _isSocialLogin =
+              (senhaBackend == null || senhaBackend.toString().isEmpty);
           _nomeController.text = _nome;
           _isLoading = false;
         });
@@ -711,7 +715,37 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                if (_isEditing)
+                                if (_isSocialLogin)
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.blue.shade200,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: const [
+                                        Icon(
+                                          Icons.info_outline,
+                                          color: Colors.blue,
+                                          size: 20,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Você entrou com o Google. Não é possível alterar a senha.',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                else if (_isEditing)
                                   TextField(
                                     controller: _senhaController,
                                     obscureText: !_obscureSenha,
@@ -876,17 +910,18 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                     ),
                                   ],
                                 ),
-                                TextButton.icon(
-                                  onPressed: _showEmailChangeDialog,
-                                  icon: const Icon(
-                                    Icons.edit_outlined,
-                                    size: 18,
+                                if (!_isSocialLogin)
+                                  TextButton.icon(
+                                    onPressed: _showEmailChangeDialog,
+                                    icon: const Icon(
+                                      Icons.edit_outlined,
+                                      size: 18,
+                                    ),
+                                    label: const Text('Alterar'),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.black87,
+                                    ),
                                   ),
-                                  label: const Text('Alterar'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.black87,
-                                  ),
-                                ),
                               ],
                             ),
                             const SizedBox(height: 12),
@@ -897,6 +932,38 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                 color: Colors.black87,
                               ),
                             ),
+                            if (_isSocialLogin) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.blue.shade200,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.info_outline,
+                                      color: Colors.blue,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Você entrou com o Google. Não é possível alterar o e-mail.',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
