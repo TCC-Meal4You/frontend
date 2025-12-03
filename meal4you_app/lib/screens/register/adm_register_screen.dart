@@ -24,7 +24,35 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
     baseUrl: 'https://backend-production-9aaf.up.railway.app',
   );
 
+  @override
+  void initState() {
+    super.initState();
+    RegisterControllers.nomeController.clear();
+    RegisterControllers.emailController.clear();
+    RegisterControllers.senhaController.clear();
+    RegisterControllers.confirmarSenhaController.clear();
+  }
+
   Future<void> _sendCode() async {
+    if (RegisterControllers.nomeController.text.length < 3) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("O nome deve ter no mínimo 3 caracteres."),
+        ),
+      );
+      return;
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(RegisterControllers.emailController.text.trim())) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Por favor, insira um email válido.")),
+      );
+      return;
+    }
+
     if (RegisterControllers.senhaController.text !=
         RegisterControllers.confirmarSenhaController.text) {
       if (!mounted) return;
