@@ -228,6 +228,13 @@ class UserTokenSaving {
     if (email != null) {
       await prefs.remove('restaurant_data_$email');
     }
+
+    final allKeys = prefs.getKeys();
+    for (final key in allKeys) {
+      if (key.startsWith('restaurant_data_')) {
+        await prefs.remove(key);
+      }
+    }
   }
 
   static Future<void> clearAllUserData() async {
