@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
+import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/delete_account/delete_adm_account_service.dart';
 import 'package:meal4you_app/services/search_profile/search_adm_profile_service.dart';
 import 'package:meal4you_app/services/update_email/request_email_change_service.dart';
 import 'package:meal4you_app/services/update_profile/update_adm_profile_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:provider/provider.dart';
 
 class AdmProfileScreen extends StatefulWidget {
   const AdmProfileScreen({super.key});
@@ -483,6 +485,12 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       if (!mounted) return;
 
       await UserTokenSaving.clearAll();
+
+      final restaurantProvider = Provider.of<RestaurantProvider>(
+        context,
+        listen: false,
+      );
+      restaurantProvider.clearRestaurant();
 
       if (!mounted) return;
       Navigator.pop(context);
