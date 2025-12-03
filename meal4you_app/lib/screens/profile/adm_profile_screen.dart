@@ -64,7 +64,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 190,
+                height: 250,
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -119,12 +119,42 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        // ignore: deprecated_member_use
+                        color: Colors.white.withOpacity(0.3),
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _nome.isNotEmpty ? _nome[0].toUpperCase() : 'U',
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontFamily: 'Ubuntu',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     const Text(
                       'Meu Perfil',
                       style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: 'Ubuntu',
+                      ),
+                    ),
+                    const Text(
+                      'Gerencie suas informações',
+                      style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 15,
+                        fontSize: 13,
                         fontFamily: 'Ubuntu',
                       ),
                     ),
