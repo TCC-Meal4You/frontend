@@ -19,6 +19,13 @@ class ClientLoginScreen extends StatefulWidget {
 class _ClientLoginScreenState extends State<ClientLoginScreen> {
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    LoginControllers.emailController.clear();
+    LoginControllers.senhaController.clear();
+  }
+
   Future<void> _loginClient() async {
     final email = LoginControllers.emailController.text.trim();
     final senha = LoginControllers.senhaController.text.trim();
@@ -156,7 +163,6 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                             isLoading: _isLoading,
                             onPressed: _loginClient,
                             buttonText: "Logar",
-
                           ),
 
                           const SizedBox(height: 20),

@@ -19,6 +19,13 @@ class AdmLoginScreen extends StatefulWidget {
 class _AdmLoginScreenState extends State<AdmLoginScreen> {
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    LoginControllers.emailController.clear();
+    LoginControllers.senhaController.clear();
+  }
+
   Future<void> _loginAdm() async {
     final email = LoginControllers.emailController.text.trim();
     final senha = LoginControllers.senhaController.text.trim();
