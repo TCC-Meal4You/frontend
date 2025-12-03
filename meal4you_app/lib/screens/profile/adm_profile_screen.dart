@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
+import 'package:meal4you_app/services/delete_account/delete_adm_account_service.dart';
 import 'package:meal4you_app/services/search_profile/search_adm_profile_service.dart';
 import 'package:meal4you_app/services/update_email/request_email_change_service.dart';
 import 'package:meal4you_app/services/update_profile/update_adm_profile_service.dart';
@@ -282,6 +283,172 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         context,
         '/verifyEmailChange',
         arguments: {'novoEmail': novoEmail},
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _showDeleteAccountDialog() async {
+    final emailController = TextEditingController();
+    String? errorMessage;
+
+    final emailConfirmado = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Deletar Conta'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Para confirmar a exclusão da sua conta, digite seu email:',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                onChanged: (_) {
+                  if (errorMessage != null) {
+                    setState(() {
+                      errorMessage = null;
+                    });
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  hintText: 'Digite seu email',
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                ),
+              ),
+              if (errorMessage != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  errorMessage!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final email = emailController.text.trim();
+
+                if (email.isEmpty) {
+                  setState(() {
+                    errorMessage = 'Digite seu email';
+                  });
+                  return;
+                }
+
+                final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                if (!emailRegex.hasMatch(email)) {
+                  setState(() {
+                    errorMessage = 'Digite um e-mail válido';
+                  });
+                  return;
+                }
+
+                Navigator.pop(context, email);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Continuar'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (emailConfirmado != null && emailConfirmado.isNotEmpty) {
+      await _showFinalDeleteWarning(emailConfirmado);
+    }
+  }
+
+  Future<void> _showFinalDeleteWarning(String email) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('⚠️ Atenção!'),
+        content: const Text(
+          'Tem certeza que deseja deletar sua conta permanentemente?\n\nEsta ação NÃO pode ser desfeita e irá deletar:\n\n• Sua conta de administrador\n• Seu restaurante\n• Todas as refeições cadastradas\n• Todos os ingredientes\n• Todas as avaliações\n• Todos os favoritos\n• Resumindo: TUDO!\n\nTodos os dados serão perdidos permanentemente.',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Deletar Permanentemente'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _deleteAccount(email);
+    }
+  }
+
+  Future<void> _deleteAccount(String email) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) =>
+          const Center(child: CircularProgressIndicator(color: Colors.red)),
+    );
+
+    try {
+      await DeleteAdmAccountService.deletarMinhaConta(email);
+
+      if (!mounted) return;
+
+      await UserTokenSaving.clearAll();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Conta deletada com sucesso!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/profileChoice',
+        (_) => false,
       );
     } catch (e) {
       if (!mounted) return;
@@ -801,6 +968,69 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                 fontSize: 14,
                                 color: Colors.green,
                                 fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Deletar Conta',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Deletar sua conta irá remover permanentemente todos os seus dados, incluindo restaurante, refeições, ingredientes e avaliações.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 44,
+                              child: OutlinedButton.icon(
+                                onPressed: _showDeleteAccountDialog,
+                                icon: const Icon(Icons.delete_forever_outlined),
+                                label: const Text('Deletar'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                  side: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
                               ),
                             ),
                           ],
