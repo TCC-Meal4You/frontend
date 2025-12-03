@@ -23,6 +23,7 @@ import 'package:meal4you_app/screens/ratings_and_comments/ratings_and_comments_s
 import 'package:meal4you_app/screens/send_password_code/send_password_code_screen.dart';
 import 'package:meal4you_app/screens/new_password/new_password_screen.dart';
 import 'package:meal4you_app/screens/confirm_password_code/confirm_password_code_screen.dart';
+import 'package:meal4you_app/screens/verify_email_change/verify_email_change_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -136,6 +137,13 @@ class Meal4You extends StatelessWidget {
             final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
               builder: (_) => ConfirmPasswordCodeScreen(isAdm: args['isAdm']),
+            );
+
+          case '/verifyEmailChange':
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (_) =>
+                  VerifyEmailChangeScreen(novoEmail: args['novoEmail']),
             );
 
           default:
