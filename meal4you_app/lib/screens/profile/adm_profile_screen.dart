@@ -63,12 +63,30 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao carregar perfil: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+
+        if (e.toString().contains('401') ||
+            e.toString().contains('Não autorizado')) {
+          await UserTokenSaving.clearAll();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sua sessão expirou. Faça login novamente.'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 3),
+            ),
+          );
+
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil('/profileChoice', (route) => false);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao carregar perfil: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
