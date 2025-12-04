@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/services/validate_token/validate_token_service.dart';
 import 'dart:math' as math;
 
 class SplashScreen extends StatefulWidget {
@@ -100,6 +101,20 @@ class _SplashScreenState extends State<SplashScreen>
       _goTo('/profileChoice');
       return;
     }
+
+    print('🔐 Validando token no backend...');
+    final isTokenValid = await ValidateTokenService.validateToken();
+
+    if (!isTokenValid) {
+      print(
+        '❌ Token inválido ou expirado, limpando dados e indo para profileChoice',
+      );
+      await UserTokenSaving.clearAll();
+      _goTo('/profileChoice');
+      return;
+    }
+
+    print('✅ Token válido');
 
     final restaurantId = await UserTokenSaving.getRestaurantId();
     final restaurantData =
