@@ -18,12 +18,16 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadRestaurantData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadRestaurantData();
+    });
   }
 
   Future<void> _loadRestaurantData() async {
+    if (!mounted) return;
+
     final email = await UserTokenSaving.getUserEmail();
-    if (email == null) return;
+    if (email == null || !mounted) return;
 
     final restaurantData = await UserTokenSaving.getRestaurantDataForUser(
       email,
