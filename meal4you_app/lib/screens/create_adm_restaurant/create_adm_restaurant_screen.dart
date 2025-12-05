@@ -63,6 +63,14 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProviderData();
+    });
+  }
+
+  void _loadProviderData() {
+    if (!mounted) return;
+
     final restaurantProvider = Provider.of<RestaurantProvider>(
       context,
       listen: false,
@@ -137,6 +145,8 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
 
     try {
       final resultado = await ViaCepService.consultarCep(cep);
+
+      if (!mounted) return;
 
       if (resultado != null) {
         setState(() {
@@ -924,6 +934,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               '/admRestaurantHome',
                             );
                           } catch (e) {
+                            if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text("Erro ao criar restaurante: $e"),
