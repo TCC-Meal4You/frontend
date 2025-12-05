@@ -40,8 +40,14 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
   @override
   void initState() {
     super.initState();
-    final provider = Provider.of<RestaurantProvider>(context, listen: false);
-    selectedTypes = List<String>.from(provider.foodTypes);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = Provider.of<RestaurantProvider>(context, listen: false);
+      setState(() {
+        selectedTypes = List<String>.from(provider.foodTypes);
+      });
+    });
+    selectedTypes = [];
   }
 
   void _showValidationDialog() {
