@@ -26,6 +26,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
   bool _isEditing = false;
   bool _isSaving = false;
   bool _isSocialLogin = false;
+  bool _restaurantActive = false;
 
   final _nomeController = TextEditingController();
   final _senhaController = TextEditingController();
@@ -37,16 +38,34 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _refreshRestaurantStatus();
+  }
+
+  @override
   void dispose() {
     _nomeController.dispose();
     _senhaController.dispose();
     super.dispose();
   }
 
+  Future<void> _refreshRestaurantStatus() async {
+    final restaurantData =
+        await UserTokenSaving.getRestaurantDataForCurrentUser();
+    if (mounted && restaurantData != null) {
+      setState(() {
+        _restaurantActive = restaurantData['ativo'] ?? false;
+      });
+    }
+  }
+
   Future<void> _loadUserData() async {
     try {
       final profileData = await SearchAdmProfileService.buscarMeuPerfil();
       final senhaLocal = await UserTokenSaving.getUserPassword();
+      final restaurantData =
+          await UserTokenSaving.getRestaurantDataForCurrentUser();
 
       if (mounted) {
         setState(() {
@@ -54,6 +73,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
           _nome = profileData['nome'] ?? 'Sem nome';
           _senha = senhaLocal ?? '';
           _isSocialLogin = (senhaLocal == null || senhaLocal.isEmpty);
+          _restaurantActive = restaurantData?['ativo'] ?? false;
           _nomeController.text = _nome;
           _isLoading = false;
         });
@@ -1099,7 +1119,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                             const SizedBox(height: 16),
 
                             const Text(
-                              'Status da Conta',
+                              'Visibilidade do Restaurante',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -1107,14 +1127,62 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              'Ativa',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.green,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            Row(
+                              children: [
+                                Icon(
+                                  _restaurantActive
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: _restaurantActive
+                                      ? Colors.green
+                                      : Colors.red,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _restaurantActive ? 'Ativo' : 'Inativo',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: _restaurantActive
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
+                            if (!_restaurantActive) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.orange.shade200,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.info_outline,
+                                      color: Colors.orange,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Seu restaurante está inativo e não está visível para os clientes. Ative nas configurações do restaurante.',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
