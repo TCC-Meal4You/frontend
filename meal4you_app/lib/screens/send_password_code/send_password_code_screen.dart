@@ -93,13 +93,20 @@ class _SendPasswordCodeScreenState extends State<SendPasswordCodeScreen> {
                             flow.saveEmail(email);
                             bool ok = await flow.sendCode(widget.isAdm);
 
+                            if (!mounted) return;
                             setState(() => isLoading = false);
 
                             if (ok) {
+                              if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text("Código enviado com sucesso!"),
-                                  backgroundColor: Color.fromARGB(255, 157, 0, 255),
+                                  backgroundColor: Color.fromARGB(
+                                    255,
+                                    157,
+                                    0,
+                                    255,
+                                  ),
                                   duration: Duration(seconds: 2),
                                 ),
                               );
@@ -112,6 +119,7 @@ class _SendPasswordCodeScreenState extends State<SendPasswordCodeScreen> {
                                 ),
                               );
                             } else {
+                              if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
