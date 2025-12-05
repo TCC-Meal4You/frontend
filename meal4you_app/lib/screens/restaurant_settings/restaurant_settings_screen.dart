@@ -513,7 +513,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         children: [
                           const Expanded(
                             child: Text(
-                              "Visibilidade no App\nSeu restaurante está ativo e visível para clientes.",
+                              "Visibilidade para clientes",
                               style: TextStyle(fontSize: 13),
                             ),
                           ),
@@ -528,6 +528,46 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: provider.isActive
+                              ? Colors.green.shade50
+                              : Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: provider.isActive
+                                ? Colors.green.shade200
+                                : Colors.orange.shade200,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              provider.isActive
+                                  ? Icons.check_circle_outline
+                                  : Icons.info_outline,
+                              color: provider.isActive
+                                  ? Colors.green
+                                  : Colors.orange,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                provider.isActive
+                                    ? 'Seu restaurante está ativo e visível para os clientes.'
+                                    : 'Seu restaurante está inativo e não está visível para os clientes.',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
