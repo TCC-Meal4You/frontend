@@ -144,25 +144,30 @@ class GoogleRegisterAndLoginService {
 
               await Future.delayed(const Duration(milliseconds: 300));
 
+              if (!context.mounted) return;
               Navigator.pushReplacementNamed(context, '/admRestaurantHome');
             } else {
               debugPrint('⚠️ GOOGLE LOGIN - ID inválido, indo para criação');
+              if (!context.mounted) return;
               Navigator.pushReplacementNamed(context, '/createAdmRestaurant');
             }
           } else {
             debugPrint(
               '⚠️ GOOGLE LOGIN - Nenhum restaurante encontrado, indo para criação',
             );
+            if (!context.mounted) return;
             Navigator.pushReplacementNamed(context, '/createAdmRestaurant');
           }
         } else {
           debugPrint('👤 GOOGLE LOGIN - Cliente, indo para restrictionsChoice');
+          if (!context.mounted) return;
           Navigator.pushReplacementNamed(context, '/restrictionsChoice');
         }
       } else {
         debugPrint(
           '❌ Falha na autenticação: ${response.statusCode} - ${response.body}',
         );
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Falha na autenticação com Google.')),
         );
@@ -170,6 +175,7 @@ class GoogleRegisterAndLoginService {
     } catch (e, stack) {
       debugPrint('Erro ao autenticar com Google: $e');
       debugPrintStack(stackTrace: stack);
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao autenticar com Google: $e')),
       );
