@@ -99,9 +99,28 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
       return;
     }
 
+    final provider = Provider.of<RestaurantProvider>(context, listen: false);
+
+    final initialTypes = List<String>.from(provider.foodTypes);
+    final hasChanges =
+        selectedTypes.length != initialTypes.length ||
+        !selectedTypes.every((type) => initialTypes.contains(type));
+
+    if (!hasChanges) {
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Nenhuma alteração foi detectada."),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSaving = true);
 
-    final provider = Provider.of<RestaurantProvider>(context, listen: false);
     provider.updateFoodTypes(selectedTypes);
 
     try {
