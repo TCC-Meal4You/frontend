@@ -42,13 +42,14 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialData();
+    });
   }
 
   Future<void> _loadInitialData() async {
+    if (!mounted) return;
     final provider = Provider.of<RestaurantProvider>(context, listen: false);
-
-    await Future.delayed(const Duration(milliseconds: 50));
 
     final restaurantData =
         await UserTokenSaving.getRestaurantDataForCurrentUser();
@@ -110,6 +111,8 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
 
     try {
       await UpdateRestaurantService.updateRestaurant(provider: provider);
+
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Informações atualizadas com sucesso!"),
@@ -117,6 +120,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erro: $e"), backgroundColor: Colors.redAccent),
       );
@@ -129,6 +133,8 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
 
     try {
       await UpdateRestaurantService.updateRestaurant(provider: provider);
+
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -138,6 +144,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erro: $e"), backgroundColor: Colors.redAccent),
       );
@@ -179,6 +186,8 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
     try {
       final endereco = await ViaCepService.consultarCep(cep);
 
+      if (!mounted) return;
+
       if (endereco != null) {
         final logradouro = endereco['logradouro'] ?? '';
         final bairro = endereco['bairro'] ?? '';
@@ -198,6 +207,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         provider.updateCidade(cidade);
         provider.updateEstado(uf);
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('CEP encontrado com sucesso!'),
@@ -207,6 +217,8 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         logradouroController.clear();
         bairroController.clear();
@@ -226,9 +238,11 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         ),
       );
     } finally {
-      setState(() {
-        _isLoadingCep = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoadingCep = false;
+        });
+      }
     }
   }
 
