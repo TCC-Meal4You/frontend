@@ -6,6 +6,9 @@ import 'package:meal4you_app/screens/home/adm_restaurant_home_screen.dart';
 import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
 import 'package:meal4you_app/services/ingredient/ingredient_service.dart';
 import 'package:meal4you_app/services/meal/meal_service.dart';
+import 'package:meal4you_app/widgets/adm_menu/stats_row.dart';
+import 'package:meal4you_app/widgets/adm_menu/dish_card.dart';
+import 'package:meal4you_app/widgets/adm_menu/empty_state.dart';
 
 class AdmMenuScreen extends StatefulWidget {
   const AdmMenuScreen({super.key});
@@ -40,7 +43,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       if (mounted) {
         setState(() => isLoading = false);
         if (e.toString().contains('Nenhuma refeição encontrada')) {
-          // Apenas seta a lista vazia sem mostrar erro
           setState(() => refeicoes = []);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -87,19 +89,29 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              _buildStatsRow(),
+              StatsRow(
+                totalRefeicoes: _totalRefeicoes,
+                refeicoesDisponiveis: _refeicoesDisponiveis,
+                refeicoesIndisponiveis: _refeicoesIndisponiveis,
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : refeicoes.isEmpty
-                    ? _buildEmptyState()
+                    ? const EmptyState()
                     : ListView.builder(
                         padding: const EdgeInsets.only(bottom: 80),
                         itemCount: refeicoes.length,
                         itemBuilder: (context, index) {
-                          final refeicao = refeicoes[index];
-                          return _buildDishCard(refeicao, index);
+                          return DishCard(
+                            key: ValueKey(refeicoes[index].idRefeicao),
+                            refeicao: refeicoes[index],
+                            index: index,
+                            onEdit: _mostrarModalEditarRefeicao,
+                            onDelete: _confirmarDeletar,
+                            onToggleAvailability: _atualizarDisponibilidade,
+                          );
                         },
                       ),
               ),
@@ -173,207 +185,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     );
   }
 
-  Widget _buildStatsRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildStatCard(
-          'Total de Pratos',
-          _totalRefeicoes.toString(),
-          Colors.purple,
-        ),
-        _buildStatCard(
-          'Disponíveis',
-          _refeicoesDisponiveis.toString(),
-          Colors.green,
-        ),
-        _buildStatCard(
-          'Indisponíveis',
-          _refeicoesIndisponiveis.toString(),
-          Colors.red,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, Color color) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          // ignore: deprecated_member_use
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[700], fontSize: 13),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDishCard(MealResponseDTO refeicao, int index) {
-    return Card(
-      elevation: 1.5,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          refeicao.nome,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          refeicao.tipo,
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.purple),
-                      onPressed: () => _mostrarModalEditarRefeicao(refeicao),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _confirmarDeletar(refeicao.idRefeicao),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            if (refeicao.descricao != null && refeicao.descricao!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  refeicao.descricao!,
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
-              ),
-            const SizedBox(height: 6),
-            Text(
-              'R\$ ${refeicao.preco.toStringAsFixed(2)}',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.green,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (refeicao.ingredientes.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                children: refeicao.ingredientes
-                    .expand((ingrediente) => ingrediente.restricoes)
-                    .toSet()
-                    .map((restricao) => _buildRestricaoChip(restricao))
-                    .toList(),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Ingredientes: ${refeicao.ingredientes.map((i) => i.nome).join(', ')}',
-                style: TextStyle(color: Colors.grey[800], fontSize: 13),
-              ),
-            ],
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Disponível para pedidos'),
-                Switch(
-                  value: refeicao.disponivel,
-                  onChanged: (value) =>
-                      _atualizarDisponibilidade(refeicao.idRefeicao, value),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRestricaoChip(String restricao) {
-    Color corFundo;
-    Color corTexto;
-
-    switch (restricao.toLowerCase()) {
-      case 'vegano':
-        corFundo = Colors.green.withValues(alpha: 0.2);
-        corTexto = Colors.green.shade800;
-        break;
-      case 'vegetariano':
-        corFundo = Colors.lightGreen.withValues(alpha: 0.2);
-        corTexto = Colors.lightGreen.shade800;
-        break;
-      case 'sem glúten':
-      case 'sem gluten':
-        corFundo = Colors.orange.withValues(alpha: 0.2);
-        corTexto = Colors.orange.shade800;
-        break;
-      case 'sem lactose':
-        corFundo = Colors.blue.withValues(alpha: 0.2);
-        corTexto = Colors.blue.shade800;
-        break;
-      default:
-        corFundo = Colors.grey.withValues(alpha: 0.2);
-        corTexto = Colors.grey.shade800;
-    }
-
-    return Chip(
-      label: Text(restricao),
-      backgroundColor: corFundo,
-      labelStyle: TextStyle(fontSize: 11, color: corTexto),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-
   Future<void> _atualizarDisponibilidade(int id, bool disponivel) async {
     try {
       await MealService.atualizarDisponibilidade(id, disponivel);
@@ -410,7 +221,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     }
   }
 
-  Future<void> _confirmarDeletar(int id) async {
+  Future<bool> _confirmarDeletar(int id, VoidCallback onDeleteStart) async {
     final confirmado = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -426,24 +237,28 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Deletar'),
+            child: const Text('Deletar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
 
     if (confirmado == true) {
+      onDeleteStart();
       try {
         await MealService.deletarRefeicao(id);
         if (mounted) {
+          setState(() {
+            refeicoes.removeWhere((ref) => ref.idRefeicao == id);
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Refeição deletada com sucesso'),
               backgroundColor: Colors.green,
             ),
           );
-          _carregarRefeicoes();
         }
+        return true;
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -453,8 +268,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
             ),
           );
         }
+        return false;
       }
     }
+    return false;
   }
 
   Future<void> _mostrarModalAdicionarRefeicao() async {
@@ -586,7 +403,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        value: tipoSelecionado,
+                        initialValue: tipoSelecionado,
                         hint: const Text('Selecione o tipo do prato'),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
@@ -1009,7 +826,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        value: tipoSelecionado,
+                        initialValue: tipoSelecionado,
                         hint: const Text('Selecione o tipo do prato'),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
@@ -1281,27 +1098,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.restaurant_menu, size: 80, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(
-            'Nenhum prato cadastrado ainda',
-            style: TextStyle(color: Colors.grey[600], fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Toque em “+” para criar seu primeiro prato',
-            style: TextStyle(color: Colors.grey[500]),
-          ),
-        ],
       ),
     );
   }
