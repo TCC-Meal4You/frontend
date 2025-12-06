@@ -7,38 +7,53 @@ class RestricaoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color corFundo;
-    Color corTexto;
+    Color corIcone;
+    IconData icone;
 
     switch (restricao.toLowerCase()) {
       case 'vegano':
-        corFundo = Colors.green.withValues(alpha: 0.2);
-        corTexto = Colors.green.shade800;
+        corIcone = Colors.green.shade700;
+        icone = Icons.eco;
         break;
       case 'vegetariano':
-        corFundo = Colors.lightGreen.withValues(alpha: 0.2);
-        corTexto = Colors.lightGreen.shade800;
+        corIcone = Colors.lightGreen.shade700;
+        icone = Icons.local_florist;
         break;
       case 'sem glúten':
       case 'sem gluten':
-        corFundo = Colors.orange.withValues(alpha: 0.2);
-        corTexto = Colors.orange.shade800;
+        corIcone = Colors.orange.shade700;
+        icone = Icons.grain;
         break;
       case 'sem lactose':
-        corFundo = Colors.blue.withValues(alpha: 0.2);
-        corTexto = Colors.blue.shade800;
+        corIcone = Colors.blue.shade700;
+        icone = Icons.water_drop;
         break;
       default:
-        corFundo = Colors.grey.withValues(alpha: 0.2);
-        corTexto = Colors.grey.shade800;
+        corIcone = Colors.grey.shade600;
+        icone = Icons.info;
     }
 
-    return Chip(
-      label: Text(restricao),
-      backgroundColor: corFundo,
-      labelStyle: TextStyle(fontSize: 11, color: corTexto),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icone, size: 14, color: corIcone),
+          const SizedBox(width: 6),
+          Text(
+            restricao,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

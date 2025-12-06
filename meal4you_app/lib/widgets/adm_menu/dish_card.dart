@@ -47,61 +47,112 @@ class _DishCardState extends State<DishCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 1.5,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            // ignore: deprecated_member_use
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+            spreadRadius: 1,
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Text(
-                          widget.refeicao.nome,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              widget.refeicao.nome,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              widget.refeicao.tipo,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
+                      if (widget.refeicao.descricao != null &&
+                          widget.refeicao.descricao!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            widget.refeicao.descricao!,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          widget.refeicao.tipo,
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                      ),
                     ],
                   ),
                 ),
                 Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.purple),
-                      onPressed: () => widget.onEdit(widget.refeicao),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.edit_outlined,
+                          color: Color(0xFF0FE687),
+                          size: 22,
+                        ),
+                        onPressed: () => widget.onEdit(widget.refeicao),
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(),
+                      ),
                     ),
+                    const SizedBox(width: 12),
                     _isDeleting
-                        ? const Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: SizedBox(
-                              width: 24,
-                              height: 24,
+                        ? Container(
+                            width: 40,
+                            height: 40,
+                            alignment: Alignment.center,
+                            child: const SizedBox(
+                              width: 20,
+                              height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation<Color>(
@@ -110,44 +161,47 @@ class _DishCardState extends State<DishCard> {
                               ),
                             ),
                           )
-                        : IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: _handleDelete,
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                                size: 22,
+                              ),
+                              onPressed: _handleDelete,
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints(),
+                            ),
                           ),
                   ],
                 ),
               ],
             ),
-            if (widget.refeicao.descricao != null &&
-                widget.refeicao.descricao!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  widget.refeicao.descricao!,
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
-              ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 12),
             Text(
               'R\$ ${widget.refeicao.preco.toStringAsFixed(2)}',
               style: const TextStyle(
-                fontSize: 16,
-                color: Colors.green,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: Color(0xFF0FE687),
               ),
             ),
             if (widget.refeicao.ingredientes.isNotEmpty) ...[
-              const SizedBox(height: 6),
+              const SizedBox(height: 10),
               Wrap(
-                spacing: 4,
-                runSpacing: 4,
+                spacing: 6,
+                runSpacing: 6,
                 children: widget.refeicao.ingredientes
                     .expand((ingrediente) => ingrediente.restricoes)
                     .toSet()
                     .map((restricao) => RestricaoChip(restricao: restricao))
                     .toList(),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Text(
                 'Ingredientes: ${widget.refeicao.ingredientes.map((i) => i.nome).join(', ')}',
                 style: TextStyle(color: Colors.grey[800], fontSize: 13),
@@ -160,6 +214,7 @@ class _DishCardState extends State<DishCard> {
                 const Text('Disponível para pedidos'),
                 Switch(
                   value: widget.refeicao.disponivel,
+                  activeThumbColor: const Color(0xFF0FE687),
                   onChanged: (value) => widget.onToggleAvailability(
                     widget.refeicao.idRefeicao,
                     value,
