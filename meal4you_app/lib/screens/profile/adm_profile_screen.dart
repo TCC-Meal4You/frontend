@@ -1259,7 +1259,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.white,
-          selectedItemColor: Colors.deepPurple,
+          selectedItemColor: const Color(0xFF0FE687),
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(
