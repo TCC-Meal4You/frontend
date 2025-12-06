@@ -6,6 +6,8 @@ import 'package:meal4you_app/screens/home/adm_restaurant_home_screen.dart';
 import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
 import 'package:meal4you_app/services/ingredient/ingredient_service.dart';
 import 'package:meal4you_app/services/restriction/restriction_service.dart';
+import 'package:meal4you_app/widgets/manage_ingredients/ingrediente_card.dart';
+import 'package:meal4you_app/widgets/manage_ingredients/ingredient_empty_state.dart';
 
 class ManageIngredientsScreen extends StatefulWidget {
   const ManageIngredientsScreen({super.key});
@@ -52,7 +54,11 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
     }
   }
 
-  Future<void> _confirmarDeletar(int id, String nome) async {
+  Future<bool> _confirmarDeletar(
+    int id,
+    String nome,
+    VoidCallback onDeleteStart,
+  ) async {
     final confirmado = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -75,17 +81,21 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
     );
 
     if (confirmado == true) {
+      onDeleteStart();
       try {
         await IngredientService.deletarIngrediente(id);
         if (mounted) {
+          setState(() {
+            ingredientes.removeWhere((ing) => ing.idIngrediente == id);
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Ingrediente deletado com sucesso'),
               backgroundColor: Colors.green,
             ),
           );
-          _carregarIngredientes();
         }
+        return true;
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -95,8 +105,10 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
             ),
           );
         }
+        return false;
       }
     }
+    return false;
   }
 
   void _mostrarModalAdicionarIngrediente() async {
@@ -360,121 +372,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
     );
   }
 
-  Widget _buildRestricaoChip(String restricao) {
-    Color corFundo;
-    Color corTexto;
-
-    switch (restricao.toLowerCase()) {
-      case 'vegano':
-        corFundo = Colors.green.withValues(alpha: 0.2);
-        corTexto = Colors.green.shade800;
-        break;
-      case 'vegetariano':
-        corFundo = Colors.lightGreen.withValues(alpha: 0.2);
-        corTexto = Colors.lightGreen.shade800;
-        break;
-      case 'sem glúten':
-      case 'sem gluten':
-        corFundo = Colors.orange.withValues(alpha: 0.2);
-        corTexto = Colors.orange.shade800;
-        break;
-      case 'sem lactose':
-        corFundo = Colors.blue.withValues(alpha: 0.2);
-        corTexto = Colors.blue.shade800;
-        break;
-      default:
-        corFundo = Colors.grey.withValues(alpha: 0.2);
-        corTexto = Colors.grey.shade800;
-    }
-
-    return Chip(
-      label: Text(restricao),
-      backgroundColor: corFundo,
-      labelStyle: TextStyle(fontSize: 11, color: corTexto),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-
-  Widget _buildIngredienteCard(IngredientResponseDTO ingrediente) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 1.5,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    ingrediente.nome,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _confirmarDeletar(
-                    ingrediente.idIngrediente,
-                    ingrediente.nome,
-                  ),
-                ),
-              ],
-            ),
-            if (ingrediente.restricoes.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: ingrediente.restricoes
-                    .map((restricao) => _buildRestricaoChip(restricao))
-                    .toList(),
-              ),
-            ] else ...[
-              const SizedBox(height: 4),
-              Text(
-                'Nenhuma restrição alimentar',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 13,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.restaurant, size: 80, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(
-            'Nenhum ingrediente cadastrado',
-            style: TextStyle(color: Colors.grey[600], fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Toque em "Adicionar" para criar seu primeiro ingrediente',
-            style: TextStyle(color: Colors.grey[500]),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -527,12 +424,16 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ingredientes.isEmpty
-                  ? _buildEmptyState()
+                  ? const IngredientEmptyState()
                   : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 80),
                       itemCount: ingredientes.length,
                       itemBuilder: (context, index) {
-                        return _buildIngredienteCard(ingredientes[index]);
+                        return IngredienteCard(
+                          key: ValueKey(ingredientes[index].idIngrediente),
+                          ingrediente: ingredientes[index],
+                          onDelete: _confirmarDeletar,
+                        );
                       },
                     ),
             ),
