@@ -117,6 +117,7 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
     List<int> restricoesSelecionadas = [];
     bool isLoadingRestricoes = true;
     bool isSaving = false;
+    String? mensagemErro;
 
     try {
       restricoes = await RestrictionService.listarRestricoes();
@@ -184,6 +185,41 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (mensagemErro != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            // ignore: deprecated_member_use
+                            color: Colors.red.withOpacity(0.1),
+                            border: Border.all(
+                              // ignore: deprecated_member_use
+                              color: Colors.red.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  mensagemErro!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const Text(
                         'Nome do Ingrediente *',
                         style: TextStyle(fontWeight: FontWeight.w500),
@@ -193,6 +229,11 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                         controller: nomeController,
                         decoration: InputDecoration(
                           hintText: 'Ex: Tomate',
+                          helperText: 'Mínimo de 3 caracteres',
+                          helperStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -286,21 +327,26 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                     onPressed: isSaving
                         ? null
                         : () async {
-                            final modalContext = context;
+                            final navigator = Navigator.of(context);
 
                             if (nomeController.text.isEmpty) {
-                              ScaffoldMessenger.of(modalContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Por favor, informe o nome do ingrediente',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                              setModalState(() {
+                                mensagemErro =
+                                    'Por favor, informe o nome do ingrediente';
+                              });
+                              return;
+                            }
+
+                            if (nomeController.text.length < 3) {
+                              setModalState(() {
+                                mensagemErro =
+                                    'O nome do ingrediente deve ter no mínimo 3 caracteres';
+                              });
                               return;
                             }
 
                             setModalState(() {
+                              mensagemErro = null;
                               isSaving = true;
                             });
 
@@ -314,7 +360,7 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
 
                               if (mounted) {
                                 await _carregarIngredientes();
-                                Navigator.pop(modalContext);
+                                navigator.pop();
                                 ScaffoldMessenger.of(this.context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
@@ -326,16 +372,9 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                               }
                             } catch (e) {
                               setModalState(() {
+                                mensagemErro = 'Erro ao cadastrar: $e';
                                 isSaving = false;
                               });
-                              if (mounted) {
-                                ScaffoldMessenger.of(modalContext).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Erro ao cadastrar: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
                             }
                           },
                     style: ElevatedButton.styleFrom(
@@ -374,134 +413,218 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Gerenciar Ingredientes',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(70),
+          child: AppBar(
+            backgroundColor: const Color(0xFF0FE687),
+            elevation: 0,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [const Color(0xFF0FE687), const Color(0xFF00D675)],
+                ),
               ),
             ),
-            Text(
-              '${ingredientes.length} ingredientes cadastrados',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
+            leading: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.arrow_back, color: Colors.white),
               ),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Gerenciar Ingredientes',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
+                    color: Colors.white.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${ingredientes.length} ${ingredientes.length == 1 ? 'ingrediente' : 'ingredientes'}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        floatingActionButton: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF0FE687), Color(0xFF00D675)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                // ignore: deprecated_member_use
+                color: const Color(0xFF0FE687).withOpacity(0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            onPressed: _mostrarModalAdicionarIngrediente,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: const Icon(Icons.add, color: Colors.white, size: 28),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          // ignore: deprecated_member_use
+                          const Color(0xFF0FE687).withOpacity(0.15),
+                          // ignore: deprecated_member_use
+                          const Color(0xFF0FE687).withOpacity(0.08),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.restaurant,
+                      color: Color(0xFF0FE687),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Ingredientes Cadastrados',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Expanded(
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ingredientes.isEmpty
+                    ? const IngredientEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 80),
+                        itemCount: ingredientes.length,
+                        itemBuilder: (context, index) {
+                          return IngredienteCard(
+                            key: ValueKey(ingredientes[index].idIngrediente),
+                            ingrediente: ingredientes[index],
+                            onDelete: _confirmarDeletar,
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF0FE687),
+          unselectedItemColor: Colors.grey,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.store_mall_directory_outlined),
+              label: 'Restaurante',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: 'Perfil',
             ),
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _mostrarModalAdicionarIngrediente,
-        backgroundColor: const Color(0xFF0FE687),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Ingredientes Cadastrados',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ingredientes.isEmpty
-                  ? const IngredientEmptyState()
-                  : ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 80),
-                      itemCount: ingredientes.length,
-                      itemBuilder: (context, index) {
-                        return IngredienteCard(
-                          key: ValueKey(ingredientes[index].idIngrediente),
-                          ingrediente: ingredientes[index],
-                          onDelete: _confirmarDeletar,
+          currentIndex: 0,
+          onTap: (index) {
+            if (index == 0) {
+              Navigator.of(context).pushReplacement(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return const AdmRestaurantHomeScreen();
+                  },
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(-1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        var tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
                         );
                       },
-                    ),
-            ),
-          ],
+                ),
+              );
+            } else if (index == 1) {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return const AdmProfileScreen();
+                  },
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        var tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                ),
+              );
+            }
+          },
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.deepPurple,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.store_mall_directory_outlined),
-            label: 'Restaurante',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Perfil',
-          ),
-        ],
-        currentIndex: 0,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.of(context).pushReplacement(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) {
-                  return const AdmRestaurantHomeScreen();
-                },
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(-1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.easeInOut;
-                      var tween = Tween(
-                        begin: begin,
-                        end: end,
-                      ).chain(CurveTween(curve: curve));
-                      return SlideTransition(
-                        position: animation.drive(tween),
-                        child: child,
-                      );
-                    },
-              ),
-            );
-          } else if (index == 1) {
-            Navigator.of(context).push(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) {
-                  return const AdmProfileScreen();
-                },
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.easeInOut;
-                      var tween = Tween(
-                        begin: begin,
-                        end: end,
-                      ).chain(CurveTween(curve: curve));
-                      return SlideTransition(
-                        position: animation.drive(tween),
-                        child: child,
-                      );
-                    },
-              ),
-            );
-          }
-        },
       ),
     );
   }
