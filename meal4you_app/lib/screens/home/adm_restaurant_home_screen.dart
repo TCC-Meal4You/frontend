@@ -254,7 +254,9 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       color: Colors.greenAccent.withOpacity(0.15),
                       iconColor: Colors.green,
                       title: 'Gerenciar Ingredientes',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, '/manageIngredients');
+                      },
                     ),
                     RestaurantManagementButtons(
                       icon: Icons.chat_bubble_outline,
