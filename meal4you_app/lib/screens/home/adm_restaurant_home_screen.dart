@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
+import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/restaurant_management_buttons/restaurant_management_buttons.dart';
 import 'package:provider/provider.dart';
@@ -303,7 +304,27 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
             if (index == 0) {
               Navigator.pushReplacementNamed(context, '/admRestaurantHome');
             } else if (index == 1) {
-              Navigator.pushNamed(context, '/admProfile');
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return const AdmProfileScreen();
+                  },
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        var tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                ),
+              );
             }
           },
         ),
