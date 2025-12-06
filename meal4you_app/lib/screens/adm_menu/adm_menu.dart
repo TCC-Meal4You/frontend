@@ -65,28 +65,99 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text(
-            'Gerenciar Cardápio',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-          ),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
-              Navigator.pushNamed(context, '/admRestaurantHome');
-            },
+        backgroundColor: Colors.grey[50],
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(70),
+          child: AppBar(
+            backgroundColor: const Color(0xFF9D00FF),
+            elevation: 0,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF9D00FF), Color(0xFF7D00CC)],
+                ),
+              ),
+            ),
+            leading: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.arrow_back, color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/admRestaurantHome');
+              },
+            ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Gerenciar Cardápio',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
+                    color: Colors.white.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '$_totalRefeicoes ${_totalRefeicoes == 1 ? 'prato' : 'pratos'}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _mostrarModalAdicionarRefeicao(),
-          backgroundColor: const Color.fromARGB(255, 15, 230, 135),
-          child: const Icon(Icons.add, color: Colors.white),
+        floatingActionButton: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF9D00FF), Color(0xFF7D00CC)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                // ignore: deprecated_member_use
+                color: const Color(0xFF9D00FF).withOpacity(0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            onPressed: () => _mostrarModalAdicionarRefeicao(),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: const Icon(Icons.add, color: Colors.white, size: 28),
+          ),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
           child: Column(
             children: [
               StatsRow(
@@ -120,7 +191,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.white,
-          selectedItemColor: Colors.deepPurple,
+          selectedItemColor: const Color(0xFF0FE687),
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(
@@ -284,8 +355,8 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     List<int> ingredientesSelecionados = [];
     bool isLoadingIngredientes = true;
     bool isSaving = false;
+    String? mensagemErro;
 
-    // Carregar ingredientes
     try {
       ingredientes = await IngredientService.listarMeusIngredientes();
       isLoadingIngredientes = false;
@@ -354,6 +425,41 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (mensagemErro != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            // ignore: deprecated_member_use
+                            color: Colors.red.withOpacity(0.1),
+                            border: Border.all(
+                              // ignore: deprecated_member_use
+                              color: Colors.red.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  mensagemErro!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const Text(
                         'Preencha as informações do novo prato e selecione os ingredientes',
                         style: TextStyle(color: Colors.grey),
@@ -368,6 +474,11 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                         controller: nomeController,
                         decoration: InputDecoration(
                           hintText: 'Ex: Salada Caesar',
+                          helperText: 'Mínimo de 3 caracteres',
+                          helperStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -581,35 +692,38 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                     onPressed: isSaving
                         ? null
                         : () async {
-                            final modalContext = context;
+                            final navigator = Navigator.of(context);
 
                             if (nomeController.text.isEmpty ||
                                 precoController.text.isEmpty ||
                                 tipoSelecionado == null) {
-                              ScaffoldMessenger.of(modalContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha todos os campos obrigatórios',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                              setModalState(() {
+                                mensagemErro =
+                                    'Preencha todos os campos obrigatórios';
+                              });
+                              return;
+                            }
+
+                            if (nomeController.text.length < 3) {
+                              setModalState(() {
+                                mensagemErro =
+                                    'O nome do prato deve ter no mínimo 3 caracteres';
+                              });
                               return;
                             }
 
                             if (ingredientesSelecionados.isEmpty) {
-                              ScaffoldMessenger.of(modalContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Selecione pelo menos 1 ingrediente',
-                                  ),
-                                  backgroundColor: Colors.orange,
-                                ),
-                              );
+                              setModalState(() {
+                                mensagemErro =
+                                    'Selecione pelo menos 1 ingrediente';
+                              });
                               return;
                             }
 
-                            setModalState(() => isSaving = true);
+                            setModalState(() {
+                              mensagemErro = null;
+                              isSaving = true;
+                            });
 
                             try {
                               final preco = double.tryParse(
@@ -634,7 +748,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
 
                               if (mounted) {
                                 await _carregarRefeicoes();
-                                Navigator.pop(modalContext);
+                                navigator.pop();
                                 ScaffoldMessenger.of(this.context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
@@ -645,15 +759,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                 );
                               }
                             } catch (e) {
-                              setModalState(() => isSaving = false);
-                              if (mounted) {
-                                ScaffoldMessenger.of(modalContext).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Erro ao cadastrar: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
+                              setModalState(() {
+                                mensagemErro = 'Erro ao cadastrar: $e';
+                                isSaving = false;
+                              });
                             }
                           },
                     style: ElevatedButton.styleFrom(
@@ -708,6 +817,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     );
     bool isLoadingIngredientes = true;
     bool isSaving = false;
+    String? mensagemErro;
 
     try {
       ingredientes = await IngredientService.listarMeusIngredientes();
@@ -777,6 +887,41 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (mensagemErro != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            // ignore: deprecated_member_use
+                            color: Colors.red.withOpacity(0.1),
+                            border: Border.all(
+                              // ignore: deprecated_member_use
+                              color: Colors.red.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  mensagemErro!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const Text(
                         'Preencha as informações do prato e selecione os ingredientes',
                         style: TextStyle(color: Colors.grey),
@@ -791,6 +936,11 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                         controller: nomeController,
                         decoration: InputDecoration(
                           hintText: 'Ex: Salada Caesar',
+                          helperText: 'Mínimo de 3 caracteres',
+                          helperStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -988,35 +1138,68 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                     onPressed: isSaving
                         ? null
                         : () async {
-                            final modalContext = context;
+                            final navigator = Navigator.of(context);
 
                             if (nomeController.text.isEmpty ||
                                 precoController.text.isEmpty ||
                                 tipoSelecionado == null) {
-                              ScaffoldMessenger.of(modalContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha todos os campos obrigatórios',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                              setModalState(() {
+                                mensagemErro =
+                                    'Preencha todos os campos obrigatórios';
+                              });
+                              return;
+                            }
+
+                            if (nomeController.text.length < 3) {
+                              setModalState(() {
+                                mensagemErro =
+                                    'O nome do prato deve ter no mínimo 3 caracteres';
+                              });
                               return;
                             }
 
                             if (ingredientesSelecionados.isEmpty) {
-                              ScaffoldMessenger.of(modalContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Selecione pelo menos 1 ingrediente',
-                                  ),
-                                  backgroundColor: Colors.orange,
-                                ),
-                              );
+                              setModalState(() {
+                                mensagemErro =
+                                    'Selecione pelo menos 1 ingrediente';
+                              });
                               return;
                             }
 
-                            setModalState(() => isSaving = true);
+                            final precoAtual = double.tryParse(
+                              precoController.text.replaceAll(',', '.'),
+                            );
+                            final ingredientesOriginais = refeicao.ingredientes
+                                .map((i) => i.idIngrediente)
+                                .toSet();
+                            final ingredientesNovos = ingredientesSelecionados
+                                .toSet();
+
+                            final semAlteracoes =
+                                nomeController.text == refeicao.nome &&
+                                precoAtual == refeicao.preco &&
+                                tipoSelecionado == refeicao.tipo &&
+                                descricaoController.text ==
+                                    (refeicao.descricao ?? '') &&
+                                ingredientesOriginais
+                                    .difference(ingredientesNovos)
+                                    .isEmpty &&
+                                ingredientesNovos
+                                    .difference(ingredientesOriginais)
+                                    .isEmpty;
+
+                            if (semAlteracoes) {
+                              setModalState(() {
+                                mensagemErro =
+                                    'Nenhuma alteração foi detectada';
+                              });
+                              return;
+                            }
+
+                            setModalState(() {
+                              mensagemErro = null;
+                              isSaving = true;
+                            });
 
                             try {
                               final preco = double.tryParse(
@@ -1044,7 +1227,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
 
                               if (mounted) {
                                 await _carregarRefeicoes();
-                                Navigator.pop(modalContext);
+                                navigator.pop();
                                 ScaffoldMessenger.of(this.context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
@@ -1055,15 +1238,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                 );
                               }
                             } catch (e) {
-                              setModalState(() => isSaving = false);
-                              if (mounted) {
-                                ScaffoldMessenger.of(modalContext).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Erro ao atualizar: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
+                              setModalState(() {
+                                mensagemErro = 'Erro ao atualizar: $e';
+                                isSaving = false;
+                              });
                             }
                           },
                     style: ElevatedButton.styleFrom(
