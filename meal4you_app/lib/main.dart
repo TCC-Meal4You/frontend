@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:meal4you_app/screens/loading_splash/loading_splash_screen.dart';
+import 'package:meal4you_app/screens/manage_ingredients/manage_ingredients_screen.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
@@ -145,6 +146,9 @@ class Meal4You extends StatelessWidget {
               builder: (_) =>
                   VerifyEmailChangeScreen(novoEmail: args['novoEmail']),
             );
+
+          case '/manageIngredients':
+            return MaterialPageRoute(builder: (_) => const ManageIngredientsScreen());
 
           default:
             return MaterialPageRoute(
