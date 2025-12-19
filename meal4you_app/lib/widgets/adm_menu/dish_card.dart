@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
-import 'package:meal4you_app/widgets/adm_menu/restricao_chip.dart';
+import 'package:meal4you_app/widgets/adm_menu/restriction_chip.dart';
 
 class DishCard extends StatefulWidget {
   final MealResponseDTO refeicao;
@@ -198,7 +198,7 @@ class _DishCardState extends State<DishCard> {
                 children: widget.refeicao.ingredientes
                     .expand((ingrediente) => ingrediente.restricoes)
                     .toSet()
-                    .map((restricao) => RestricaoChip(restricao: restricao))
+                    .map((restriction) => RestrictionChip(restriction: restriction))
                     .toList(),
               ),
               const SizedBox(height: 8),
