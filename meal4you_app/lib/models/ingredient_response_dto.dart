@@ -15,8 +15,15 @@ class IngredientResponseDTO {
       nome: json['nome'] ?? '',
       restricoes:
           (json['restricoes'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
+              ?.map((e) {
+                if (e is Map<String, dynamic>) {
+                  return e['tipo'] ?? e['nome'] ?? '';
+                }
+                return e.toString();
+              })
+              .where((r) => r.isNotEmpty)
+              .toList()
+              .cast<String>() ??
           [],
     );
   }
