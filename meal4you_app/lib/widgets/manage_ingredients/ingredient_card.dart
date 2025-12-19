@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/ingredient_response_dto.dart';
-import 'package:meal4you_app/widgets/manage_ingredients/restricao_chip.dart';
+import 'package:meal4you_app/widgets/manage_ingredients/restriction_chip.dart';
 
-class IngredienteCard extends StatefulWidget {
+class IngredientCard extends StatefulWidget {
   final IngredientResponseDTO ingrediente;
   final Future<bool> Function(int, String, VoidCallback) onDelete;
 
-  const IngredienteCard({
+  const IngredientCard({
     super.key,
     required this.ingrediente,
     required this.onDelete,
   });
 
   @override
-  State<IngredienteCard> createState() => _IngredienteCardState();
+  State<IngredientCard> createState() => _IngredientCardState();
 }
 
-class _IngredienteCardState extends State<IngredienteCard> {
+class _IngredientCardState extends State<IngredientCard> {
   bool _isDeleting = false;
 
   Future<void> _handleDelete() async {
@@ -116,25 +116,11 @@ class _IngredienteCardState extends State<IngredienteCard> {
                 spacing: 8,
                 runSpacing: 8,
                 children: widget.ingrediente.restricoes
-                    .map((restricao) => RestricaoChip(restricao: restricao))
+                    .map(
+                      (restriction) =>
+                          RestrictionChip(restriction: restriction),
+                    )
                     .toList(),
-              ),
-            ] else ...[
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(Icons.info_outline, size: 16, color: Colors.grey[400]),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Sem restrições alimentares',
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 13,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
               ),
             ],
           ],
