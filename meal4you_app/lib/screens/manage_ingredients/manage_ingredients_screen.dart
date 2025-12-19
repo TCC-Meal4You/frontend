@@ -6,7 +6,7 @@ import 'package:meal4you_app/screens/home/adm_restaurant_home_screen.dart';
 import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
 import 'package:meal4you_app/services/ingredient/ingredient_service.dart';
 import 'package:meal4you_app/services/restriction/restriction_service.dart';
-import 'package:meal4you_app/widgets/manage_ingredients/ingrediente_card.dart';
+import 'package:meal4you_app/widgets/manage_ingredients/ingredient_card.dart';
 import 'package:meal4you_app/widgets/manage_ingredients/ingredient_empty_state.dart';
 
 class ManageIngredientsScreen extends StatefulWidget {
@@ -551,7 +551,7 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                         padding: const EdgeInsets.only(bottom: 80),
                         itemCount: ingredientes.length,
                         itemBuilder: (context, index) {
-                          return IngredienteCard(
+                          return IngredientCard(
                             key: ValueKey(ingredientes[index].idIngrediente),
                             ingrediente: ingredientes[index],
                             onDelete: _confirmarDeletar,
