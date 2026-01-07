@@ -20,7 +20,7 @@ class ClientRegisterScreen extends StatefulWidget {
 class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
   bool _isLoading = false;
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
-    baseUrl: 'https://backend-production-9aaf.up.railway.app',
+    baseUrl: 'https://backend-production-38906.up.railway.app',
   );
 
   @override
