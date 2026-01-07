@@ -4,7 +4,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class ClientLogoutService {
   static const String _baseUrl =
-      "https://backend-production-9aaf.up.railway.app/usuarios";
+      "https://backend-production-38906.up.railway.app/usuarios";
 
   final http.Client client;
 
@@ -16,10 +16,7 @@ class ClientLogoutService {
 
     final uri = Uri.parse('$_baseUrl/logout');
 
-    final response = await client.post(
-      uri,
-      headers: {'Authorization': header},
-    );
+    final response = await client.post(uri, headers: {'Authorization': header});
 
     if (response.statusCode == 200 || response.statusCode == 204) {
       await UserTokenSaving.clearAll();

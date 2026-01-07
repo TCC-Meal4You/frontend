@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 class AdmLoginService {
   static const String baseUrl =
-      'https://backend-production-9aaf.up.railway.app/admins/login';
+      'https://backend-production-38906.up.railway.app/admins/login';
 
   static Future<Map<String, dynamic>> loginAdm({
     required String email,

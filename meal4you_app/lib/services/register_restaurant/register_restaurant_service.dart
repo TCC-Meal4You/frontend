@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class RegisterRestaurantService {
   static const String baseUrl =
-      "https://backend-production-9aaf.up.railway.app/restaurantes";
+      "https://backend-production-38906.up.railway.app/restaurantes";
 
   static Future<Map<String, dynamic>> registerRestaurant({
     required String name,

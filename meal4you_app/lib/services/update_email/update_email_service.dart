@@ -4,7 +4,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class UpdateEmailService {
   static const String baseUrl =
-      'https://backend-production-9aaf.up.railway.app/admins/atualizar-email';
+      'https://backend-production-38906.up.railway.app/admins/atualizar-email';
 
   static Future<Map<String, dynamic>> atualizarEmail({
     required String email,

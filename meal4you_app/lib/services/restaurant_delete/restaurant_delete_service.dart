@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class RestaurantDeleteService {
-  static const String baseUrl = "https://backend-production-9aaf.up.railway.app/restaurantes";
+  static const String baseUrl =
+      "https://backend-production-38906.up.railway.app/restaurantes";
 
   static Future<void> deleteRestaurant({
     required int restaurantId,
@@ -15,7 +16,9 @@ class RestaurantDeleteService {
         throw Exception("Token não encontrado. Faça login novamente.");
       }
 
-      final uri = Uri.parse("$baseUrl/$restaurantId?nomeConfirmacao=$nomeConfirmacao");
+      final uri = Uri.parse(
+        "$baseUrl/$restaurantId?nomeConfirmacao=$nomeConfirmacao",
+      );
       final response = await http.delete(
         uri,
         headers: {
@@ -31,7 +34,9 @@ class RestaurantDeleteService {
       } else if (response.statusCode == 401) {
         throw Exception("Administrador não autenticado.");
       } else if (response.statusCode == 403) {
-        throw Exception("Você não pode deletar restaurante de outro administrador.");
+        throw Exception(
+          "Você não pode deletar restaurante de outro administrador.",
+        );
       } else if (response.statusCode == 404) {
         throw Exception("Restaurante não encontrado.");
       } else {

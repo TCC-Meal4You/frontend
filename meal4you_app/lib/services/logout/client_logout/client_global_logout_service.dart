@@ -4,12 +4,12 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class ClientGlobalLogoutService {
   static const String _baseUrl =
-      "https://backend-production-9aaf.up.railway.app/usuarios";
+      "https://backend-production-38906.up.railway.app/usuarios";
 
   final http.Client client;
 
   ClientGlobalLogoutService({http.Client? client})
-      : client = client ?? http.Client();
+    : client = client ?? http.Client();
 
   Future<void> logoutGlobal() async {
     final header = await UserTokenSaving.getAuthorizationHeader();

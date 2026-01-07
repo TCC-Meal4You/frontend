@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class AdmRegisterService {
   static const String baseUrl =
-      "https://backend-production-9aaf.up.railway.app/admins";
+      "https://backend-production-38906.up.railway.app/admins";
 
   static Future<Map<String, dynamic>> registerAdm({
     required String nome,
@@ -20,13 +20,11 @@ class AdmRegisterService {
       "codigoVerificacao": codigo,
     });
 
-
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: body,
     );
-
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);

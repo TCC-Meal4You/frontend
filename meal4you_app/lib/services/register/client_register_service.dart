@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ClientRegisterService {
   static const String baseUrl =
-      "https://backend-production-9aaf.up.railway.app/usuarios";
+      "https://backend-production-38906.up.railway.app/usuarios";
 
   static Future<Map<String, dynamic>> registerClient({
     required String nome,
@@ -20,13 +20,11 @@ class ClientRegisterService {
       "codigoVerificacao": codigo,
     });
 
-
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: body,
     );
-
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);

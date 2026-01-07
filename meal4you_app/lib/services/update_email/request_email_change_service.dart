@@ -4,7 +4,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class RequestEmailChangeService {
   static const String baseUrl =
-      'https://backend-production-9aaf.up.railway.app/admins/solicitar-alteracao-email';
+      'https://backend-production-38906.up.railway.app/admins/solicitar-alteracao-email';
 
   static Future<void> solicitarAlteracaoEmail(String novoEmail) async {
     final token = await UserTokenSaving.getToken();

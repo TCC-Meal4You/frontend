@@ -4,7 +4,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class SearchAdmProfileService {
   static const String baseUrl =
-      'https://backend-production-9aaf.up.railway.app/admins';
+      'https://backend-production-38906.up.railway.app/admins';
 
   static Future<Map<String, dynamic>> buscarMeuPerfil() async {
     final token = await UserTokenSaving.getToken();
