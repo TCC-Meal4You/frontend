@@ -72,261 +72,275 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
         ? restaurantProvider.foodTypes
         : [];
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFCF9FF),
-        resizeToAvoidBottomInset: true,
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 30),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 190,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color.fromARGB(255, 157, 0, 255),
-                      Color.fromARGB(255, 15, 230, 135),
+    return PopScope(
+      canPop: false,
+      // ignore: deprecated_member_use
+      onPopInvoked: (bool didPop) {
+        if (didPop) return;
+      },
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: const Color(0xFFFCF9FF),
+          resizeToAvoidBottomInset: true,
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 190,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 157, 0, 255),
+                        Color.fromARGB(255, 15, 230, 135),
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  'MEAL4YOU',
+                                  style: TextStyle(
+                                    fontFamily: 'Ubuntu',
+                                    fontSize: 27,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  'c  o  m  i  d  a    c  o  n  s  c  i  e  n  t  e',
+                                  style: TextStyle(
+                                    fontFamily: 'Ubuntu',
+                                    fontSize: 8,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                              onPressed: () =>
+                                  admLogoutHandler.showLogoutDialog(context),
+                              icon: const FaIcon(
+                                FontAwesomeIcons.rightFromBracket,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Painel do Restaurante',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 15,
+                          fontFamily: 'Ubuntu',
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontFamily: 'Ubuntu',
+                        ),
+                      ),
                     ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                'MEAL4YOU',
-                                style: TextStyle(
-                                  fontFamily: 'Ubuntu',
-                                  fontSize: 27,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                'c  o  m  i  d  a    c  o  n  s  c  i  e  n  t  e',
-                                style: TextStyle(
-                                  fontFamily: 'Ubuntu',
-                                  fontSize: 8,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            onPressed: () =>
-                                admLogoutHandler.showLogoutDialog(context),
-                            icon: const FaIcon(
-                              FontAwesomeIcons.rightFromBracket,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Painel do Restaurante',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 15,
-                        fontFamily: 'Ubuntu',
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontFamily: 'Ubuntu',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 20,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: const [
-                              Icon(
-                                Icons.info_outline,
-                                color: Colors.deepPurple,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Informações do Restaurante',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: Colors.deepPurple,
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Tipos de Comida',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: -4,
-                            children: foodTypes.isEmpty
-                                ? const [
-                                    Text(
-                                      'Nenhum tipo selecionado',
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  ]
-                                : foodTypes
-                                      .map(
-                                        (type) => Chip(
-                                          label: Text(type),
-                                          backgroundColor: Colors.grey.shade200,
-                                          labelStyle: const TextStyle(
-                                            fontSize: 13,
+                                SizedBox(width: 8),
+                                Text(
+                                  'Informações do Restaurante',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Tipos de Comida',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: -4,
+                              children: foodTypes.isEmpty
+                                  ? const [
+                                      Text(
+                                        'Nenhum tipo selecionado',
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ]
+                                  : foodTypes
+                                        .map(
+                                          (type) => Chip(
+                                            label: Text(type),
+                                            backgroundColor:
+                                                Colors.grey.shade200,
+                                            labelStyle: const TextStyle(
+                                              fontSize: 13,
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                      .toList(),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            description,
-                            style: const TextStyle(color: Colors.black87),
-                          ),
-                        ],
+                                        )
+                                        .toList(),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              description,
+                              style: const TextStyle(color: Colors.black87),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Gerenciar Restaurante',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Gerenciar Restaurante',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    RestaurantManagementButtons(
-                      icon: Icons.restaurant_menu_outlined,
-                      // ignore: deprecated_member_use
-                      color: Colors.purpleAccent.withOpacity(0.15),
-                      iconColor: Colors.purple,
-                      title: 'Gerenciar Cardápio',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/admMenu');
-                      },
-                    ),
-                    RestaurantManagementButtons(
-                      icon: Icons.eco_outlined,
-                      // ignore: deprecated_member_use
-                      color: Colors.greenAccent.withOpacity(0.15),
-                      iconColor: Colors.green,
-                      title: 'Gerenciar Ingredientes',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/manageIngredients');
-                      },
-                    ),
-                    RestaurantManagementButtons(
-                      icon: Icons.chat_bubble_outline,
-                      // ignore: deprecated_member_use
-                      color: Color.fromARGB(255, 255, 170, 0).withOpacity(0.15),
-                      iconColor: const Color.fromARGB(255, 255, 170, 0),
-                      title: 'Avaliações e Comentários',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/ratingsAndComments');
-                      },
-                    ),
-                    RestaurantManagementButtons(
-                      icon: Icons.settings_outlined,
-                      // ignore: deprecated_member_use
-                      color: Colors.blueAccent.withOpacity(0.15),
-                      iconColor: Colors.blue,
-                      title: 'Configurações',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/restaurantSettings');
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      RestaurantManagementButtons(
+                        icon: Icons.restaurant_menu_outlined,
+                        // ignore: deprecated_member_use
+                        color: Colors.purpleAccent.withOpacity(0.15),
+                        iconColor: Colors.purple,
+                        title: 'Gerenciar Cardápio',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/admMenu');
+                        },
+                      ),
+                      RestaurantManagementButtons(
+                        icon: Icons.eco_outlined,
+                        // ignore: deprecated_member_use
+                        color: Colors.greenAccent.withOpacity(0.15),
+                        iconColor: Colors.green,
+                        title: 'Gerenciar Ingredientes',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/manageIngredients');
+                        },
+                      ),
+                      RestaurantManagementButtons(
+                        icon: Icons.chat_bubble_outline,
+                        // ignore: deprecated_member_use
+                        color: Color.fromARGB(
+                          255,
+                          255,
+                          170,
+                          0,
+                          // ignore: deprecated_member_use
+                        ).withOpacity(0.15),
+                        iconColor: const Color.fromARGB(255, 255, 170, 0),
+                        title: 'Avaliações e Comentários',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/ratingsAndComments');
+                        },
+                      ),
+                      RestaurantManagementButtons(
+                        icon: Icons.settings_outlined,
+                        // ignore: deprecated_member_use
+                        color: Colors.blueAccent.withOpacity(0.15),
+                        iconColor: Colors.blue,
+                        title: 'Configurações',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/restaurantSettings');
+                        },
+                      ),
+                    ],
+                  ),
                 ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            backgroundColor: Colors.white,
+            selectedItemColor: const Color(0xFF0FE687),
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.store_mall_directory_outlined),
+                label: 'Restaurante',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                label: 'Perfil',
               ),
             ],
+            currentIndex: 0,
+            onTap: (index) {
+              if (index == 0) {
+                Navigator.pushReplacementNamed(context, '/admRestaurantHome');
+              } else if (index == 1) {
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      return const AdmProfileScreen();
+                    },
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(
+                            begin: begin,
+                            end: end,
+                          ).chain(CurveTween(curve: curve));
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        },
+                  ),
+                );
+              }
+            },
           ),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF0FE687),
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.store_mall_directory_outlined),
-              label: 'Restaurante',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: 'Perfil',
-            ),
-          ],
-          currentIndex: 0,
-          onTap: (index) {
-            if (index == 0) {
-              Navigator.pushReplacementNamed(context, '/admRestaurantHome');
-            } else if (index == 1) {
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) {
-                    return const AdmProfileScreen();
-                  },
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0);
-                        const end = Offset.zero;
-                        const curve = Curves.easeInOut;
-                        var tween = Tween(
-                          begin: begin,
-                          end: end,
-                        ).chain(CurveTween(curve: curve));
-                        return SlideTransition(
-                          position: animation.drive(tween),
-                          child: child,
-                        );
-                      },
-                ),
-              );
-            }
-          },
         ),
       ),
     );
