@@ -737,9 +737,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                 nome: nomeController.text,
                                 preco: preco,
                                 tipo: tipoSelecionado!,
-                                descricao: descricaoController.text.isEmpty
-                                    ? null
-                                    : descricaoController.text,
+                                descricao:
+                                    descricaoController.text.trim().isEmpty
+                                    ? ''
+                                    : descricaoController.text.trim(),
                                 disponivel: disponivel,
                                 ingredientesIds: ingredientesSelecionados,
                               );
@@ -1175,12 +1176,21 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                             final ingredientesNovos = ingredientesSelecionados
                                 .toSet();
 
+                            final descricaoAtual =
+                                descricaoController.text.trim().isEmpty
+                                ? ''
+                                : descricaoController.text.trim();
+                            final descricaoOriginal =
+                                (refeicao.descricao == null ||
+                                    refeicao.descricao!.trim().isEmpty)
+                                ? ''
+                                : refeicao.descricao!.trim();
+
                             final semAlteracoes =
                                 nomeController.text == refeicao.nome &&
                                 precoAtual == refeicao.preco &&
                                 tipoSelecionado == refeicao.tipo &&
-                                descricaoController.text ==
-                                    (refeicao.descricao ?? '') &&
+                                descricaoAtual == descricaoOriginal &&
                                 ingredientesOriginais
                                     .difference(ingredientesNovos)
                                     .isEmpty &&
@@ -1213,9 +1223,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                 nome: nomeController.text,
                                 preco: preco,
                                 tipo: tipoSelecionado!,
-                                descricao: descricaoController.text.isEmpty
-                                    ? null
-                                    : descricaoController.text,
+                                descricao:
+                                    descricaoController.text.trim().isEmpty
+                                    ? ''
+                                    : descricaoController.text.trim(),
                                 disponivel: refeicao.disponivel,
                                 ingredientesIds: ingredientesSelecionados,
                               );
