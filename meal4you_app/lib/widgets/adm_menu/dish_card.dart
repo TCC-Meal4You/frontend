@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
-import 'package:meal4you_app/widgets/adm_menu/restriction_chip.dart';
 
 class DishCard extends StatefulWidget {
   final MealResponseDTO refeicao;
@@ -192,19 +191,32 @@ class _DishCardState extends State<DishCard> {
             ),
             if (widget.refeicao.ingredientes.isNotEmpty) ...[
               const SizedBox(height: 10),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: widget.refeicao.ingredientes
-                    .expand((ingrediente) => ingrediente.restricoes)
-                    .toSet()
-                    .map((restriction) => RestrictionChip(restriction: restriction))
-                    .toList(),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Ingredientes: ${widget.refeicao.ingredientes.map((i) => i.nome).join(', ')}',
-                style: TextStyle(color: Colors.grey[800], fontSize: 13),
+              Builder(
+                builder: (context) {
+                  final restricoes = widget.refeicao.ingredientes
+                      .expand((ingrediente) => ingrediente.restricoes)
+                      .toSet()
+                      .toList();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ingredientes: ${widget.refeicao.ingredientes.map((i) => i.nome).join(', ')}',
+                        style: TextStyle(color: Colors.grey[800], fontSize: 13),
+                      ),
+                      if (restricoes.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Restrições: ${restricoes.join(', ')}',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
               ),
             ],
             const SizedBox(height: 8),
