@@ -271,6 +271,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
               descricao: refeicoes[index].descricao,
               disponivel: disponivel,
               ingredientes: refeicoes[index].ingredientes,
+              restricoes: refeicoes[index].restricoes,
             );
           }
         });
