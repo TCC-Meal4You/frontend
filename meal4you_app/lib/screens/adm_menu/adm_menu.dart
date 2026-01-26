@@ -350,6 +350,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     final nomeController = TextEditingController();
     final precoController = TextEditingController();
     final descricaoController = TextEditingController();
+    final buscaIngredientesController = TextEditingController();
     String? tipoSelecionado;
     bool disponivel = true;
     List<IngredientResponseDTO> ingredientes = [];
@@ -357,6 +358,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     bool isLoadingIngredientes = true;
     bool isSaving = false;
     String? mensagemErro;
+    String filtroIngredientes = '';
 
     try {
       ingredientes = await IngredientService.listarMeusIngredientes();
@@ -589,6 +591,36 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      if (!isLoadingIngredientes && ingredientes.isNotEmpty)
+                        TextField(
+                          controller: buscaIngredientesController,
+                          decoration: InputDecoration(
+                            hintText: 'Pesquisar ingrediente...',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: filtroIngredientes.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setModalState(() {
+                                        buscaIngredientesController.clear();
+                                        filtroIngredientes = '';
+                                      });
+                                    },
+                                  )
+                                : null,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                          onChanged: (value) {
+                            setModalState(() {
+                              filtroIngredientes = value;
+                            });
+                          },
+                        ),
+                      const SizedBox(height: 8),
                       if (isLoadingIngredientes)
                         const Center(
                           child: Padding(
@@ -619,57 +651,66 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                         )
                       else
                         Column(
-                          children: ingredientes.map((ingrediente) {
-                            final isSelected = ingredientesSelecionados
-                                .contains(ingrediente.idIngrediente);
-                            return CheckboxListTile(
-                              title: Text(ingrediente.nome),
-                              subtitle: ingrediente.restricoes.isNotEmpty
-                                  ? Wrap(
-                                      spacing: 4,
-                                      runSpacing: 4,
-                                      children: ingrediente.restricoes
-                                          .map(
-                                            (r) => Chip(
-                                              label: Text(r),
-                                              labelStyle: const TextStyle(
-                                                fontSize: 10,
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 4,
+                          children: ingredientes
+                              .where(
+                                (ingrediente) =>
+                                    filtroIngredientes.isEmpty ||
+                                    ingrediente.nome.toLowerCase().contains(
+                                      filtroIngredientes.toLowerCase(),
+                                    ),
+                              )
+                              .map((ingrediente) {
+                                final isSelected = ingredientesSelecionados
+                                    .contains(ingrediente.idIngrediente);
+                                return CheckboxListTile(
+                                  title: Text(ingrediente.nome),
+                                  subtitle: ingrediente.restricoes.isNotEmpty
+                                      ? Wrap(
+                                          spacing: 4,
+                                          runSpacing: 4,
+                                          children: ingrediente.restricoes
+                                              .map(
+                                                (r) => Chip(
+                                                  label: Text(r),
+                                                  labelStyle: const TextStyle(
+                                                    fontSize: 10,
                                                   ),
-                                              materialTapTargetSize:
-                                                  MaterialTapTargetSize
-                                                      .shrinkWrap,
-                                            ),
-                                          )
-                                          .toList(),
-                                    )
-                                  : null,
-                              value: isSelected,
-                              activeColor: const Color.fromARGB(
-                                255,
-                                157,
-                                0,
-                                255,
-                              ),
-                              onChanged: (bool? value) {
-                                setModalState(() {
-                                  if (value == true) {
-                                    ingredientesSelecionados.add(
-                                      ingrediente.idIngrediente,
-                                    );
-                                  } else {
-                                    ingredientesSelecionados.remove(
-                                      ingrediente.idIngrediente,
-                                    );
-                                  }
-                                });
-                              },
-                              contentPadding: EdgeInsets.zero,
-                            );
-                          }).toList(),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 4,
+                                                      ),
+                                                  materialTapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                ),
+                                              )
+                                              .toList(),
+                                        )
+                                      : null,
+                                  value: isSelected,
+                                  activeColor: const Color.fromARGB(
+                                    255,
+                                    157,
+                                    0,
+                                    255,
+                                  ),
+                                  onChanged: (bool? value) {
+                                    setModalState(() {
+                                      if (value == true) {
+                                        ingredientesSelecionados.add(
+                                          ingrediente.idIngrediente,
+                                        );
+                                      } else {
+                                        ingredientesSelecionados.remove(
+                                          ingrediente.idIngrediente,
+                                        );
+                                      }
+                                    });
+                                  },
+                                  contentPadding: EdgeInsets.zero,
+                                );
+                              })
+                              .toList(),
                         ),
                     ],
                   ),
@@ -811,15 +852,16 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     final descricaoController = TextEditingController(
       text: refeicao.descricao ?? '',
     );
+    final buscaIngredientesController = TextEditingController();
     String? tipoSelecionado = refeicao.tipo;
     List<IngredientResponseDTO> ingredientes = [];
-    // Inicializa com os IDs dos ingredientes já na refeição
     final List<int> ingredientesSelecionados = List<int>.from(
       refeicao.ingredientes.map((i) => i.idIngrediente),
     );
     bool isLoadingIngredientes = true;
     bool isSaving = false;
     String? mensagemErro;
+    String filtroIngredientes = '';
 
     try {
       ingredientes = await IngredientService.listarMeusIngredientes();
@@ -1036,6 +1078,36 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      if (!isLoadingIngredientes && ingredientes.isNotEmpty)
+                        TextField(
+                          controller: buscaIngredientesController,
+                          decoration: InputDecoration(
+                            hintText: 'Pesquisar ingrediente...',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: filtroIngredientes.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setModalState(() {
+                                        buscaIngredientesController.clear();
+                                        filtroIngredientes = '';
+                                      });
+                                    },
+                                  )
+                                : null,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                          onChanged: (value) {
+                            setModalState(() {
+                              filtroIngredientes = value;
+                            });
+                          },
+                        ),
+                      const SizedBox(height: 8),
                       if (isLoadingIngredientes)
                         const Center(
                           child: Padding(
@@ -1066,57 +1138,66 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                         )
                       else
                         Column(
-                          children: ingredientes.map((ingrediente) {
-                            final isSelected = ingredientesSelecionados
-                                .contains(ingrediente.idIngrediente);
-                            return CheckboxListTile(
-                              title: Text(ingrediente.nome),
-                              subtitle: ingrediente.restricoes.isNotEmpty
-                                  ? Wrap(
-                                      spacing: 4,
-                                      runSpacing: 4,
-                                      children: ingrediente.restricoes
-                                          .map(
-                                            (r) => Chip(
-                                              label: Text(r),
-                                              labelStyle: const TextStyle(
-                                                fontSize: 10,
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 4,
+                          children: ingredientes
+                              .where(
+                                (ingrediente) =>
+                                    filtroIngredientes.isEmpty ||
+                                    ingrediente.nome.toLowerCase().contains(
+                                      filtroIngredientes.toLowerCase(),
+                                    ),
+                              )
+                              .map((ingrediente) {
+                                final isSelected = ingredientesSelecionados
+                                    .contains(ingrediente.idIngrediente);
+                                return CheckboxListTile(
+                                  title: Text(ingrediente.nome),
+                                  subtitle: ingrediente.restricoes.isNotEmpty
+                                      ? Wrap(
+                                          spacing: 4,
+                                          runSpacing: 4,
+                                          children: ingrediente.restricoes
+                                              .map(
+                                                (r) => Chip(
+                                                  label: Text(r),
+                                                  labelStyle: const TextStyle(
+                                                    fontSize: 10,
                                                   ),
-                                              materialTapTargetSize:
-                                                  MaterialTapTargetSize
-                                                      .shrinkWrap,
-                                            ),
-                                          )
-                                          .toList(),
-                                    )
-                                  : null,
-                              value: isSelected,
-                              activeColor: const Color.fromARGB(
-                                255,
-                                157,
-                                0,
-                                255,
-                              ),
-                              onChanged: (bool? value) {
-                                setModalState(() {
-                                  if (value == true) {
-                                    ingredientesSelecionados.add(
-                                      ingrediente.idIngrediente,
-                                    );
-                                  } else {
-                                    ingredientesSelecionados.remove(
-                                      ingrediente.idIngrediente,
-                                    );
-                                  }
-                                });
-                              },
-                              contentPadding: EdgeInsets.zero,
-                            );
-                          }).toList(),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 4,
+                                                      ),
+                                                  materialTapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                ),
+                                              )
+                                              .toList(),
+                                        )
+                                      : null,
+                                  value: isSelected,
+                                  activeColor: const Color.fromARGB(
+                                    255,
+                                    157,
+                                    0,
+                                    255,
+                                  ),
+                                  onChanged: (bool? value) {
+                                    setModalState(() {
+                                      if (value == true) {
+                                        ingredientesSelecionados.add(
+                                          ingrediente.idIngrediente,
+                                        );
+                                      } else {
+                                        ingredientesSelecionados.remove(
+                                          ingrediente.idIngrediente,
+                                        );
+                                      }
+                                    });
+                                  },
+                                  contentPadding: EdgeInsets.zero,
+                                );
+                              })
+                              .toList(),
                         ),
                     ],
                   ),
