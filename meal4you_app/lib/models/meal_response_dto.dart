@@ -6,6 +6,7 @@ class MealResponseDTO {
   final String? descricao;
   final bool disponivel;
   final List<MealIngredientDTO> ingredientes;
+  final List<String> restricoes;
 
   MealResponseDTO({
     required this.idRefeicao,
@@ -15,11 +16,30 @@ class MealResponseDTO {
     this.descricao,
     required this.disponivel,
     required this.ingredientes,
+    required this.restricoes,
   });
 
   factory MealResponseDTO.fromJson(Map<String, dynamic> json) {
-    // Tenta pegar 'ingredientes' primeiro, depois 'ingrediente'
     final ingredientesJson = json['ingredientes'] ?? json['ingrediente'];
+    final restricoesJson = json['restricoes'] ?? json['restricao'];
+
+    final restricoesList =
+        (restricoesJson as List<dynamic>?)
+            ?.map((e) {
+              if (e is Map<String, dynamic>) {
+                return e['tipo']?.toString() ?? '';
+              }
+              return e.toString();
+            })
+            .where((r) => r.isNotEmpty)
+            .toList() ??
+        [];
+
+    final ingredientesList =
+        (ingredientesJson as List<dynamic>?)
+            ?.map((e) => MealIngredientDTO.fromJson(e, restricoesList))
+            .toList() ??
+        [];
 
     return MealResponseDTO(
       idRefeicao: json['idRefeicao'] ?? json['id_refeicao'] ?? 0,
@@ -28,11 +48,8 @@ class MealResponseDTO {
       tipo: json['tipo'] ?? '',
       descricao: json['descricao'],
       disponivel: json['disponivel'] ?? false,
-      ingredientes:
-          (ingredientesJson as List<dynamic>?)
-              ?.map((e) => MealIngredientDTO.fromJson(e))
-              .toList() ??
-          [],
+      ingredientes: ingredientesList,
+      restricoes: restricoesList,
     );
   }
 }
@@ -48,15 +65,14 @@ class MealIngredientDTO {
     required this.restricoes,
   });
 
-  factory MealIngredientDTO.fromJson(Map<String, dynamic> json) {
+  factory MealIngredientDTO.fromJson(
+    Map<String, dynamic> json,
+    List<String> restricoesDaRefeicao,
+  ) {
     return MealIngredientDTO(
       idIngrediente: json['idIngrediente'] ?? json['id_ingrediente'] ?? 0,
       nome: json['nome'] ?? '',
-      restricoes:
-          (json['restricoes'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
+      restricoes: restricoesDaRefeicao,
     );
   }
 }
