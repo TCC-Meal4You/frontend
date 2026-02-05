@@ -27,7 +27,7 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
   bool _isResendLoading = false;
 
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
-    baseUrl: 'https://backend-production-38906.up.railway.app',
+    baseUrl: 'https://backend-production-bc8d.up.railway.app',
   );
 
   @override
