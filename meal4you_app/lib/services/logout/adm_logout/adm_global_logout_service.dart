@@ -4,7 +4,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class AdmGlobalLogoutService {
   static const String _baseUrl =
-      "https://backend-production-38906.up.railway.app/admins";
+      "https://backend-production-bc8d.up.railway.app/admins";
 
   final http.Client adm;
 

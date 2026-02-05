@@ -21,7 +21,7 @@ class GoogleRegisterAndLoginService {
     ],
   );
 
-  final String baseUrl = "https://backend-production-38906.up.railway.app";
+  final String baseUrl = "https://backend-production-bc8d.up.railway.app";
 
   Future<void> signInWithGoogle({
     required BuildContext context,

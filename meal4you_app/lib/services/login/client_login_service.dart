@@ -5,7 +5,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class ClientLoginService {
   static const String baseUrl =
-      "https://backend-production-38906.up.railway.app/usuarios/login";
+      "https://backend-production-bc8d.up.railway.app/usuarios/login";
   static Future<Map<String, dynamic>> loginClient({
     required String email,
     required String senha,

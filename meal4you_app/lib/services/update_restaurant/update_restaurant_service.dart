@@ -5,7 +5,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class UpdateRestaurantService {
   static const String baseUrl =
-      'https://backend-production-38906.up.railway.app/restaurantes';
+      'https://backend-production-bc8d.up.railway.app/restaurantes';
 
   static Future<Map<String, dynamic>?> updateRestaurant({
     required RestaurantProvider provider,

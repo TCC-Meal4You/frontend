@@ -6,7 +6,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class IngredientService {
   static const String baseUrl =
-      'https://backend-production-38906.up.railway.app/ingredientes';
+      'https://backend-production-bc8d.up.railway.app/ingredientes';
 
   static Future<IngredientResponseDTO> cadastrarIngrediente(
     IngredientRequestDTO dto,
