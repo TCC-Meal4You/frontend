@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:meal4you_app/screens/loading_splash/loading_splash_screen.dart';
 import 'package:meal4you_app/screens/manage_ingredients/manage_ingredients_screen.dart';
+import 'package:meal4you_app/screens/search_restaurant_and_dish/search_restaurant_and_dish_screen.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
@@ -148,7 +149,14 @@ class Meal4You extends StatelessWidget {
             );
 
           case '/manageIngredients':
-            return MaterialPageRoute(builder: (_) => const ManageIngredientsScreen());
+            return MaterialPageRoute(
+              builder: (_) => const ManageIngredientsScreen(),
+            );
+
+          case '/searchRestaurantAndDish':
+            return MaterialPageRoute(
+              builder: (_) => const SearchRestaurantAndDishScreen(),
+            );
 
           default:
             return MaterialPageRoute(
