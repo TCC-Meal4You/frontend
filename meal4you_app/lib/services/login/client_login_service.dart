@@ -49,15 +49,20 @@ class ClientLoginService {
       final savedEmail = await UserTokenSaving.getUserEmail();
       if (savedEmail == null) throw Exception("Email não encontrado.");
       if (!context.mounted) return;
+
+      final hasCompletedRestrictions =
+          await UserTokenSaving.hasCompletedRestrictions();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Login realizado: $savedEmail"),
           backgroundColor: const Color.fromARGB(255, 157, 0, 255),
         ),
       );
+
       Navigator.pushNamedAndRemoveUntil(
         context,
-        '/clientProfile',
+        hasCompletedRestrictions ? '/clientHome' : '/restrictionsChoice',
         (_) => false,
       );
     } catch (e) {
