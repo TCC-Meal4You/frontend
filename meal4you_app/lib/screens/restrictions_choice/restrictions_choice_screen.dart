@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/restriction/restriction_service.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class RestrictionsChoiceScreen extends StatefulWidget {
   const RestrictionsChoiceScreen({super.key});
@@ -258,8 +259,13 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                     child: ElevatedButton(
                       onPressed: selected.isEmpty
                           ? null
-                          : () {
-                              Navigator.pushNamed(context, '/clientProfile');
+                          : () async {
+                              await UserTokenSaving.setRestrictionsCompleted(
+                                true,
+                              );
+                              if (context.mounted) {
+                                Navigator.pushNamed(context, '/clientHome');
+                              }
                             },
                       style: ButtonStyle(
                         backgroundColor:
