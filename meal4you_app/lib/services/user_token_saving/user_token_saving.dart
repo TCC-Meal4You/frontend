@@ -9,6 +9,7 @@ class UserTokenSaving {
   static const String _userIdKey = 'user_id';
   static const String _restaurantIdKey = 'restaurant_id';
   static const String _userPasswordKey = 'user_password';
+  static const String _restrictionsCompletedKey = 'restrictions_completed';
 
   static Future<String?> getAuthorizationHeader() async {
     final token = await getToken();
@@ -214,6 +215,16 @@ class UserTokenSaving {
     return getRestaurantDataForUser(email);
   }
 
+  static Future<void> setRestrictionsCompleted(bool completed) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_restrictionsCompletedKey, completed);
+  }
+
+  static Future<bool> hasCompletedRestrictions() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_restrictionsCompletedKey) ?? false;
+  }
+
   static Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString(_userEmailKey);
@@ -224,6 +235,7 @@ class UserTokenSaving {
     await prefs.remove(_userIdKey);
     await prefs.remove(_restaurantIdKey);
     await prefs.remove(_userPasswordKey);
+    await prefs.remove(_restrictionsCompletedKey);
 
     if (email != null) {
       await prefs.remove('restaurant_data_$email');
