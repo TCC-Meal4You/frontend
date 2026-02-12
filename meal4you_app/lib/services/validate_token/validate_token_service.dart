@@ -14,9 +14,15 @@ class ValidateTokenService {
         return false;
       }
 
+      final userData = await UserTokenSaving.getUserData();
+      final userType = userData?['userType'];
+      final isClient = userType == 'client';
+
+      final endpoint = isClient ? '/usuarios' : '/admins';
+
       final response = await http
           .get(
-            Uri.parse('$_baseUrl/admins'),
+            Uri.parse('$_baseUrl$endpoint'),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',
@@ -34,7 +40,6 @@ class ValidateTokenService {
       }
 
       if (response.statusCode == 401) {
-        await UserTokenSaving.clearAll();
         return false;
       }
 
