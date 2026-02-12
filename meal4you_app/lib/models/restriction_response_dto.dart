@@ -7,7 +7,7 @@ class RestrictionResponseDTO {
   factory RestrictionResponseDTO.fromJson(Map<String, dynamic> json) {
     return RestrictionResponseDTO(
       idRestricao: json['idRestricao'] ?? json['id_restricao'] ?? 0,
-      nome: json['tipo'] ?? json['nome'] ?? '',
+      nome: (json['tipo'] ?? json['nome'] ?? '').toString(),
     );
   }
 }
