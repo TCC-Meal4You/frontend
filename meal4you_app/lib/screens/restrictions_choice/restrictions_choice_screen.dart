@@ -283,14 +283,33 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                                 }
                               } catch (e) {
                                 if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Erro ao salvar restrições: $e',
+                                  if (e.toString().contains(
+                                    'não autenticado',
+                                  )) {
+                                    await UserTokenSaving.clearAll();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Sessão expirada. Faça login novamente.',
+                                        ),
+                                        backgroundColor: Colors.orange,
                                       ),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
+                                    );
+                                    Navigator.pushNamedAndRemoveUntil(
+                                      context,
+                                      '/profileChoice',
+                                      (_) => false,
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao salvar restrições: $e',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 }
                               }
                             },
