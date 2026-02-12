@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
 
 class ClientLoginService {
   static const String baseUrl =
@@ -46,12 +47,31 @@ class ClientLoginService {
       };
       await UserTokenSaving.saveUserData(userData);
 
+      bool hasCompletedRestrictions = false;
+      try {
+        final restricoes = await UserRestrictionService.buscarRestricoes();
+
+        hasCompletedRestrictions = restricoes.isNotEmpty;
+        if (hasCompletedRestrictions) {
+          await UserTokenSaving.setRestrictionsCompleted(true);
+        } else {}
+      } catch (e) {
+        if (e.toString().contains('ACCOUNT_NOT_FOUND')) {
+          await UserTokenSaving.clearAll();
+          if (context.mounted) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/profileChoice',
+              (_) => false,
+            );
+          }
+          return;
+        }
+      }
+
       final savedEmail = await UserTokenSaving.getUserEmail();
       if (savedEmail == null) throw Exception("Email não encontrado.");
       if (!context.mounted) return;
-
-      final hasCompletedRestrictions =
-          await UserTokenSaving.hasCompletedRestrictions();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -60,11 +80,11 @@ class ClientLoginService {
         ),
       );
 
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        hasCompletedRestrictions ? '/clientHome' : '/restrictionsChoice',
-        (_) => false,
-      );
+      final destino = hasCompletedRestrictions
+          ? '/clientHome'
+          : '/restrictionsChoice';
+
+      Navigator.pushNamedAndRemoveUntil(context, destino, (_) => false);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
