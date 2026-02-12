@@ -103,13 +103,38 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     print('🔐 Validando token no backend...');
-    final isTokenValid = await ValidateTokenService.validateToken();
+    bool isTokenValid = false;
+
+    try {
+      isTokenValid = await ValidateTokenService.validateToken();
+    } catch (e) {
+      print('⚠️ Erro ao validar token: $e');
+      isTokenValid = false;
+    }
 
     if (!isTokenValid) {
-      print(
-        '❌ Token inválido ou expirado, limpando dados e indo para profileChoice',
-      );
-      await UserTokenSaving.clearAll();
+      print('❌ Token inválido ou expirado');
+
+      final userType = userData['userType'];
+      final isClient = userType == 'client';
+
+      if (isClient) {
+        final hasCompletedRestrictions =
+            await UserTokenSaving.hasCompletedRestrictions();
+
+        print(
+          '🔍 Cliente com token expirado - Restrições completadas: $hasCompletedRestrictions',
+        );
+
+        await UserTokenSaving.clearAll();
+        print(
+          '➡️ Token expirado, indo para profileChoice (relogar necessário)',
+        );
+      } else {
+        await UserTokenSaving.clearAll();
+        print('➡️ Admin com token expirado, indo para profileChoice');
+      }
+
       _goTo('/profileChoice');
       return;
     }
@@ -155,8 +180,17 @@ class _SplashScreenState extends State<SplashScreen>
       return;
     }
 
-    print('👤 Cliente -> clientProfile');
-    _goTo('/clientProfile');
+    print('👤 Usuário é cliente, verificando restrições...');
+    final hasCompletedRestrictions =
+        await UserTokenSaving.hasCompletedRestrictions();
+
+    if (hasCompletedRestrictions) {
+      print('✅ Cliente com restrições escolhidas -> clientHome');
+      _goTo('/clientHome');
+    } else {
+      print('⚠️ Cliente sem restrições escolhidas -> restrictionsChoice');
+      _goTo('/restrictionsChoice');
+    }
   }
 
   void _goTo(String route) {
