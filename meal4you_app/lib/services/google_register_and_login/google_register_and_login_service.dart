@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/search_restaurant_data/search_restaurant_data_service.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
+import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
 import 'package:provider/provider.dart';
 
 class GoogleRegisterAndLoginService {
@@ -159,9 +160,44 @@ class GoogleRegisterAndLoginService {
             Navigator.pushReplacementNamed(context, '/createAdmRestaurant');
           }
         } else {
-          debugPrint('👤 GOOGLE LOGIN - Cliente, indo para restrictionsChoice');
+          debugPrint('👤 GOOGLE LOGIN - Cliente, verificando restrições...');
+
+          bool hasCompletedRestrictions = false;
+          try {
+            final restricoes = await UserRestrictionService.buscarRestricoes();
+            debugPrint('✅ GOOGLE LOGIN - Restrições do usuário: $restricoes');
+            hasCompletedRestrictions = restricoes.isNotEmpty;
+            if (hasCompletedRestrictions) {
+              await UserTokenSaving.setRestrictionsCompleted(true);
+              debugPrint(
+                '✅ GOOGLE LOGIN - Flag de restrições completadas definida',
+              );
+            } else {
+              debugPrint(
+                '⚠️ GOOGLE LOGIN - Usuário não tem restrições cadastradas',
+              );
+            }
+          } catch (e) {
+            if (e.toString().contains('ACCOUNT_NOT_FOUND')) {
+              debugPrint(
+                '❌ GOOGLE LOGIN - Conta não existe, limpando dados...',
+              );
+              await UserTokenSaving.clearAll();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, '/profileChoice');
+              }
+              return;
+            }
+            debugPrint('❌ GOOGLE LOGIN - Erro ao buscar restrições: $e');
+          }
+
+          final destino = hasCompletedRestrictions
+              ? '/clientHome'
+              : '/restrictionsChoice';
+          debugPrint('🚀 GOOGLE LOGIN - Navegando para: $destino');
+
           if (!context.mounted) return;
-          Navigator.pushReplacementNamed(context, '/restrictionsChoice');
+          Navigator.pushReplacementNamed(context, destino);
         }
       } else {
         debugPrint(
