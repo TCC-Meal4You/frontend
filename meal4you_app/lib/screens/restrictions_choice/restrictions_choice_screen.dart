@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/restriction/restriction_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
 
 class RestrictionsChoiceScreen extends StatefulWidget {
   const RestrictionsChoiceScreen({super.key});
@@ -11,8 +12,9 @@ class RestrictionsChoiceScreen extends StatefulWidget {
 
 class ButtonItem {
   final String name;
+  final int? id;
 
-  ButtonItem(this.name);
+  ButtonItem(this.name, {this.id});
 }
 
 class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
@@ -34,7 +36,7 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
       if (mounted) {
         setState(() {
           buttons = restricoes.map((restricao) {
-            return ButtonItem(restricao.nome);
+            return ButtonItem(restricao.nome, id: restricao.idRestricao);
           }).toList();
 
           buttons.insert(0, ButtonItem('Nenhuma Restrição'));
@@ -260,11 +262,36 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                       onPressed: selected.isEmpty
                           ? null
                           : () async {
-                              await UserTokenSaving.setRestrictionsCompleted(
-                                true,
-                              );
-                              if (context.mounted) {
-                                Navigator.pushNamed(context, '/clientHome');
+                              try {
+                                final idsRestricoes = selected
+                                    .where((item) => item.id != null)
+                                    .map((item) => item.id!)
+                                    .toList();
+
+                                if (idsRestricoes.isNotEmpty) {
+                                  await UserRestrictionService.atualizarRestricoes(
+                                    idsRestricoes,
+                                  );
+                                }
+
+                                await UserTokenSaving.setRestrictionsCompleted(
+                                  true,
+                                );
+
+                                if (context.mounted) {
+                                  Navigator.pushNamed(context, '/clientHome');
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Erro ao salvar restrições: $e',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               }
                             },
                       style: ButtonStyle(
