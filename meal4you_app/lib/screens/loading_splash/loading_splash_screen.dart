@@ -93,79 +93,49 @@ class _SplashScreenState extends State<SplashScreen>
     final token = await UserTokenSaving.getToken();
     final userData = await UserTokenSaving.getUserData();
 
-    print('🔍 DEBUG SPLASH - Token: ${token != null ? "existe" : "null"}');
-    print('🔍 DEBUG SPLASH - UserData: $userData');
-
     if (token == null || userData == null) {
-      print('➡️ Sem token ou userData, indo para profileChoice');
       _goTo('/profileChoice');
       return;
     }
 
-    print('🔐 Validando token no backend...');
     bool isTokenValid = false;
 
     try {
       isTokenValid = await ValidateTokenService.validateToken();
     } catch (e) {
-      print('⚠️ Erro ao validar token: $e');
       isTokenValid = false;
     }
 
     if (!isTokenValid) {
-      print('❌ Token inválido ou expirado');
-
       final userType = userData['userType'];
       final isClient = userType == 'client';
 
       if (isClient) {
-        final hasCompletedRestrictions =
-            await UserTokenSaving.hasCompletedRestrictions();
-
-        print(
-          '🔍 Cliente com token expirado - Restrições completadas: $hasCompletedRestrictions',
-        );
+        await UserTokenSaving.hasCompletedRestrictions();
 
         await UserTokenSaving.clearAll();
-        print(
-          '➡️ Token expirado, indo para profileChoice (relogar necessário)',
-        );
       } else {
         await UserTokenSaving.clearAll();
-        print('➡️ Admin com token expirado, indo para profileChoice');
       }
 
       _goTo('/profileChoice');
       return;
     }
 
-    print('✅ Token válido');
-
     final restaurantId = await UserTokenSaving.getRestaurantId();
     final restaurantData =
         await UserTokenSaving.getRestaurantDataForCurrentUser();
-
-    print('🔍 DEBUG SPLASH - RestaurantId: $restaurantId');
-    print(
-      '🔍 DEBUG SPLASH - RestaurantData: ${restaurantData != null ? "existe" : "null"}',
-    );
 
     final userType = userData['userType'];
     final tipo = userData['tipo'];
     final isAdmField = userData['isAdm'];
 
-    print('🔍 DEBUG SPLASH - userType: $userType');
-    print('🔍 DEBUG SPLASH - tipo: $tipo');
-    print('🔍 DEBUG SPLASH - isAdm: $isAdmField');
-
     if (restaurantData != null && restaurantData.isNotEmpty) {
-      print('✅ Admin com restaurante -> admRestaurantHome');
       _goTo('/admRestaurantHome');
       return;
     }
 
     if (restaurantId != null && restaurantId > 0) {
-      print('⚠️ Admin sem restaurante (tem ID) -> createAdmRestaurant');
       _goTo('/createAdmRestaurant');
       return;
     }
@@ -175,20 +145,16 @@ class _SplashScreenState extends State<SplashScreen>
     final isAdmByField = isAdmField == true;
 
     if (isAdmByUserType || isAdmByTipo || isAdmByField) {
-      print('✅ Admin sem restaurante (por tipo) -> createAdmRestaurant');
       _goTo('/createAdmRestaurant');
       return;
     }
 
-    print('👤 Usuário é cliente, verificando restrições...');
     final hasCompletedRestrictions =
         await UserTokenSaving.hasCompletedRestrictions();
 
     if (hasCompletedRestrictions) {
-      print('✅ Cliente com restrições escolhidas -> clientHome');
       _goTo('/clientHome');
     } else {
-      print('⚠️ Cliente sem restrições escolhidas -> restrictionsChoice');
       _goTo('/restrictionsChoice');
     }
   }
