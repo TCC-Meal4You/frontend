@@ -93,68 +93,92 @@ class _SplashScreenState extends State<SplashScreen>
     final token = await UserTokenSaving.getToken();
     final userData = await UserTokenSaving.getUserData();
 
+
     if (token == null || userData == null) {
-      _goTo('/profileChoice');
-      return;
-    }
-
-    bool isTokenValid = false;
-
-    try {
-      isTokenValid = await ValidateTokenService.validateToken();
-    } catch (e) {
-      isTokenValid = false;
-    }
-
-    if (!isTokenValid) {
-      final userType = userData['userType'];
-      final isClient = userType == 'client';
-
-      if (isClient) {
-        await UserTokenSaving.hasCompletedRestrictions();
-
-        await UserTokenSaving.clearAll();
-      } else {
-        await UserTokenSaving.clearAll();
-      }
 
       _goTo('/profileChoice');
       return;
     }
-
-    final restaurantId = await UserTokenSaving.getRestaurantId();
-    final restaurantData =
-        await UserTokenSaving.getRestaurantDataForCurrentUser();
 
     final userType = userData['userType'];
     final tipo = userData['tipo'];
     final isAdmField = userData['isAdm'];
-
-    if (restaurantData != null && restaurantData.isNotEmpty) {
-      _goTo('/admRestaurantHome');
-      return;
-    }
-
-    if (restaurantId != null && restaurantId > 0) {
-      _goTo('/createAdmRestaurant');
-      return;
-    }
 
     final isAdmByUserType = userType == 'adm';
     final isAdmByTipo = tipo == 'adm';
     final isAdmByField = isAdmField == true;
 
     if (isAdmByUserType || isAdmByTipo || isAdmByField) {
+ 
+
+      bool isTokenValid = false;
+      try {
+        isTokenValid = await ValidateTokenService.validateToken();
+      } catch (e) {
+
+        isTokenValid = false;
+      }
+
+      if (!isTokenValid) {
+
+        await UserTokenSaving.clearAll();
+        _goTo('/profileChoice');
+        return;
+      }
+
+  
+
+      final restaurantId = await UserTokenSaving.getRestaurantId();
+      final restaurantData =
+          await UserTokenSaving.getRestaurantDataForCurrentUser();
+
+   
+
+      if (restaurantData != null && restaurantData.isNotEmpty) {
+       
+        _goTo('/admRestaurantHome');
+        return;
+      }
+
+      if (restaurantId != null && restaurantId > 0) {
+       
+        _goTo('/createAdmRestaurant');
+        return;
+      }
+
+     
       _goTo('/createAdmRestaurant');
       return;
     }
 
+   
+
+    bool isTokenValid = false;
+    try {
+      isTokenValid = await ValidateTokenService.validateToken();
+    } catch (e) {
+     
+      isTokenValid = false;
+    }
+
+    if (!isTokenValid) {
+     
+      await UserTokenSaving.clearAll();
+      _goTo('/profileChoice');
+      return;
+    }
+
+  
     final hasCompletedRestrictions =
         await UserTokenSaving.hasCompletedRestrictions();
 
+   
+
     if (hasCompletedRestrictions) {
+      
       _goTo('/clientHome');
     } else {
+    
       _goTo('/restrictionsChoice');
     }
   }
