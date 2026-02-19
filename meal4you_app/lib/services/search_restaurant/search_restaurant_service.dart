@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:meal4you_app/models/pesquisa_restaurante_response_dto.dart';
+import 'package:meal4you_app/models/paginacao_restaurante_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class SearchRestaurantService {
   static const String baseUrl =
       'https://backend-production-bc8d.up.railway.app/restaurantes';
 
-  static Future<PesquisaRestauranteResponseDTO> listarRestaurantes(
+  static Future<PaginacaoRestauranteResponseDTO> listarRestaurantes(
     int numPagina,
   ) async {
     final token = await UserTokenSaving.getToken();
@@ -23,7 +23,7 @@ class SearchRestaurantService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return PesquisaRestauranteResponseDTO.fromJson(data);
+      return PaginacaoRestauranteResponseDTO.fromJson(data);
     } else if (response.statusCode == 401) {
       throw Exception('Usuário não autenticado');
     } else {
