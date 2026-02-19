@@ -205,6 +205,24 @@ class _SearchRestaurantAndDishScreenState
             ),
           ],
         ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color.fromARGB(255, 157, 0, 255),
+          unselectedItemColor: Colors.grey,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
+          ],
+          currentIndex: 1,
+          onTap: (index) {
+            if (index == 0) {
+              Navigator.pushReplacementNamed(context, '/clientHome');
+            }
+          },
+        ),
       ),
     );
   }
