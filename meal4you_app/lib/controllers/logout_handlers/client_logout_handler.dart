@@ -21,7 +21,7 @@ class ClientLogoutHandler {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Sair'),
-          content: const Text('Deseja sair desta conta neste dispositivo?'),
+          content: const Text('Deseja sair desta conta?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
@@ -37,13 +37,13 @@ class ClientLogoutHandler {
               },
               child: const Text('Sair neste dispositivo'),
             ),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     Navigator.of(dialogContext).pop();
-            //     await _handleLogout(context, onlyThisDevice: false);
-            //   },
-            //   child: const Text('Todos os dispositivos'),
-            // ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await _handleLogout(context, onlyThisDevice: false);
+              },
+              child: const Text('Sair de todos os dispositivos'),
+            ),
           ],
         );
       },
@@ -67,12 +67,12 @@ class ClientLogoutHandler {
         await _clientGlobalLogoutService.logoutGlobal();
       }
 
-      if (!context.mounted) return;
-
       LoginControllers.emailController.clear();
       LoginControllers.senhaController.clear();
 
+      if (!context.mounted) return;
       Navigator.of(context).pop();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
