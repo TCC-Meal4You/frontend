@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
 import 'package:meal4you_app/screens/search_restaurant_and_dish/search_restaurant_and_dish_screen.dart';
+import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
 
 class ClientHomeScreen extends StatefulWidget {
   const ClientHomeScreen({super.key});
@@ -12,6 +13,33 @@ class ClientHomeScreen extends StatefulWidget {
 
 class _ClientHomeScreenState extends State<ClientHomeScreen> {
   final ClientLogoutHandler _clientlogoutHandler = ClientLogoutHandler();
+  List<String> _restricoes = [];
+  bool _loadingRestricoes = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarRestricoes();
+  }
+
+  Future<void> _carregarRestricoes() async {
+    try {
+      final nomesRestricoes = await UserRestrictionService.buscarRestricoes();
+
+      setState(() {
+        _restricoes = nomesRestricoes.isNotEmpty
+            ? nomesRestricoes
+            : ['Nenhuma restrição'];
+        _loadingRestricoes = false;
+      });
+    } catch (e) {
+      print('Erro ao carregar restrições: $e');
+      setState(() {
+        _restricoes = ['Erro ao carregar'];
+        _loadingRestricoes = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,14 +118,34 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      'Buscando opções para: ',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 15,
-                        fontFamily: 'Ubuntu',
-                      ),
-                    ),
+                    _loadingRestricoes
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          )
+                        : Column(
+                            children: [
+                              const Text(
+                                'Buscando opções para:',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 15,
+                                  fontFamily: 'Ubuntu',
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _restricoes.join(', '),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Ubuntu',
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                   ],
                 ),
               ),

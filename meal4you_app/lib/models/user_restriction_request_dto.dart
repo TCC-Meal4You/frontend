@@ -4,6 +4,6 @@ class UserRestrictionRequestDTO {
   UserRestrictionRequestDTO({required this.idsRestricoes});
 
   Map<String, dynamic> toJson() {
-    return {'idsRestricoes': idsRestricoes};
+    return {'restricaoIds': idsRestricoes};
   }
 }
