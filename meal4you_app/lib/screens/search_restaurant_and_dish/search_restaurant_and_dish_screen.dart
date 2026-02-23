@@ -22,8 +22,8 @@ class _SearchRestaurantAndDishScreenState
   final ScrollController _restaurantScrollController = ScrollController();
   final ScrollController _mealScrollController = ScrollController();
 
-  List<RestauranteResponseDTO> _restaurantes = [];
-  List<MealResponseDTO> _refeicoes = [];
+  final List<RestauranteResponseDTO> _restaurantes = [];
+  final List<MealResponseDTO> _refeicoes = [];
 
   int _restaurantPage = 0;
   int _mealPage = 0;
@@ -32,7 +32,6 @@ class _SearchRestaurantAndDishScreenState
 
   bool _loadingRestaurants = false;
   bool _loadingMeals = false;
-  bool _initialLoadDone = false;
 
   @override
   void initState() {
@@ -42,12 +41,16 @@ class _SearchRestaurantAndDishScreenState
     _restaurantScrollController.addListener(_onRestaurantScroll);
     _mealScrollController.addListener(_onMealScroll);
 
-    _loadRestaurants();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadRestaurants();
+    });
   }
 
   Future<void> _loadRestaurants() async {
-    if (_loadingRestaurants ||
-        _restaurantPage >= _restaurantTotalPages - 1 && _initialLoadDone) {
+    if (_loadingRestaurants) {
+      return;
+    }
+    if (_restaurantPage >= _restaurantTotalPages && _restaurantPage > 0) {
       return;
     }
 
@@ -63,7 +66,6 @@ class _SearchRestaurantAndDishScreenState
         _restaurantTotalPages = response.totalPaginas;
         _restaurantPage++;
         _loadingRestaurants = false;
-        _initialLoadDone = true;
       });
     } catch (e) {
       setState(() => _loadingRestaurants = false);
@@ -76,7 +78,10 @@ class _SearchRestaurantAndDishScreenState
   }
 
   Future<void> _loadMeals() async {
-    if (_loadingMeals || _mealPage >= _mealTotalPages - 1 && _initialLoadDone) {
+    if (_loadingMeals) {
+      return;
+    }
+    if (_mealPage >= _mealTotalPages && _mealPage > 0) {
       return;
     }
 
