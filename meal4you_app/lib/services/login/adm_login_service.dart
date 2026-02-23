@@ -53,8 +53,9 @@ class AdmLoginService {
       await UserTokenSaving.saveUserData(userData);
 
       final savedEmail = await UserTokenSaving.getUserEmail();
-      if (savedEmail == null)
+      if (savedEmail == null) {
         throw Exception('Email não encontrado após salvar.');
+      }
 
       final provider = Provider.of<RestaurantProvider>(context, listen: false);
 

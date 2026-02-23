@@ -903,7 +903,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                       Text(
                                         _obscureSenha
                                             ? '•' *
-                                                  (_senha.length > 0
+                                                  (_senha.isNotEmpty
                                                       ? _senha.length
                                                       : 8)
                                             : _senha.isNotEmpty
