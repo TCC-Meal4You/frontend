@@ -43,11 +43,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFCF9FF),
-        resizeToAvoidBottomInset: true,
-        body: SingleChildScrollView(
+    return PopScope(
+      canPop: false,
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: const Color(0xFFFCF9FF),
+          resizeToAvoidBottomInset: true,
+          body: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,6 +190,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               );
             }
           },
+        ),
         ),
       ),
     );

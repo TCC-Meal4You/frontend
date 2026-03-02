@@ -92,10 +92,12 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.grey[100],
-        body: Column(
+    return PopScope(
+      canPop: false,
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.grey[100],
+          body: Column(
           children: [
             Container(
               width: double.infinity,
@@ -279,7 +281,10 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                                 );
 
                                 if (context.mounted) {
-                                  Navigator.pushNamed(context, '/clientHome');
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    '/clientHome',
+                                  );
                                 }
                               } catch (e) {
                                 if (context.mounted) {
@@ -354,6 +359,7 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );
