@@ -192,7 +192,7 @@ class RestaurantCard extends StatelessWidget {
   }
 
   String? _calcularCompatibilidade() {
-    return '100% compatível';
+    return null;
   }
 
   List<Widget> _buildRestrictionChips() {
