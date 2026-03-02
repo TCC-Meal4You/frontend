@@ -19,11 +19,9 @@ class _SearchRestaurantAndDishScreenState
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  final ScrollController _restaurantScrollController = ScrollController();
-  final ScrollController _mealScrollController = ScrollController();
 
-  final List<RestauranteResponseDTO> _restaurantes = [];
-  final List<MealResponseDTO> _refeicoes = [];
+  List<RestauranteResponseDTO> _restaurantes = [];
+  List<MealResponseDTO> _refeicoes = [];
 
   int _restaurantPage = 0;
   int _mealPage = 0;
@@ -38,19 +36,13 @@ class _SearchRestaurantAndDishScreenState
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
-    _restaurantScrollController.addListener(_onRestaurantScroll);
-    _mealScrollController.addListener(_onMealScroll);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadRestaurants();
+      _loadRestaurants(0);
     });
   }
 
-  Future<void> _loadRestaurants() async {
+  Future<void> _loadRestaurants(int pageNumber) async {
     if (_loadingRestaurants) {
-      return;
-    }
-    if (_restaurantPage >= _restaurantTotalPages && _restaurantPage > 0) {
       return;
     }
 
@@ -58,13 +50,13 @@ class _SearchRestaurantAndDishScreenState
 
     try {
       final response = await SearchRestaurantService.listarRestaurantes(
-        _restaurantPage,
+        pageNumber + 1,
       );
 
       setState(() {
-        _restaurantes.addAll(response.restaurantes);
+        _restaurantes = response.restaurantes;
         _restaurantTotalPages = response.totalPaginas;
-        _restaurantPage++;
+        _restaurantPage = pageNumber;
         _loadingRestaurants = false;
       });
     } catch (e) {
@@ -77,23 +69,20 @@ class _SearchRestaurantAndDishScreenState
     }
   }
 
-  Future<void> _loadMeals() async {
+  Future<void> _loadMeals(int pageNumber) async {
     if (_loadingMeals) {
-      return;
-    }
-    if (_mealPage >= _mealTotalPages && _mealPage > 0) {
       return;
     }
 
     setState(() => _loadingMeals = true);
 
     try {
-      final response = await SearchMealService.listarRefeicoes(_mealPage);
+      final response = await SearchMealService.listarRefeicoes(pageNumber + 1);
 
       setState(() {
-        _refeicoes.addAll(response.refeicoes);
+        _refeicoes = response.refeicoes;
         _mealTotalPages = response.totalPaginas;
-        _mealPage++;
+        _mealPage = pageNumber;
         _loadingMeals = false;
       });
     } catch (e) {
@@ -106,26 +95,10 @@ class _SearchRestaurantAndDishScreenState
     }
   }
 
-  void _onRestaurantScroll() {
-    if (_restaurantScrollController.position.pixels >=
-        _restaurantScrollController.position.maxScrollExtent * 0.8) {
-      _loadRestaurants();
-    }
-  }
-
-  void _onMealScroll() {
-    if (_mealScrollController.position.pixels >=
-        _mealScrollController.position.maxScrollExtent * 0.8) {
-      _loadMeals();
-    }
-  }
-
   @override
   void dispose() {
     _tabController.dispose();
     _searchController.dispose();
-    _restaurantScrollController.dispose();
-    _mealScrollController.dispose();
     super.dispose();
   }
 
@@ -189,7 +162,7 @@ class _SearchRestaurantAndDishScreenState
               controller: _tabController,
               onTap: (index) {
                 if (index == 1 && _refeicoes.isEmpty && !_loadingMeals) {
-                  _loadMeals();
+                  _loadMeals(0);
                 }
               },
               labelColor: const Color(0xFF9D00FF),
@@ -259,21 +232,18 @@ class _SearchRestaurantAndDishScreenState
         ),
         Expanded(
           child: ListView.builder(
-            controller: _restaurantScrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _restaurantes.length + (_loadingRestaurants ? 1 : 0),
+            itemCount: _restaurantes.length,
             itemBuilder: (context, index) {
-              if (index == _restaurantes.length) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
               final restaurant = _restaurantes[index];
               return RestaurantCard(restaurant: restaurant);
             },
           ),
+        ),
+        _buildPaginationControls(
+          currentPage: _restaurantPage,
+          totalPages: _restaurantTotalPages,
+          onPageChanged: (page) => _loadRestaurants(page),
         ),
       ],
     );
@@ -304,23 +274,70 @@ class _SearchRestaurantAndDishScreenState
         ),
         Expanded(
           child: ListView.builder(
-            controller: _mealScrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _refeicoes.length + (_loadingMeals ? 1 : 0),
+            itemCount: _refeicoes.length,
             itemBuilder: (context, index) {
-              if (index == _refeicoes.length) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
               final meal = _refeicoes[index];
               return MealCard(meal: meal);
             },
           ),
         ),
+        _buildPaginationControls(
+          currentPage: _mealPage,
+          totalPages: _mealTotalPages,
+          onPageChanged: (page) => _loadMeals(page),
+        ),
       ],
+    );
+  }
+
+  Widget _buildPaginationControls({
+    required int currentPage,
+    required int totalPages,
+    required Function(int) onPageChanged,
+  }) {
+    if (totalPages <= 1) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: currentPage > 0 ? () => onPageChanged(currentPage - 1) : null,
+            icon: const Icon(Icons.chevron_left),
+            color: const Color.fromARGB(255, 157, 0, 255),
+            disabledColor: Colors.grey[300],
+          ),
+          const SizedBox(width: 16),
+          Text(
+            'Página ${currentPage + 1} de $totalPages',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 16),
+          IconButton(
+            onPressed: currentPage < totalPages - 1 ? () => onPageChanged(currentPage + 1) : null,
+            icon: const Icon(Icons.chevron_right),
+            color: const Color.fromARGB(255, 157, 0, 255),
+            disabledColor: Colors.grey[300],
+          ),
+        ],
+      ),
     );
   }
 }
