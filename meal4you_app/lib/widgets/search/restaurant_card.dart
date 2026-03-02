@@ -141,11 +141,6 @@ class RestaurantCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  restaurant.tipoComida,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
