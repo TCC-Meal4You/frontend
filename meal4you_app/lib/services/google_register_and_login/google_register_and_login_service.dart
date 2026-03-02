@@ -16,9 +16,6 @@ class GoogleRegisterAndLoginService {
     scopes: [
       'email',
       'profile',
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/user.emails.read',
     ],
   );
 
@@ -209,11 +206,31 @@ class GoogleRegisterAndLoginService {
         );
       }
     } catch (e, stack) {
-      debugPrint('Erro ao autenticar com Google: $e');
+      debugPrint('❌ ERRO ao autenticar com Google: $e');
+      debugPrint('Tipo do erro: ${e.runtimeType}');
       debugPrintStack(stackTrace: stack);
+      
+      String errorMessage = 'Erro ao autenticar com Google';
+      
+      if (e.toString().contains('network_error')) {
+        errorMessage = 'Erro de configuração do Google Sign In.\n'
+                      'Verifique:\n'
+                      '1. Conexão com internet\n'
+                      '2. SHA-1 configurado no Firebase Console\n'
+                      '3. google-services.json atualizado';
+      } else if (e.toString().contains('sign_in_canceled')) {
+        errorMessage = 'Login cancelado pelo usuário';
+      } else if (e.toString().contains('sign_in_failed')) {
+        errorMessage = 'Falha no login. Tente novamente.';
+      }
+      
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao autenticar com Google: $e')),
+        SnackBar(
+          content: Text(errorMessage),
+          duration: const Duration(seconds: 5),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
