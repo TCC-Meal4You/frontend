@@ -5,7 +5,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class SearchMealService {
   static const String baseUrl =
-      'https://backend-production-bc8d.up.railway.app/refeicoes';
+      'https://backend-production-186a.up.railway.app/refeicoes';
 
   static Future<PaginacaoRefeicoesResponseDTO> listarRefeicoes(
     int pagina,

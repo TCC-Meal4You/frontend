@@ -12,14 +12,9 @@ import 'package:provider/provider.dart';
 class GoogleRegisterAndLoginService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email',
-      'profile',
-    ],
-  );
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
 
-  final String baseUrl = "https://backend-production-bc8d.up.railway.app";
+  final String baseUrl = "https://backend-production-186a.up.railway.app";
 
   Future<void> signInWithGoogle({
     required BuildContext context,
@@ -209,21 +204,22 @@ class GoogleRegisterAndLoginService {
       debugPrint('❌ ERRO ao autenticar com Google: $e');
       debugPrint('Tipo do erro: ${e.runtimeType}');
       debugPrintStack(stackTrace: stack);
-      
+
       String errorMessage = 'Erro ao autenticar com Google';
-      
+
       if (e.toString().contains('network_error')) {
-        errorMessage = 'Erro de configuração do Google Sign In.\n'
-                      'Verifique:\n'
-                      '1. Conexão com internet\n'
-                      '2. SHA-1 configurado no Firebase Console\n'
-                      '3. google-services.json atualizado';
+        errorMessage =
+            'Erro de configuração do Google Sign In.\n'
+            'Verifique:\n'
+            '1. Conexão com internet\n'
+            '2. SHA-1 configurado no Firebase Console\n'
+            '3. google-services.json atualizado';
       } else if (e.toString().contains('sign_in_canceled')) {
         errorMessage = 'Login cancelado pelo usuário';
       } else if (e.toString().contains('sign_in_failed')) {
         errorMessage = 'Falha no login. Tente novamente.';
       }
-      
+
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
