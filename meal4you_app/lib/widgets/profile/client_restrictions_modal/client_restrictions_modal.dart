@@ -5,7 +5,7 @@ import 'package:meal4you_app/services/user_restriction/user_restriction_service.
 
 class ClientRestrictionsModal extends StatefulWidget {
   final List<String> restricoesAtuais;
-  final Function() onRestrictionsSaved;
+  final VoidCallback onRestrictionsSaved;
 
   const ClientRestrictionsModal({
     super.key,
@@ -34,25 +34,25 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
     try {
       final restricoes = await RestrictionService.listarRestricoes();
 
+      if (!mounted) return;
       setState(() {
         _restricoesDisponiveis = restricoes;
         _restricoesSelecionadas = {
-          for (var restricao in restricoes)
+          for (final restricao in restricoes)
             if (widget.restricoesAtuais.contains(restricao.nome))
               restricao.idRestricao,
-        }.toSet();
+        };
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao carregar restrições: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao carregar restricoes: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -63,26 +63,24 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
         _restricoesSelecionadas.toList(),
       );
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Restrições atualizadas com sucesso!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        widget.onRestrictionsSaved();
-        Navigator.pop(context);
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Restricoes atualizadas com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      widget.onRestrictionsSaved();
+      Navigator.pop(context);
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isSaving = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao atualizar restrições: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao atualizar restricoes: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -122,7 +120,7 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Restrições Alimentares',
+                        'Restricoes Alimentares',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -136,15 +134,13 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
                     ],
                   ),
                 ),
-                // Divider
                 const Divider(height: 1),
-                // Content
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : _restricoesDisponiveis.isEmpty
                       ? const Center(
-                          child: Text('Nenhuma restrição disponível'),
+                          child: Text('Nenhuma restricao disponivel'),
                         )
                       : ListView.builder(
                           controller: scrollController,
@@ -175,38 +171,41 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
                           },
                         ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0FE687),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0FE687),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      onPressed: _isSaving ? null : _salvarRestricoes,
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                        onPressed: _isSaving ? null : _salvarRestricoes,
+                        child: _isSaving
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Text(
+                                'Salvar',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            )
-                          : const Text(
-                              'Salvar',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                      ),
                     ),
                   ),
                 ),
