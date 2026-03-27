@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class ClientProfileRestrictionsCard extends StatelessWidget {
   final List<String> restricoes;
+  final VoidCallback? onTap;
 
-  const ClientProfileRestrictionsCard({super.key, required this.restricoes});
+  const ClientProfileRestrictionsCard({
+    super.key,
+    required this.restricoes,
+    this.onTap,
+  });
 
   MaterialColor _getColorFromString(String text) {
     final hash = text.hashCode;
@@ -28,7 +33,7 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final card = Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -43,19 +48,31 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
             children: [
               Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
               const SizedBox(width: 8),
-              Text(
-                'Restricoes Alimentares',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.orange.shade700,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Restricoes Alimentares',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.orange.shade700,
+                      ),
+                    ),
+                    Text(
+                      '${restricoes.length} restrições ativas',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 4),
-              Text(
-                '${restricoes.length} restricoes ativas',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
+              if (onTap != null)
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey.shade400,
+                  size: 24,
+                ),
             ],
           ),
           const SizedBox(height: 12),
@@ -95,5 +112,11 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
         ],
       ),
     );
+
+    if (onTap != null) {
+      return GestureDetector(onTap: onTap, child: card);
+    }
+
+    return card;
   }
 }
