@@ -5,6 +5,27 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
 
   const ClientProfileRestrictionsCard({super.key, required this.restricoes});
 
+  MaterialColor _getColorFromString(String text) {
+    final hash = text.hashCode;
+    final colors = [
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lime,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.blueGrey,
+    ];
+    return colors[hash.abs() % colors.length];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -47,36 +68,29 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: restricoes
-                  .map(
-                    (restricao) => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(
-                          255,
-                          15,
-                          230,
-                          135,
-                        ).withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 15, 230, 135),
-                        ),
-                      ),
-                      child: Text(
-                        restricao,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),
+              children: restricoes.map((restricao) {
+                final cor = _getColorFromString(restricao);
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
+                    color: cor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    restricao,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      // ignore: deprecated_member_use
+                      color: cor[700],
                     ),
-                  )
-                  .toList(),
+                  ),
+                );
+              }).toList(),
             ),
         ],
       ),
