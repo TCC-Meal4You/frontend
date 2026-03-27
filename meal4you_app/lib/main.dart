@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:meal4you_app/screens/client_settings/client_settings_screen.dart';
 import 'package:meal4you_app/screens/loading_splash/loading_splash_screen.dart';
 import 'package:meal4you_app/screens/manage_ingredients/manage_ingredients_screen.dart';
 import 'package:meal4you_app/screens/search_restaurant_and_dish/search_restaurant_and_dish_screen.dart';
@@ -156,6 +157,11 @@ class Meal4You extends StatelessWidget {
           case '/searchRestaurantAndDish':
             return MaterialPageRoute(
               builder: (_) => const SearchRestaurantAndDishScreen(),
+            );
+
+          case '/clientSettings':
+            return MaterialPageRoute(
+              builder: (_) => const ClientSettingsScreen(),
             );
 
           default:
