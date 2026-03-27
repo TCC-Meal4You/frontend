@@ -103,90 +103,95 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
   Widget build(BuildContext context) {
     final clientLogoutHandler = ClientLogoutHandler();
 
-    return SafeArea(
-      child: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClientProfileBanner(
-                isLoading: _isLoading,
-                initial: _getInitial(),
-                emailText: _isLoading
-                    ? 'Carregando e-mail...'
-                    : (_email.isNotEmpty ? _email : 'E-mail não encontrado'),
-                onLogout: () => clientLogoutHandler.showLogoutDialog(context),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 20,
+    return PopScope(
+      canPop: false,
+      child: SafeArea(
+        child: Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClientProfileBanner(
+                  isLoading: _isLoading,
+                  initial: _getInitial(),
+                  emailText: _isLoading
+                      ? 'Carregando e-mail...'
+                      : (_email.isNotEmpty ? _email : 'E-mail não encontrado'),
+                  onLogout: () => clientLogoutHandler.showLogoutDialog(context),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClientProfileStatsRow(
-                      numRestricoes: _restricoes.length,
-                      numFavoritos: _numFavoritos,
-                      numAvaliacoes: _numAvaliacoes,
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Minhas Restrições',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClientProfileStatsRow(
+                        numRestricoes: _restricoes.length,
+                        numFavoritos: _numFavoritos,
+                        numAvaliacoes: _numAvaliacoes,
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    ClientProfileRestrictionsCard(restricoes: _restricoes),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Configurações',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Minhas Restrições',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    ClientProfileConfigButton(
-                      icon: Icons.rate_review_outlined,
-                      color: const Color.fromARGB(255, 100, 150, 255),
-                      label: 'Minhas Avaliações',
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Minhas Avaliações')),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    ClientProfileConfigButton(
-                      icon: Icons.favorite_outline,
-                      color: Colors.red.shade400,
-                      label: 'Meus Favoritos',
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Meus Favoritos')),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    ClientProfileConfigButton(
-                      icon: Icons.settings_outlined,
-                      color: const Color.fromARGB(255, 157, 0, 255),
-                      label: 'Configurações Gerais',
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Configurações Gerais')),
-                        );
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      ClientProfileRestrictionsCard(restricoes: _restricoes),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Configurações',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ClientProfileConfigButton(
+                        icon: Icons.rate_review_outlined,
+                        color: const Color.fromARGB(255, 100, 150, 255),
+                        label: 'Minhas Avaliações',
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Minhas Avaliações')),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      ClientProfileConfigButton(
+                        icon: Icons.favorite_outline,
+                        color: Colors.red.shade400,
+                        label: 'Meus Favoritos',
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Meus Favoritos')),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      ClientProfileConfigButton(
+                        icon: Icons.settings_outlined,
+                        color: const Color.fromARGB(255, 157, 0, 255),
+                        label: 'Configurações Gerais',
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Configurações Gerais'),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
