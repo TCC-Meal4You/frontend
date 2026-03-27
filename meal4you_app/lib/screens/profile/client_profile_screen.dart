@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
 import 'package:meal4you_app/services/search_profile/search_client_profile_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/widgets/profile/client_profile_banner/client_profile_banner.dart';
+import 'package:meal4you_app/widgets/profile/client_profile_config_button/client_profile_config_button.dart';
+import 'package:meal4you_app/widgets/profile/client_profile_restrictions_card/client_profile_restrictions_card.dart';
+import 'package:meal4you_app/widgets/profile/client_profile_stats_row/client_profile_stats_row.dart';
 
 class ClientProfileScreen extends StatefulWidget {
   const ClientProfileScreen({super.key});
@@ -96,59 +99,6 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
     return [];
   }
 
-  Widget _buildCounter({required String title, required int count}) {
-    return Column(
-      children: [
-        Text(
-          count.toString(),
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 157, 0, 255),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      ],
-    );
-  }
-
-  Widget _buildConfigButton({
-    required IconData icon,
-    required Color color,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
-              ),
-            ),
-            const Spacer(),
-            Icon(Icons.chevron_right, color: Colors.grey.shade400),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final clientLogoutHandler = ClientLogoutHandler();
@@ -159,116 +109,13 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 250,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color.fromARGB(255, 157, 0, 255),
-                      Color.fromARGB(255, 15, 230, 135),
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                'MEAL4YOU',
-                                style: TextStyle(
-                                  fontFamily: 'Ubuntu',
-                                  fontSize: 27,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                'c  o  m  i  d  a    c  o  n  s  c  i  e  n  t  e',
-                                style: TextStyle(
-                                  fontFamily: 'Ubuntu',
-                                  fontSize: 8,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            onPressed: () =>
-                                clientLogoutHandler.showLogoutDialog(context),
-                            icon: const FaIcon(
-                              FontAwesomeIcons.rightFromBracket,
-                              color: Colors.white,
-                            ),
-                            tooltip: 'Sair',
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.3),
-                        border: Border.all(color: Colors.white, width: 3),
-                      ),
-                      child: Center(
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2.3,
-                                ),
-                              )
-                            : Text(
-                                _getInitial(),
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontFamily: 'Ubuntu',
-                                ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Meu Perfil',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontFamily: 'Ubuntu',
-                      ),
-                    ),
-                    Text(
-                      _isLoading
-                          ? 'Carregando e-mail...'
-                          : (_email.isNotEmpty
-                                ? _email
-                                : 'E-mail não encontrado'),
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                        fontFamily: 'Ubuntu',
-                      ),
-                    ),
-                  ],
-                ),
+              ClientProfileBanner(
+                isLoading: _isLoading,
+                initial: _getInitial(),
+                emailText: _isLoading
+                    ? 'Carregando e-mail...'
+                    : (_email.isNotEmpty ? _email : 'E-mail não encontrado'),
+                onLogout: () => clientLogoutHandler.showLogoutDialog(context),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -278,19 +125,10 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildCounter(
-                          title: 'Restrições',
-                          count: _restricoes.length,
-                        ),
-                        _buildCounter(title: 'Favoritos', count: _numFavoritos),
-                        _buildCounter(
-                          title: 'Avaliações',
-                          count: _numAvaliacoes,
-                        ),
-                      ],
+                    ClientProfileStatsRow(
+                      numRestricoes: _restricoes.length,
+                      numFavoritos: _numFavoritos,
+                      numAvaliacoes: _numAvaliacoes,
                     ),
                     const SizedBox(height: 24),
                     const Text(
@@ -302,86 +140,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: Colors.orange.shade700,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Restrições Alimentares',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.orange.shade700,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${_restricoes.length} restrições ativas',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: _restricoes
-                                .map(
-                                  (restricao) => Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                        255,
-                                        15,
-                                        230,
-                                        135,
-                                      ).withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: const Color.fromARGB(
-                                          255,
-                                          15,
-                                          230,
-                                          135,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      restricao,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ],
-                      ),
-                    ),
+                    ClientProfileRestrictionsCard(restricoes: _restricoes),
                     const SizedBox(height: 24),
                     const Text(
                       'Configurações',
@@ -392,7 +151,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildConfigButton(
+                    ClientProfileConfigButton(
                       icon: Icons.rate_review_outlined,
                       color: const Color.fromARGB(255, 100, 150, 255),
                       label: 'Minhas Avaliações',
@@ -403,7 +162,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    _buildConfigButton(
+                    ClientProfileConfigButton(
                       icon: Icons.favorite_outline,
                       color: Colors.red.shade400,
                       label: 'Meus Favoritos',
@@ -414,7 +173,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    _buildConfigButton(
+                    ClientProfileConfigButton(
                       icon: Icons.settings_outlined,
                       color: const Color.fromARGB(255, 157, 0, 255),
                       label: 'Configurações Gerais',
