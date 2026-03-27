@@ -6,6 +6,7 @@ import 'package:meal4you_app/widgets/profile/client_profile_banner/client_profil
 import 'package:meal4you_app/widgets/profile/client_profile_config_button/client_profile_config_button.dart';
 import 'package:meal4you_app/widgets/profile/client_profile_restrictions_card/client_profile_restrictions_card.dart';
 import 'package:meal4you_app/widgets/profile/client_profile_stats_row/client_profile_stats_row.dart';
+import 'package:meal4you_app/widgets/profile/client_restrictions_modal/client_restrictions_modal.dart';
 
 class ClientProfileScreen extends StatefulWidget {
   const ClientProfileScreen({super.key});
@@ -142,7 +143,20 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ClientProfileRestrictionsCard(restricoes: _restricoes),
+                      ClientProfileRestrictionsCard(
+                        restricoes: _restricoes,
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => ClientRestrictionsModal(
+                              restricoesAtuais: _restricoes,
+                              onRestrictionsSaved: _loadUserName,
+                            ),
+                          );
+                        },
+                      ),
                       const SizedBox(height: 24),
                       const Text(
                         'Configurações',
