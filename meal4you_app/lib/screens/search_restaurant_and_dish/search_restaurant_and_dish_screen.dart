@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/restaurante_response_dto.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
+import 'package:meal4you_app/screens/home/client_home_screen.dart';
+import 'package:meal4you_app/screens/profile/client_profile_screen.dart';
 import 'package:meal4you_app/services/search_restaurant/search_restaurant_service.dart';
 import 'package:meal4you_app/services/search_meal/search_meal_service.dart';
 import 'package:meal4you_app/widgets/search/restaurant_card.dart';
@@ -203,9 +205,51 @@ class _SearchRestaurantAndDishScreenState
           currentIndex: 1,
           onTap: (index) {
             if (index == 0) {
-              Navigator.pushReplacementNamed(context, '/clientHome');
+              Navigator.of(context).pushReplacement(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return const ClientHomeScreen();
+                  },
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(-1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        final tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                ),
+              );
+            } else if (index == 1) {
+              return;
             } else if (index == 2) {
-              Navigator.pushReplacementNamed(context, '/clientProfile');
+              Navigator.of(context).pushReplacement(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return const ClientProfileScreen();
+                  },
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        final tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                ),
+              );
             }
           },
         ),

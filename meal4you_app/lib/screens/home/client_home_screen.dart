@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
+import 'package:meal4you_app/screens/profile/client_profile_screen.dart';
 import 'package:meal4you_app/screens/search_restaurant_and_dish/search_restaurant_and_dish_screen.dart';
 import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
 
@@ -26,6 +27,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     try {
       final nomesRestricoes = await UserRestrictionService.buscarRestricoes();
 
+      if (!mounted) return;
       setState(() {
         _restricoes = nomesRestricoes.isNotEmpty
             ? nomesRestricoes
@@ -34,6 +36,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       });
     } catch (e) {
       print('Erro ao carregar restrições: $e');
+      if (!mounted) return;
       setState(() {
         _restricoes = ['Erro ao carregar'];
         _loadingRestricoes = false;
@@ -169,12 +172,34 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             currentIndex: 0,
             onTap: (index) {
               if (index == 0) {
-                Navigator.pushReplacementNamed(context, '/clientHome');
+                return;
               } else if (index == 1) {
-                Navigator.of(context).push(
+                Navigator.of(context).pushReplacement(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) {
                       return const SearchRestaurantAndDishScreen();
+                    },
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(0.0, 1.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(
+                            begin: begin,
+                            end: end,
+                          ).chain(CurveTween(curve: curve));
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        },
+                  ),
+                );
+              } else if (index == 2) {
+                Navigator.of(context).pushReplacement(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      return const ClientProfileScreen();
                     },
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
@@ -192,8 +217,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         },
                   ),
                 );
-              } else if (index == 2) {
-                Navigator.pushReplacementNamed(context, '/clientProfile');
               }
             },
           ),
@@ -202,4 +225,3 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     );
   }
 }
-

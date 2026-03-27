@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
+import 'package:meal4you_app/screens/home/client_home_screen.dart';
 import 'package:meal4you_app/screens/search_restaurant_and_dish/search_restaurant_and_dish_screen.dart';
 import 'package:meal4you_app/services/search_profile/search_client_profile_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
@@ -215,16 +216,36 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
             currentIndex: 2,
             onTap: (index) {
               if (index == 0) {
-                Navigator.pushReplacementNamed(context, '/clientHome');
+                Navigator.of(context).pushReplacement(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      return const ClientHomeScreen();
+                    },
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(-1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(
+                            begin: begin,
+                            end: end,
+                          ).chain(CurveTween(curve: curve));
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        },
+                  ),
+                );
               } else if (index == 1) {
-                Navigator.of(context).push(
+                Navigator.of(context).pushReplacement(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) {
                       return const SearchRestaurantAndDishScreen();
                     },
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0);
+                          const begin = Offset(0.0, 1.0);
                           const end = Offset.zero;
                           const curve = Curves.easeInOut;
                           var tween = Tween(
@@ -239,7 +260,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                   ),
                 );
               } else if (index == 2) {
-                Navigator.pushReplacementNamed(context, '/clientProfile');
+                return;
               }
             },
           ),
