@@ -15,6 +15,9 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
   String _nome = '';
   String _email = '';
   bool _isLoading = true;
+  List<String> _restricoes = [];
+  int _numFavoritos = 0;
+  int _numAvaliacoes = 0;
 
   @override
   void initState() {
@@ -32,6 +35,9 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
       setState(() {
         _nome = (profileData['nome'] ?? '').toString().trim();
         _email = extractedEmail;
+        _restricoes = _extractRestrictions(profileData);
+        _numFavoritos = 0;
+        _numAvaliacoes = 0;
         _isLoading = false;
       });
     } catch (e) {
@@ -73,6 +79,74 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
     if (login.contains('@')) return login;
 
     return (savedEmail ?? '').trim();
+  }
+
+  List<String> _extractRestrictions(Map<String, dynamic> profileData) {
+    try {
+      final restricoes = profileData['restricoes'];
+      if (restricoes is List) {
+        return restricoes
+            .map((r) => r.toString().trim())
+            .where((r) => r.isNotEmpty)
+            .toList();
+      }
+    } catch (e) {
+      debugPrint('Erro ao extrair restrições: $e');
+    }
+    return [];
+  }
+
+  Widget _buildCounter({required String title, required int count}) {
+    return Column(
+      children: [
+        Text(
+          count.toString(),
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 157, 0, 255),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      ],
+    );
+  }
+
+  Widget _buildConfigButton({
+    required IconData icon,
+    required Color color,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+            const Spacer(),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -192,6 +266,163 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                         fontSize: 13,
                         fontFamily: 'Ubuntu',
                       ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 20,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildCounter(
+                          title: 'Restrições',
+                          count: _restricoes.length,
+                        ),
+                        _buildCounter(title: 'Favoritos', count: _numFavoritos),
+                        _buildCounter(
+                          title: 'Avaliações',
+                          count: _numAvaliacoes,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Minhas Restrições',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Colors.orange.shade700,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Restrições Alimentares',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orange.shade700,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${_restricoes.length} restrições ativas',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _restricoes
+                                .map(
+                                  (restricao) => Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                        255,
+                                        15,
+                                        230,
+                                        135,
+                                      ).withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: const Color.fromARGB(
+                                          255,
+                                          15,
+                                          230,
+                                          135,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      restricao,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Configurações',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildConfigButton(
+                      icon: Icons.rate_review_outlined,
+                      color: const Color.fromARGB(255, 100, 150, 255),
+                      label: 'Minhas Avaliações',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Minhas Avaliações')),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildConfigButton(
+                      icon: Icons.favorite_outline,
+                      color: Colors.red.shade400,
+                      label: 'Meus Favoritos',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Meus Favoritos')),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildConfigButton(
+                      icon: Icons.settings_outlined,
+                      color: const Color.fromARGB(255, 157, 0, 255),
+                      label: 'Configurações Gerais',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Configurações Gerais')),
+                        );
+                      },
                     ),
                   ],
                 ),
