@@ -158,9 +158,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                         color: const Color.fromARGB(255, 100, 150, 255),
                         label: 'Minhas Avaliações',
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Minhas Avaliações')),
-                          );
+                          Navigator.pushNamed(context, '/clientRatings');
                         },
                       ),
                       const SizedBox(height: 12),
@@ -169,9 +167,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                         color: Colors.red.shade400,
                         label: 'Meus Favoritos',
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Meus Favoritos')),
-                          );
+                          Navigator.pushNamed(context, '/clientFavorites');
                         },
                       ),
                       const SizedBox(height: 12),
@@ -180,11 +176,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                         color: const Color.fromARGB(255, 157, 0, 255),
                         label: 'Configurações Gerais',
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Configurações Gerais'),
-                            ),
-                          );
+                          Navigator.pushNamed(context, '/clientSettings');
                         },
                       ),
                     ],
