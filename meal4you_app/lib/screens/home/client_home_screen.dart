@@ -55,7 +55,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 190,
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -68,6 +67,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     ),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
@@ -202,3 +202,4 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     );
   }
 }
+
