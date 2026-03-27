@@ -37,11 +37,13 @@ class _SearchRestaurantAndDishScreenState
     _tabController = TabController(length: 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _loadRestaurants(0);
     });
   }
 
   Future<void> _loadRestaurants(int pageNumber) async {
+    if (!mounted) return;
     if (_loadingRestaurants) {
       return;
     }
@@ -53,6 +55,7 @@ class _SearchRestaurantAndDishScreenState
         pageNumber + 1,
       );
 
+      if (!mounted) return;
       setState(() {
         _restaurantes = response.restaurantes;
         _restaurantTotalPages = response.totalPaginas;
@@ -60,16 +63,16 @@ class _SearchRestaurantAndDishScreenState
         _loadingRestaurants = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loadingRestaurants = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar restaurantes: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar restaurantes: $e')),
+      );
     }
   }
 
   Future<void> _loadMeals(int pageNumber) async {
+    if (!mounted) return;
     if (_loadingMeals) {
       return;
     }
@@ -79,6 +82,7 @@ class _SearchRestaurantAndDishScreenState
     try {
       final response = await SearchMealService.listarRefeicoes(pageNumber + 1);
 
+      if (!mounted) return;
       setState(() {
         _refeicoes = response.refeicoes;
         _mealTotalPages = response.totalPaginas;
@@ -86,12 +90,11 @@ class _SearchRestaurantAndDishScreenState
         _loadingMeals = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loadingMeals = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar refeições: $e')),
-        );
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao carregar refeições: $e')));
     }
   }
 
@@ -194,12 +197,15 @@ class _SearchRestaurantAndDishScreenState
               icon: Icon(Icons.home_rounded),
               label: 'Home',
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Busca'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
           ],
           currentIndex: 1,
           onTap: (index) {
             if (index == 0) {
               Navigator.pushReplacementNamed(context, '/clientHome');
+            } else if (index == 2) {
+              Navigator.pushReplacementNamed(context, '/clientProfile');
             }
           },
         ),
@@ -316,7 +322,9 @@ class _SearchRestaurantAndDishScreenState
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: currentPage > 0 ? () => onPageChanged(currentPage - 1) : null,
+            onPressed: currentPage > 0
+                ? () => onPageChanged(currentPage - 1)
+                : null,
             icon: const Icon(Icons.chevron_left),
             color: const Color.fromARGB(255, 157, 0, 255),
             disabledColor: Colors.grey[300],
@@ -324,14 +332,13 @@ class _SearchRestaurantAndDishScreenState
           const SizedBox(width: 16),
           Text(
             'Página ${currentPage + 1} de $totalPages',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
           const SizedBox(width: 16),
           IconButton(
-            onPressed: currentPage < totalPages - 1 ? () => onPageChanged(currentPage + 1) : null,
+            onPressed: currentPage < totalPages - 1
+                ? () => onPageChanged(currentPage + 1)
+                : null,
             icon: const Icon(Icons.chevron_right),
             color: const Color.fromARGB(255, 157, 0, 255),
             disabledColor: Colors.grey[300],
