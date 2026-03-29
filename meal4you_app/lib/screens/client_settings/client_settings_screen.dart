@@ -262,7 +262,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
               'Gerencie suas informações',
               style: TextStyle(
                 color: Colors.white70,
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -297,33 +297,38 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
           const SizedBox(height: 14),
           _buildInfoLabel('Senha'),
           const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _isLoading ? 'Carregando...' : _buildPasswordText(),
-                  style: const TextStyle(
-                    fontSize: 17,
-                    color: Color(0xFF222222),
-                    fontWeight: FontWeight.w500,
+          if (_isSocialLogin)
+            _buildSocialLoginInfoBox(
+              'Você entrou com o Google. Não é possível alterar a senha.',
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _isLoading ? 'Carregando...' : _buildPasswordText(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Color(0xFF222222),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
-              ),
-              IconButton(
-                onPressed: (_senha.isEmpty || _isSocialLogin)
-                    ? null
-                    : () {
-                        setState(() => _mostrarSenha = !_mostrarSenha);
-                      },
-                icon: Icon(
-                  _mostrarSenha
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  color: Colors.grey,
+                IconButton(
+                  onPressed: _senha.isEmpty
+                      ? null
+                      : () {
+                          setState(() => _mostrarSenha = !_mostrarSenha);
+                        },
+                  icon: Icon(
+                    _mostrarSenha
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );
@@ -349,6 +354,12 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
+          if (_isSocialLogin) ...[
+            const SizedBox(height: 10),
+            _buildSocialLoginInfoBox(
+              'Você entrou com o Google. Não é possível alterar o e-mail.',
+            ),
+          ],
         ],
       ),
     );
@@ -392,7 +403,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
               Text(
                 'Deletar Conta',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF222222),
                 ),
@@ -496,6 +507,38 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
         fontSize: 12,
         color: Color(0xFF7A7A7A),
         fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  Widget _buildSocialLoginInfoBox(String message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE6F3FF),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFF90CAF9)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1),
+            child: Icon(Icons.info_outline, size: 18, color: Color(0xFF1E88E5)),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF2A2A2A),
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
