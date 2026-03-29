@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
 import 'package:meal4you_app/services/search_profile/search_client_profile_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
@@ -220,7 +221,10 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                 IconButton(
                   onPressed: () =>
                       clientLogoutHandler.showLogoutDialog(context),
-                  icon: const Icon(Icons.logout, color: Colors.white, size: 24),
+                  icon: const FaIcon(
+                    FontAwesomeIcons.rightFromBracket,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -231,6 +235,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                // ignore: deprecated_member_use
                 color: Colors.white.withOpacity(0.2),
                 border: Border.all(color: Colors.white, width: 2),
               ),
