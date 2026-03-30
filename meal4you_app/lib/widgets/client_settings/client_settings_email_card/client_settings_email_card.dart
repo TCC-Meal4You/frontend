@@ -7,12 +7,14 @@ class ClientSettingsEmailCard extends StatelessWidget {
   final bool isLoading;
   final String email;
   final bool isSocialLogin;
+  final VoidCallback? onChangeEmail;
 
   const ClientSettingsEmailCard({
     super.key,
     required this.isLoading,
     required this.email,
     required this.isSocialLogin,
+    this.onChangeEmail,
   });
 
   @override
@@ -21,11 +23,12 @@ class ClientSettingsEmailCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ClientSettingsSectionHeader(
+          ClientSettingsSectionHeader(
             icon: Icons.mail_outline,
-            iconColor: Color(0xFF17C783),
+            iconColor: const Color(0xFF17C783),
             title: 'Email',
-            actionLabel: 'Alterar',
+            actionLabel: isSocialLogin ? null : 'Alterar',
+            onActionTap: onChangeEmail,
           ),
           const SizedBox(height: 12),
           Text(
