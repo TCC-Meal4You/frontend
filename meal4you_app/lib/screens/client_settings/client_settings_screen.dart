@@ -323,7 +323,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 15, 230, 135),
+              backgroundColor: const Color(0xFF9D00FF),
               foregroundColor: Colors.white,
             ),
             child: const Text('Continuar'),
@@ -573,7 +573,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                 Navigator.pop(context, email);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 15, 230, 135),
+                backgroundColor: const Color(0xFF9D00FF),
                 foregroundColor: Colors.white,
               ),
               child: const Text('Continuar'),

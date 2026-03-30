@@ -25,7 +25,7 @@ class ClientSettingsEmailCard extends StatelessWidget {
         children: [
           ClientSettingsSectionHeader(
             icon: Icons.mail_outline,
-            iconColor: const Color(0xFF17C783),
+            iconColor: const Color(0xFF9D00FF),
             title: 'Email',
             actionLabel: isSocialLogin ? null : 'Alterar',
             onActionTap: onChangeEmail,

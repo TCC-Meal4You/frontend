@@ -48,7 +48,7 @@ class ClientSettingsPersonalInfoCard extends StatelessWidget {
         children: [
           ClientSettingsSectionHeader(
             icon: Icons.person_outline,
-            iconColor: const Color(0xFF17C783),
+            iconColor: const Color(0xFF9D00FF),
             title: 'Informações Pessoais',
             actionLabel: isEditing ? 'Cancelar' : 'Editar',
             actionIcon: isEditing ? Icons.close : Icons.edit_outlined,
@@ -178,7 +178,7 @@ class ClientSettingsPersonalInfoCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 17),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 15, 230, 135),
+                  backgroundColor: const Color(0xFF9D00FF),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

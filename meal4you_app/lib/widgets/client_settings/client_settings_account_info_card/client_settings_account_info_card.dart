@@ -14,7 +14,7 @@ class ClientSettingsAccountInfoCard extends StatelessWidget {
         children: [
           ClientSettingsSectionHeader(
             icon: Icons.account_circle_outlined,
-            iconColor: Color(0xFF17C783),
+            iconColor: Color(0xFF9D00FF),
             title: 'Informações da Conta',
           ),
           SizedBox(height: 18),
