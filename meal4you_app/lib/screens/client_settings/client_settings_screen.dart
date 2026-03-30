@@ -155,16 +155,17 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFFF7F3F8),
         body: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 30),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClientSettingsHeader(
                 initial: _getInitial(),
                 onLogout: () => clientLogoutHandler.showLogoutDialog(context),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
                     ClientSettingsPersonalInfoCard(
@@ -178,15 +179,15 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                         setState(() => _mostrarSenha = !_mostrarSenha);
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     ClientSettingsEmailCard(
                       isLoading: _isLoading,
                       email: _email,
                       isSocialLogin: _isSocialLogin,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     const ClientSettingsAccountInfoCard(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     ClientSettingsDeleteAccountCard(
                       onDelete: _onDeleteAccountTap,
                     ),
