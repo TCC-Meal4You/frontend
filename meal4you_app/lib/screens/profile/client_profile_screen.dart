@@ -3,7 +3,6 @@ import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.d
 import 'package:meal4you_app/screens/home/client_home_screen.dart';
 import 'package:meal4you_app/screens/search_restaurant_and_dish/search_restaurant_and_dish_screen.dart';
 import 'package:meal4you_app/services/search_profile/search_client_profile_service.dart';
-import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/profile/client_profile_banner/client_profile_banner.dart';
 import 'package:meal4you_app/widgets/profile/client_profile_config_button/client_profile_config_button.dart';
 import 'package:meal4you_app/widgets/profile/client_profile_restrictions_card/client_profile_restrictions_card.dart';
@@ -19,7 +18,6 @@ class ClientProfileScreen extends StatefulWidget {
 
 class _ClientProfileScreenState extends State<ClientProfileScreen> {
   String _nome = '';
-  String _email = '';
   bool _isLoading = true;
   List<String> _restricoes = [];
   int _numFavoritos = 0;
@@ -34,13 +32,10 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
   Future<void> _loadUserName() async {
     try {
       final profileData = await SearchClientProfileService.buscarMeuPerfil();
-      final savedEmail = await UserTokenSaving.getUserEmail();
-      final extractedEmail = _extractEmail(profileData, savedEmail);
 
       if (!mounted) return;
       setState(() {
         _nome = (profileData['nome'] ?? '').toString().trim();
-        _email = extractedEmail;
         _restricoes = _extractRestrictions(profileData);
         _numFavoritos = 0;
         _numAvaliacoes = 0;
@@ -63,28 +58,6 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
   String _getInitial() {
     if (_nome.isEmpty) return '...';
     return _nome[0].toUpperCase();
-  }
-
-  String _extractEmail(Map<String, dynamic> profileData, String? savedEmail) {
-    final topLevelEmail = (profileData['email'] ?? '').toString().trim();
-    if (topLevelEmail.isNotEmpty) return topLevelEmail;
-
-    final usuario = profileData['usuario'];
-    if (usuario is Map<String, dynamic>) {
-      final usuarioEmail = (usuario['email'] ?? '').toString().trim();
-      if (usuarioEmail.isNotEmpty) return usuarioEmail;
-    }
-
-    final user = profileData['user'];
-    if (user is Map<String, dynamic>) {
-      final userEmail = (user['email'] ?? '').toString().trim();
-      if (userEmail.isNotEmpty) return userEmail;
-    }
-
-    final login = (profileData['login'] ?? '').toString().trim();
-    if (login.contains('@')) return login;
-
-    return (savedEmail ?? '').trim();
   }
 
   List<String> _extractRestrictions(Map<String, dynamic> profileData) {
@@ -118,8 +91,8 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                   isLoading: _isLoading,
                   initial: _getInitial(),
                   emailText: _isLoading
-                      ? 'Carregando e-mail...'
-                      : (_email.isNotEmpty ? _email : 'E-mail não encontrado'),
+                      ? 'Carregando...'
+                      : (_nome.isNotEmpty ? _nome : 'Nome não encontrado'),
                   onLogout: () => clientLogoutHandler.showLogoutDialog(context),
                 ),
                 Padding(
