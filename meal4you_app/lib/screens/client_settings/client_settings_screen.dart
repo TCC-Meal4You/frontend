@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
+import 'package:meal4you_app/services/delete_account/delete_client_account_service.dart';
 import 'package:meal4you_app/services/search_profile/search_client_profile_service.dart';
 import 'package:meal4you_app/services/update_email/request_client_email_change_service.dart';
 import 'package:meal4you_app/services/update_profile/update_client_profile_service.dart';
@@ -332,7 +333,175 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
     );
   }
 
-  void _onDeleteAccountTap() {}
+  Future<void> _onDeleteAccountTap() async {
+    final emailController = TextEditingController();
+    String? errorMessage;
+    try {
+      final emailConfirmado = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setStateDialog) => AlertDialog(
+            title: const Text('Deletar Conta'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Para confirmar a exclusão da sua conta, digite seu email:',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: (_) {
+                    if (errorMessage != null) {
+                      setStateDialog(() => errorMessage = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'Digite seu email',
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                  ),
+                ),
+                if (errorMessage != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    errorMessage!,
+                    style: const TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final email = emailController.text.trim();
+
+                  if (email.isEmpty) {
+                    setStateDialog(() => errorMessage = 'Digite seu email');
+                    return;
+                  }
+
+                  final emailRegex = RegExp(
+                    r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  );
+                  if (!emailRegex.hasMatch(email)) {
+                    setStateDialog(
+                      () => errorMessage = 'Digite um e-mail válido',
+                    );
+                    return;
+                  }
+
+                  Navigator.pop(context, email);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF04438),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Continuar'),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (emailConfirmado == null || emailConfirmado.isEmpty) {
+        return;
+      }
+
+      if (!mounted) return;
+
+      final confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Atenção!'),
+          content: const Text(
+            'Tem certeza que deseja deletar sua conta permanentemente?\n\nEsta ação NÃO pode ser desfeita e irá deletar:\n\n• Sua conta de cliente\n• Suas restrições alimentares\n• Todas as suas avaliações\n• Todos os restaurantes salvos nos favoritos\n\nTodos os dados serão perdidos permanentemente.',
+            style: TextStyle(fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF04438),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Deletar Permanentemente'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed != true) {
+        return;
+      }
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(color: Color(0xFFF04438)),
+        ),
+      );
+
+      try {
+        await DeleteClientAccountService.deletarMinhaConta(emailConfirmado);
+
+        if (!mounted) return;
+        Navigator.pop(context);
+
+        await UserTokenSaving.clearAll();
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Conta deletada com sucesso.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/profileChoice',
+          (_) => false,
+        );
+      } catch (e) {
+        if (!mounted) return;
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao deletar conta: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      emailController.dispose();
+    }
+  }
 
   Future<void> _showEmailChangeDialog() async {
     final emailController = TextEditingController();
