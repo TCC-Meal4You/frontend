@@ -145,8 +145,10 @@ class Meal4You extends StatelessWidget {
           case '/verifyEmailChange':
             final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
-              builder: (_) =>
-                  VerifyEmailChangeScreen(novoEmail: args['novoEmail']),
+              builder: (_) => VerifyEmailChangeScreen(
+                novoEmail: args['novoEmail'],
+                isAdm: args['isAdm'] ?? true,
+              ),
             );
 
           case '/manageIngredients':
