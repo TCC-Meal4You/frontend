@@ -5,6 +5,8 @@ class ClientSettingsSectionHeader extends StatelessWidget {
   final Color iconColor;
   final String title;
   final String? actionLabel;
+  final IconData? actionIcon;
+  final VoidCallback? onActionTap;
 
   const ClientSettingsSectionHeader({
     super.key,
@@ -12,6 +14,8 @@ class ClientSettingsSectionHeader extends StatelessWidget {
     required this.iconColor,
     required this.title,
     this.actionLabel,
+    this.actionIcon,
+    this.onActionTap,
   });
 
   @override
@@ -31,23 +35,27 @@ class ClientSettingsSectionHeader extends StatelessWidget {
           ),
         ),
         if (actionLabel != null)
-          Row(
-            children: [
-              const Icon(
-                Icons.edit_outlined,
-                size: 16,
-                color: Color(0xFF222222),
+          TextButton.icon(
+            onPressed: onActionTap,
+            icon: Icon(
+              actionIcon ?? Icons.edit_outlined,
+              size: 18,
+              color: const Color(0xFF222222),
+            ),
+            label: Text(
+              actionLabel!,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(width: 6),
-              Text(
-                actionLabel!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+            ),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black87,
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
           ),
       ],
     );
