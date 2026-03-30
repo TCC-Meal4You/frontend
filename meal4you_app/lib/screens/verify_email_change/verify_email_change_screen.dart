@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:meal4you_app/services/update_email/update_client_email_service.dart';
 import 'package:meal4you_app/services/update_email/update_email_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/utils/formatter/paste_code_formatter.dart';
 
 class VerifyEmailChangeScreen extends StatefulWidget {
   final String novoEmail;
+  final bool isAdm;
 
-  const VerifyEmailChangeScreen({super.key, required this.novoEmail});
+  const VerifyEmailChangeScreen({
+    super.key,
+    required this.novoEmail,
+    this.isAdm = true,
+  });
 
   @override
   State<VerifyEmailChangeScreen> createState() =>
@@ -87,10 +93,17 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
     });
 
     try {
-      await UpdateEmailService.atualizarEmail(
-        email: widget.novoEmail,
-        codigoVerificacao: _code,
-      );
+      if (widget.isAdm) {
+        await UpdateEmailService.atualizarEmail(
+          email: widget.novoEmail,
+          codigoVerificacao: _code,
+        );
+      } else {
+        await UpdateClientEmailService.atualizarEmail(
+          email: widget.novoEmail,
+          codigoVerificacao: _code,
+        );
+      }
 
       if (!mounted) return;
 
@@ -106,7 +119,11 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
         ),
       );
 
-      Navigator.pushNamedAndRemoveUntil(context, '/admLogin', (_) => false);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        widget.isAdm ? '/admLogin' : '/clientLogin',
+        (_) => false,
+      );
     } catch (e) {
       if (!mounted) return;
 
