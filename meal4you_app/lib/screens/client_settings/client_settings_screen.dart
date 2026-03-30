@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
 import 'package:meal4you_app/services/search_profile/search_client_profile_service.dart';
+import 'package:meal4you_app/services/update_email/request_client_email_change_service.dart';
 import 'package:meal4you_app/services/update_profile/update_client_profile_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/client_settings/client_settings_account_info_card/client_settings_account_info_card.dart';
@@ -212,6 +213,13 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       return;
     }
 
+    if (novaSenha.isNotEmpty) {
+      final confirmed = await _showPasswordChangeWarningDialog();
+      if (confirmed != true) {
+        return;
+      }
+    }
+
     if (_isSocialLogin && novaSenha.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -246,14 +254,32 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       }
 
       if (!mounted) return;
+
+      if (novaSenha.isNotEmpty) {
+        await UserTokenSaving.clearAll();
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Senha alterada com sucesso! Faça login novamente.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/clientLogin',
+          (_) => false,
+        );
+        return;
+      }
+
       setState(() {
         if (novoNome.isNotEmpty) {
           _nome = novoNome;
           _nomeController.text = novoNome;
-        }
-        if (novaSenha.isNotEmpty) {
-          _senha = novaSenha;
-          _mostrarSenha = false;
         }
         _isEditing = false;
         _isSaving = false;
@@ -279,7 +305,151 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
     }
   }
 
+  Future<bool?> _showPasswordChangeWarningDialog() async {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Atenção!'),
+        content: const Text(
+          'Ao alterar sua senha, você será desconectado de todos os dispositivos e precisará fazer login novamente.\n\nDeseja continuar?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 15, 230, 135),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Continuar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onDeleteAccountTap() {}
+
+  Future<void> _showEmailChangeDialog() async {
+    final emailController = TextEditingController();
+    String? errorMessage;
+
+    final novoEmail = await showDialog<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Alterar E-mail'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Digite o novo endereço de e-mail:',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                onChanged: (_) {
+                  if (errorMessage != null) {
+                    setStateDialog(() => errorMessage = null);
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: 'Novo Email',
+                  hintText: 'exemplo@email.com',
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              if (errorMessage != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  errorMessage!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final email = emailController.text.trim();
+
+                if (email.isEmpty) {
+                  setStateDialog(() => errorMessage = 'Digite um e-mail');
+                  return;
+                }
+
+                final emailRegex = RegExp(r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                if (!emailRegex.hasMatch(email)) {
+                  setStateDialog(
+                    () => errorMessage = 'Digite um e-mail válido',
+                  );
+                  return;
+                }
+
+                Navigator.pop(context, email);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 15, 230, 135),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Continuar'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (novoEmail != null && novoEmail.isNotEmpty) {
+      await _requestEmailChange(novoEmail);
+    }
+  }
+
+  Future<void> _requestEmailChange(String novoEmail) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(
+          color: Color.fromARGB(255, 157, 0, 255),
+        ),
+      ),
+    );
+
+    try {
+      await RequestClientEmailChangeService.solicitarAlteracaoEmail(novoEmail);
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      Navigator.pushNamed(
+        context,
+        '/verifyEmailChange',
+        arguments: {'novoEmail': novoEmail, 'isAdm': false},
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -326,6 +496,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                       isLoading: _isLoading,
                       email: _email,
                       isSocialLogin: _isSocialLogin,
+                      onChangeEmail: _showEmailChangeDialog,
                     ),
                     const SizedBox(height: 20),
                     const ClientSettingsAccountInfoCard(),
