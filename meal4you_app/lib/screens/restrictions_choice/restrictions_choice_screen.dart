@@ -98,268 +98,287 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
         child: Scaffold(
           backgroundColor: Colors.grey[100],
           body: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    // ignore: deprecated_member_use
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Suas Restrições Alimentares',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 22,
-                      fontFamily: 'Ubuntu',
-                      fontWeight: FontWeight.bold,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 30,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      // ignore: deprecated_member_use
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: Offset(0, 2),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Selecione todas as suas restrições alimentares (se houver)',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                      fontFamily: 'Ubuntu',
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Suas Restrições Alimentares',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 22,
+                        fontFamily: 'Ubuntu',
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      'Selecione todas as suas restrições alimentares (se houver)',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        fontFamily: 'Ubuntu',
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: isLoadingRestrictions
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-                      itemCount: buttons.length,
-                      itemBuilder: (context, index) {
-                        final button = buttons[index];
-                        final isNone = button.name == 'Nenhuma Restrição';
-                        final noneActivated = _isNoneSelected();
-                        final othersActivated = _haveOthersSelected();
-                        final isSelected = selected.contains(button);
+              Expanded(
+                child: isLoadingRestrictions
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+                        itemCount: buttons.length,
+                        itemBuilder: (context, index) {
+                          final button = buttons[index];
+                          final isNone = button.name == 'Nenhuma Restrição';
+                          final noneActivated = _isNoneSelected();
+                          final othersActivated = _haveOthersSelected();
+                          final isSelected = selected.contains(button);
 
-                        final disabled =
-                            (noneActivated && !isNone) ||
-                            (othersActivated && isNone);
+                          final disabled =
+                              (noneActivated && !isNone) ||
+                              (othersActivated && isNone);
 
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: disabled
-                                  ? Colors.grey[300]!
-                                  : isSelected
-                                  ? Color.fromARGB(255, 157, 0, 255)
-                                  : Colors.grey[300]!,
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                // ignore: deprecated_member_use
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              onTap: disabled
-                                  ? null
-                                  : () {
-                                      if (isSelected) {
-                                        _remove(button);
-                                      } else {
-                                        _add(button);
-                                      }
-                                    },
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        button.name,
-                                        style: TextStyle(
-                                          color: disabled
-                                              ? Colors.grey[400]
-                                              : isNone
-                                              ? Color.fromARGB(255, 157, 0, 255)
-                                              : Colors.black,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
+                              border: Border.all(
+                                color: disabled
+                                    ? Colors.grey[300]!
+                                    : isSelected
+                                    ? Color.fromARGB(255, 157, 0, 255)
+                                    : Colors.grey[300]!,
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  // ignore: deprecated_member_use
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: disabled
+                                    ? null
+                                    : () {
+                                        if (isSelected) {
+                                          _remove(button);
+                                        } else {
+                                          _add(button);
+                                        }
+                                      },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          button.name,
+                                          style: TextStyle(
+                                            color: disabled
+                                                ? Colors.grey[400]
+                                                : isNone
+                                                ? Color.fromARGB(
+                                                    255,
+                                                    157,
+                                                    0,
+                                                    255,
+                                                  )
+                                                : Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(width: 12),
-                                    Container(
-                                      width: 24,
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.rectangle,
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                          color: disabled
-                                              ? Colors.grey[300]!
-                                              : isSelected
+                                      SizedBox(width: 12),
+                                      Container(
+                                        width: 24,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.rectangle,
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                          border: Border.all(
+                                            color: disabled
+                                                ? Colors.grey[300]!
+                                                : isSelected
+                                                ? Color.fromARGB(
+                                                    255,
+                                                    157,
+                                                    0,
+                                                    255,
+                                                  )
+                                                : Colors.grey[400]!,
+                                            width: 2,
+                                          ),
+                                          color: isSelected
                                               ? Color.fromARGB(255, 157, 0, 255)
-                                              : Colors.grey[400]!,
-                                          width: 2,
+                                              : Colors.white,
                                         ),
-                                        color: isSelected
-                                            ? Color.fromARGB(255, 157, 0, 255)
-                                            : Colors.white,
+                                        child: isSelected
+                                            ? Icon(
+                                                Icons.check,
+                                                size: 16,
+                                                color: Colors.white,
+                                              )
+                                            : null,
                                       ),
-                                      child: isSelected
-                                          ? Icon(
-                                              Icons.check,
-                                              size: 16,
-                                              color: Colors.white,
-                                            )
-                                          : null,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    // ignore: deprecated_member_use
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: Offset(0, -4),
-                  ),
-                ],
+                          );
+                        },
+                      ),
               ),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: selected.isEmpty
-                          ? null
-                          : () async {
-                              try {
-                                final idsRestricoes = selected
-                                    .where((item) => item.id != null)
-                                    .map((item) => item.id!)
-                                    .toList();
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      // ignore: deprecated_member_use
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: selected.isEmpty
+                            ? null
+                            : () async {
+                                try {
+                                  final idsRestricoes = selected
+                                      .where((item) => item.id != null)
+                                      .map((item) => item.id!)
+                                      .toList();
 
-                                if (idsRestricoes.isNotEmpty) {
-                                  await UserRestrictionService.atualizarRestricoes(
-                                    idsRestricoes,
-                                  );
-                                }
-
-                                await UserTokenSaving.setRestrictionsCompleted(
-                                  true,
-                                );
-
-                                if (context.mounted) {
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    '/clientHome',
-                                  );
-                                }
-                              } catch (e) {
-                                if (context.mounted) {
-                                  if (e.toString().contains(
-                                    'não autenticado',
-                                  )) {
-                                    await UserTokenSaving.clearAll();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Sessão expirada. Faça login novamente.',
-                                        ),
-                                        backgroundColor: Colors.orange,
-                                      ),
-                                    );
-                                    Navigator.pushNamedAndRemoveUntil(
-                                      context,
-                                      '/profileChoice',
-                                      (_) => false,
-                                    );
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Erro ao salvar restrições: $e',
-                                        ),
-                                        backgroundColor: Colors.red,
-                                      ),
+                                  if (idsRestricoes.isNotEmpty) {
+                                    await UserRestrictionService.atualizarRestricoes(
+                                      idsRestricoes,
                                     );
                                   }
+
+                                  await UserTokenSaving.setRestrictionsCompleted(
+                                    true,
+                                  );
+
+                                  if (context.mounted) {
+                                    Navigator.pushReplacementNamed(
+                                      context,
+                                      '/clientHome',
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    if (e.toString().contains(
+                                      'não autenticado',
+                                    )) {
+                                      await UserTokenSaving.clearAll();
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Sessão expirada. Faça login novamente.',
+                                          ),
+                                          backgroundColor: Colors.orange,
+                                        ),
+                                      );
+                                      Navigator.pushNamedAndRemoveUntil(
+                                        context,
+                                        '/profileChoice',
+                                        (_) => false,
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Erro ao salvar restrições: $e',
+                                          ),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
                                 }
-                              }
-                            },
-                      style: ButtonStyle(
-                        backgroundColor:
-                            WidgetStateProperty.resolveWith<Color?>((states) {
-                              if (states.contains(WidgetState.disabled)) {
-                                return Colors.grey[300];
-                              }
-                              return const Color.fromARGB(255, 15, 230, 135);
-                            }),
-                        padding: WidgetStateProperty.all(
-                          const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        shape: WidgetStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                              },
+                        style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStateProperty.resolveWith<Color?>((states) {
+                                if (states.contains(WidgetState.disabled)) {
+                                  return Colors.grey[300];
+                                }
+                                return const Color(0xFF9D00FF);
+                              }),
+                          padding: WidgetStateProperty.all(
+                            const EdgeInsets.symmetric(vertical: 16),
                           ),
+                          shape: WidgetStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          elevation: WidgetStateProperty.all(0),
                         ),
-                        elevation: WidgetStateProperty.all(0),
-                      ),
-                      child: Text(
-                        selected.isEmpty
-                            ? 'Selecione pelo menos uma opção'
-                            : 'Confirmar',
-                        style: TextStyle(
-                          color: selected.isEmpty
-                              ? Colors.grey[500]
-                              : Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                        child: Text(
+                          selected.isEmpty
+                              ? 'Selecione pelo menos uma opção'
+                              : 'Confirmar',
+                          style: TextStyle(
+                            color: selected.isEmpty
+                                ? Colors.grey[500]
+                                : Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    '${selected.length} selecionada${selected.length != 1 ? 's' : ''}',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                  ),
-                ],
+                    SizedBox(height: 12),
+                    Text(
+                      '${selected.length} selecionada${selected.length != 1 ? 's' : ''}',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );

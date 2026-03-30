@@ -160,7 +160,7 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
                                 ),
                               ),
                               value: isSelected,
-                              activeColor: const Color(0xFF0FE687),
+                              activeColor: const Color(0xFF9D00FF),
                               onChanged: (_) {
                                 _toggleRestricao(restricao.idRestricao);
                               },
@@ -179,7 +179,7 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0FE687),
+                          backgroundColor: const Color(0xFF9D00FF),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
