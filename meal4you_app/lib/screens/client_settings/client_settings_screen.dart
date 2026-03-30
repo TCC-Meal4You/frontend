@@ -636,6 +636,31 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                 onLogout: () => clientLogoutHandler.showLogoutDialog(context),
               ),
               Padding(
+                padding: const EdgeInsets.only(left: 20, top: 16, bottom: 4),
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.arrow_back_ios,
+                        size: 20,
+                        color: Color(0xFF9D00FF),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Voltar',
+                        style: TextStyle(
+                          color: Color(0xFF9D00FF),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
