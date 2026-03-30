@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
-class UpdateEmailService {
+class UpdateClientEmailService {
   static const String baseUrl =
-      'https://backend-production-186a.up.railway.app/admins/atualizar-email';
+      'https://backend-production-186a.up.railway.app/usuarios/atualizar-email';
 
   static Future<void> atualizarEmail({
     required String email,
@@ -33,7 +33,7 @@ class UpdateEmailService {
     } else if (response.statusCode == 400) {
       throw Exception('Código de verificação inválido ou expirado');
     } else if (response.statusCode == 401) {
-      throw Exception('Não autorizado. Faça login novamente.');
+      throw Exception('Usuário não autenticado');
     } else {
       throw Exception('Erro ao atualizar e-mail: ${response.statusCode}');
     }
