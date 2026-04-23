@@ -14,7 +14,7 @@ class GoogleRegisterAndLoginService {
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
 
-  final String baseUrl = "https://backend-production-186a.up.railway.app";
+  final String baseUrl = "https://backend-production-b24f.up.railway.app";
 
   Future<void> signInWithGoogle({
     required BuildContext context,

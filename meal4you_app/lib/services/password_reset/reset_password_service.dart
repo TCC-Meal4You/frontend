@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ResetPasswordService {
-  final String baseUrl = "https://backend-production-186a.up.railway.app";
+  final String baseUrl = "https://backend-production-b24f.up.railway.app";
 
   Future<bool> sendResetCode(String email, bool isAdm) async {
     final url = Uri.parse(

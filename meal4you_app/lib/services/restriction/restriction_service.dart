@@ -5,7 +5,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class RestrictionService {
   static const String baseUrl =
-      'https://backend-production-186a.up.railway.app/restricoes';
+      'https://backend-production-b24f.up.railway.app/restricoes';
 
   static Future<List<RestrictionResponseDTO>> listarRestricoes() async {
     final token = await UserTokenSaving.getToken();
