@@ -21,6 +21,30 @@ class RestauranteResponseDTO {
     this.avaliacaoMedia,
   });
 
+  RestauranteResponseDTO copyWith({
+    int? idRestaurante,
+    String? nome,
+    String? descricao,
+    String? tipoComida,
+    bool? ativo,
+    bool? favorito,
+    double? distancia,
+    String? tempoEntrega,
+    double? avaliacaoMedia,
+  }) {
+    return RestauranteResponseDTO(
+      idRestaurante: idRestaurante ?? this.idRestaurante,
+      nome: nome ?? this.nome,
+      descricao: descricao ?? this.descricao,
+      tipoComida: tipoComida ?? this.tipoComida,
+      ativo: ativo ?? this.ativo,
+      favorito: favorito ?? this.favorito,
+      distancia: distancia ?? this.distancia,
+      tempoEntrega: tempoEntrega ?? this.tempoEntrega,
+      avaliacaoMedia: avaliacaoMedia ?? this.avaliacaoMedia,
+    );
+  }
+
   factory RestauranteResponseDTO.fromJson(Map<String, dynamic> json) {
     return RestauranteResponseDTO(
       idRestaurante: json['idRestaurante'] ?? json['id'] ?? 0,

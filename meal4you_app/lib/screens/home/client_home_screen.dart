@@ -160,12 +160,23 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           bottomNavigationBar: BottomNavigationBar(
             backgroundColor: Colors.white,
             selectedItemColor: const Color.fromARGB(255, 157, 0, 255),
-            unselectedItemColor: Colors.grey,
+            unselectedItemColor: const Color(0xFF475467),
+            type: BottomNavigationBarType.fixed,
             items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Busca'),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person),
+                icon: Icon(Icons.home_outlined),
+                label: 'Inicio',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                label: 'Buscar',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.favorite_border),
+                label: 'Favoritos',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
                 label: 'Perfil',
               ),
             ],
@@ -196,6 +207,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   ),
                 );
               } else if (index == 2) {
+                Navigator.pushNamed(context, '/clientFavorites');
+              } else if (index == 3) {
                 Navigator.of(context).pushReplacement(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) {

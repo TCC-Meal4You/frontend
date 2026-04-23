@@ -21,7 +21,7 @@ class AdmRegisterScreen extends StatefulWidget {
 class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
   bool _isLoading = false;
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
-    baseUrl: 'https://backend-production-186a.up.railway.app',
+    baseUrl: 'https://backend-production-b24f.up.railway.app',
   );
 
   @override

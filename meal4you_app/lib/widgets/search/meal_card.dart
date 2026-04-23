@@ -5,8 +5,9 @@ import 'package:meal4you_app/widgets/search/restriction_chip.dart';
 class MealCard extends StatelessWidget {
   final MealResponseDTO meal;
   final VoidCallback? onTap;
+  final VoidCallback? onFavorite;
 
-  const MealCard({super.key, required this.meal, this.onTap});
+  const MealCard({super.key, required this.meal, this.onTap, this.onFavorite});
 
   @override
   Widget build(BuildContext context) {
@@ -26,22 +27,50 @@ class MealCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 160,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
+          Stack(
+            children: [
+              Container(
+                height: 160,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.restaurant_menu,
+                    size: 60,
+                    color: Colors.grey[400],
+                  ),
+                ),
               ),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.restaurant_menu,
-                size: 60,
-                color: Colors.grey[400],
+              Positioned(
+                top: 12,
+                right: 12,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    onPressed: onFavorite,
+                    icon: Icon(
+                      meal.favorito ? Icons.favorite : Icons.favorite_border,
+                      color: meal.favorito ? Colors.red : Colors.grey[600],
+                      size: 20,
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.all(12),

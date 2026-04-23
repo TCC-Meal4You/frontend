@@ -5,6 +5,7 @@ class MealResponseDTO {
   final String tipo;
   final String? descricao;
   final bool disponivel;
+  final bool favorito;
   final List<MealIngredientDTO> ingredientes;
   final List<String> restricoes;
 
@@ -15,9 +16,34 @@ class MealResponseDTO {
     required this.tipo,
     this.descricao,
     required this.disponivel,
+    required this.favorito,
     required this.ingredientes,
     required this.restricoes,
   });
+
+  MealResponseDTO copyWith({
+    int? idRefeicao,
+    String? nome,
+    double? preco,
+    String? tipo,
+    String? descricao,
+    bool? disponivel,
+    bool? favorito,
+    List<MealIngredientDTO>? ingredientes,
+    List<String>? restricoes,
+  }) {
+    return MealResponseDTO(
+      idRefeicao: idRefeicao ?? this.idRefeicao,
+      nome: nome ?? this.nome,
+      preco: preco ?? this.preco,
+      tipo: tipo ?? this.tipo,
+      descricao: descricao ?? this.descricao,
+      disponivel: disponivel ?? this.disponivel,
+      favorito: favorito ?? this.favorito,
+      ingredientes: ingredientes ?? this.ingredientes,
+      restricoes: restricoes ?? this.restricoes,
+    );
+  }
 
   factory MealResponseDTO.fromJson(Map<String, dynamic> json) {
     final ingredientesJson = json['ingredientes'] ?? json['ingrediente'];
@@ -42,12 +68,13 @@ class MealResponseDTO {
         [];
 
     return MealResponseDTO(
-      idRefeicao: json['idRefeicao'] ?? json['id_refeicao'] ?? 0,
+      idRefeicao: json['idRefeicao'] ?? json['id_refeicao'] ?? json['id'] ?? 0,
       nome: json['nome'] ?? '',
       preco: (json['preco'] ?? 0).toDouble(),
       tipo: json['tipo'] ?? '',
       descricao: json['descricao'],
       disponivel: json['disponivel'] ?? false,
+      favorito: json['favorito'] ?? false,
       ingredientes: ingredientesList,
       restricoes: restricoesList,
     );

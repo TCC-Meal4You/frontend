@@ -3,6 +3,8 @@ import 'package:meal4you_app/models/restaurante_response_dto.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/screens/home/client_home_screen.dart';
 import 'package:meal4you_app/screens/profile/client_profile_screen.dart';
+import 'package:meal4you_app/services/favorite/meal_favorite_service.dart';
+import 'package:meal4you_app/services/favorite/restaurant_favorite_service.dart';
 import 'package:meal4you_app/services/search_restaurant/search_restaurant_service.dart';
 import 'package:meal4you_app/services/search_meal/search_meal_service.dart';
 import 'package:meal4you_app/widgets/search/restaurant_card.dart';
@@ -32,6 +34,8 @@ class _SearchRestaurantAndDishScreenState
 
   bool _loadingRestaurants = false;
   bool _loadingMeals = false;
+  final Set<int> _restaurantFavoriteLoading = {};
+  final Set<int> _mealFavoriteLoading = {};
 
   @override
   void initState() {
@@ -97,6 +101,70 @@ class _SearchRestaurantAndDishScreenState
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erro ao carregar refeições: $e')));
+    }
+  }
+
+  Future<void> _toggleRestaurantFavorite(int index) async {
+    final restaurante = _restaurantes[index];
+    final restauranteId = restaurante.idRestaurante;
+
+    if (_restaurantFavoriteLoading.contains(restauranteId)) {
+      return;
+    }
+
+    setState(() {
+      _restaurantFavoriteLoading.add(restauranteId);
+      _restaurantes[index] = restaurante.copyWith(
+        favorito: !restaurante.favorito,
+      );
+    });
+
+    try {
+      await RestaurantFavoriteService.alternarFavorito(restauranteId);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _restaurantes[index] = restaurante;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao favoritar restaurante: $e')),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _restaurantFavoriteLoading.remove(restauranteId);
+      });
+    }
+  }
+
+  Future<void> _toggleMealFavorite(int index) async {
+    final refeicao = _refeicoes[index];
+    final refeicaoId = refeicao.idRefeicao;
+
+    if (_mealFavoriteLoading.contains(refeicaoId)) {
+      return;
+    }
+
+    setState(() {
+      _mealFavoriteLoading.add(refeicaoId);
+      _refeicoes[index] = refeicao.copyWith(favorito: !refeicao.favorito);
+    });
+
+    try {
+      await MealFavoriteService.alternarFavorito(refeicaoId);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _refeicoes[index] = refeicao;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao favoritar prato: $e')));
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _mealFavoriteLoading.remove(refeicaoId);
+      });
     }
   }
 
@@ -193,14 +261,22 @@ class _SearchRestaurantAndDishScreenState
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.white,
           selectedItemColor: const Color.fromARGB(255, 157, 0, 255),
-          unselectedItemColor: Colors.grey,
+          unselectedItemColor: const Color(0xFF475467),
+          type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded),
-              label: 'Home',
+              icon: Icon(Icons.home_outlined),
+              label: 'Inicio',
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Busca'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite_border),
+              label: 'Favoritos',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: 'Perfil',
+            ),
           ],
           currentIndex: 1,
           onTap: (index) {
@@ -229,6 +305,8 @@ class _SearchRestaurantAndDishScreenState
             } else if (index == 1) {
               return;
             } else if (index == 2) {
+              Navigator.pushNamed(context, '/clientFavorites');
+            } else if (index == 3) {
               Navigator.of(context).pushReplacement(
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) {
@@ -286,7 +364,10 @@ class _SearchRestaurantAndDishScreenState
             itemCount: _restaurantes.length,
             itemBuilder: (context, index) {
               final restaurant = _restaurantes[index];
-              return RestaurantCard(restaurant: restaurant);
+              return RestaurantCard(
+                restaurant: restaurant,
+                onFavorite: () => _toggleRestaurantFavorite(index),
+              );
             },
           ),
         ),
@@ -328,7 +409,10 @@ class _SearchRestaurantAndDishScreenState
             itemCount: _refeicoes.length,
             itemBuilder: (context, index) {
               final meal = _refeicoes[index];
-              return MealCard(meal: meal);
+              return MealCard(
+                meal: meal,
+                onFavorite: () => _toggleMealFavorite(index),
+              );
             },
           ),
         ),
