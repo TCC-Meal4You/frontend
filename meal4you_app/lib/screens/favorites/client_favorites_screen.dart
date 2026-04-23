@@ -24,7 +24,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
   List<MealResponseDTO> _refeicoes = [];
 
   bool _isLoadingRestaurants = true;
-  bool _isLoadingMeals = false;
+  bool _isLoadingMeals = true;
 
   final Set<int> _restaurantFavoriteLoading = {};
   final Set<int> _mealFavoriteLoading = {};
@@ -33,12 +33,8 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      if (_tabController.index == 1 && _refeicoes.isEmpty && !_isLoadingMeals) {
-        _loadFavoriteMeals();
-      }
-    });
     _loadFavoriteRestaurants();
+    _loadFavoriteMeals();
   }
 
   @override
