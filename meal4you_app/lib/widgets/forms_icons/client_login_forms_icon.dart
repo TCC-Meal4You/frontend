@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/widgets/navigation/profile_choice_back_button.dart';
 
 class ClientLoginFormsIcon extends StatelessWidget {
   const ClientLoginFormsIcon({super.key});
@@ -6,27 +7,10 @@ class ClientLoginFormsIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 80,
+      top: 74,
       left: 0,
       right: 0,
-      child: Center(
-        child: Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(color: Colors.black26, blurRadius: 8),
-            ],
-          ),
-          child: const Icon(
-            Icons.fastfood,
-            size: 40,
-            color: Colors.green,
-          ),
-        ),
-      ),
+      child: Center(child: const ProfileChoiceBackButton()),
     );
   }
 }

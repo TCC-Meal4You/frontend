@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal4you_app/widgets/navigation/profile_choice_back_button.dart';
 
 class AdmRegisterFormsIcon extends StatelessWidget {
   const AdmRegisterFormsIcon({super.key});
@@ -6,25 +7,10 @@ class AdmRegisterFormsIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 20,
+      top: 24,
       left: 0,
       right: 0,
-      child: Center(
-        child: Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
-          ),
-          child: const Icon(
-            Icons.home,
-            size: 40,
-            color: Color.fromARGB(255, 157, 0, 255),
-          ),
-        ),
-      ),
+      child: Center(child: const ProfileChoiceBackButton()),
     );
   }
 }
