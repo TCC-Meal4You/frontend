@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/ingredient_response_dto.dart';
 import 'package:meal4you_app/models/meal_request_dto.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
-import 'package:meal4you_app/screens/home/adm_restaurant_home_screen.dart';
-import 'package:meal4you_app/screens/profile/adm_profile_screen.dart';
 import 'package:meal4you_app/services/ingredient/ingredient_service.dart';
 import 'package:meal4you_app/services/meal/meal_service.dart';
 import 'package:meal4you_app/widgets/adm_menu/stats_row.dart';
 import 'package:meal4you_app/widgets/adm_menu/dish_card.dart';
 import 'package:meal4you_app/widgets/adm_menu/empty_state.dart';
+import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
 
 class AdmMenuScreen extends StatefulWidget {
   const AdmMenuScreen({super.key});
@@ -189,69 +188,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF0FE687),
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.store_mall_directory_outlined),
-              label: 'Restaurante',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: 'Perfil',
-            ),
-          ],
-          currentIndex: 0,
-          onTap: (index) {
-            if (index == 0) {
-              Navigator.of(context).pushReplacement(
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) {
-                    return const AdmRestaurantHomeScreen();
-                  },
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(-1.0, 0.0);
-                        const end = Offset.zero;
-                        const curve = Curves.easeInOut;
-                        var tween = Tween(
-                          begin: begin,
-                          end: end,
-                        ).chain(CurveTween(curve: curve));
-                        return SlideTransition(
-                          position: animation.drive(tween),
-                          child: child,
-                        );
-                      },
-                ),
-              );
-            } else if (index == 1) {
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) {
-                    return const AdmProfileScreen();
-                  },
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0);
-                        const end = Offset.zero;
-                        const curve = Curves.easeInOut;
-                        var tween = Tween(
-                          begin: begin,
-                          end: end,
-                        ).chain(CurveTween(curve: curve));
-                        return SlideTransition(
-                          position: animation.drive(tween),
-                          child: child,
-                        );
-                      },
-                ),
-              );
-            }
-          },
-        ),
+        bottomNavigationBar: const AdmBottomNavigationBar(currentIndex: 0),
       ),
     );
   }

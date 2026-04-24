@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/models/restaurante_response_dto.dart';
-import 'package:meal4you_app/screens/home/client_home_screen.dart';
-import 'package:meal4you_app/screens/profile/client_profile_screen.dart';
-import 'package:meal4you_app/screens/search_restaurant_and_dish/search_restaurant_and_dish_screen.dart';
 import 'package:meal4you_app/services/favorite/meal_favorite_service.dart';
 import 'package:meal4you_app/services/favorite/restaurant_favorite_service.dart';
+import 'package:meal4you_app/widgets/navigation/client_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/search/meal_card.dart';
 import 'package:meal4you_app/widgets/search/restaurant_card.dart';
 
@@ -266,46 +264,8 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
             ),
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color.fromARGB(255, 157, 0, 255),
-          unselectedItemColor: const Color(0xFF475467),
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              label: 'Inicio',
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border),
-              label: 'Favoritos',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: 'Perfil',
-            ),
-          ],
+        bottomNavigationBar: const ClientBottomNavigationBar(
           currentIndex: 2,
-          onTap: (index) {
-            if (index == 0) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const ClientHomeScreen()),
-              );
-            } else if (index == 1) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) => const SearchRestaurantAndDishScreen(),
-                ),
-              );
-            } else if (index == 2) {
-              return;
-            } else if (index == 3) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const ClientProfileScreen()),
-              );
-            }
-          },
         ),
       ),
     );
