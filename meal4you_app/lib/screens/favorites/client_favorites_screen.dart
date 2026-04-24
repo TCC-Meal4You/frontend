@@ -264,9 +264,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
             ),
           ],
         ),
-        bottomNavigationBar: const ClientBottomNavigationBar(
-          currentIndex: 2,
-        ),
+        bottomNavigationBar: const ClientBottomNavigationBar(currentIndex: 2),
       ),
     );
   }

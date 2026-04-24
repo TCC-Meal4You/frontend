@@ -173,9 +173,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
               ],
             ),
           ),
-          bottomNavigationBar: const ClientBottomNavigationBar(
-            currentIndex: 3,
-          ),
+          bottomNavigationBar: const ClientBottomNavigationBar(currentIndex: 3),
         ),
       ),
     );

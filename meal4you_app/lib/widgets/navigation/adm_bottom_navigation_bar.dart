@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class AdmBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
 
-  const AdmBottomNavigationBar({
-    super.key,
-    required this.currentIndex,
-  });
+  const AdmBottomNavigationBar({super.key, required this.currentIndex});
 
   @override
   Widget build(BuildContext context) {

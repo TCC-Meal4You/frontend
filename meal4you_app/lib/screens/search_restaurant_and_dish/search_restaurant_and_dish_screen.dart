@@ -257,9 +257,7 @@ class _SearchRestaurantAndDishScreenState
             ),
           ],
         ),
-        bottomNavigationBar: const ClientBottomNavigationBar(
-          currentIndex: 1,
-        ),
+        bottomNavigationBar: const ClientBottomNavigationBar(currentIndex: 1),
       ),
     );
   }

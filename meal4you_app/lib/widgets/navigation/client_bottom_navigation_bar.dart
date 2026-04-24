@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class ClientBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
 
-  const ClientBottomNavigationBar({
-    super.key,
-    required this.currentIndex,
-  });
+  const ClientBottomNavigationBar({super.key, required this.currentIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +17,7 @@ class ClientBottomNavigationBar extends StatelessWidget {
           icon: Icon(Icons.home_outlined),
           label: 'Inicio',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Buscar',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
         BottomNavigationBarItem(
           icon: Icon(Icons.favorite_border),
           label: 'Favoritos',

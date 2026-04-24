@@ -156,9 +156,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               ],
             ),
           ),
-          bottomNavigationBar: const ClientBottomNavigationBar(
-            currentIndex: 0,
-          ),
+          bottomNavigationBar: const ClientBottomNavigationBar(currentIndex: 0),
         ),
       ),
     );
