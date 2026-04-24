@@ -5,6 +5,7 @@ import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/register_restaurant/register_restaurant_service.dart';
 import 'package:meal4you_app/services/viacep/viacep_service.dart';
+import 'package:meal4you_app/utils/constants/food_types.dart';
 import 'package:meal4you_app/utils/formatter/cep_input_formatter.dart';
 import 'package:provider/provider.dart';
 
@@ -39,25 +40,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
   bool _isLoadingCep = false;
 
   final Map<String, bool> _foodTypes = {
-    "Brasileira": false,
-    "Italiana": false,
-    "Japonesa": false,
-    "Mexicana": false,
-    "Indiana": false,
-    "Árabe": false,
-    "Francesa": false,
-    "Vegetariana": false,
-    "Vegana": false,
-    "Hambúrguer": false,
-    "Pizza": false,
-    "Sushi": false,
-    "Churrasco": false,
-    "Frutos do Mar": false,
-    "Comida Saudável": false,
-    "Fast Food": false,
-    "Doces e Sobremesas": false,
-    "Lanches": false,
-    "Cafeteria": false,
+    for (final type in FoodTypes.available) type: false,
   };
 
   @override

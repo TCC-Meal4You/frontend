@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/update_restaurant/update_restaurant_service.dart';
+import 'package:meal4you_app/utils/constants/food_types.dart';
 import 'package:provider/provider.dart';
 
 class FoodTypeSelectorScreen extends StatefulWidget {
@@ -12,27 +13,7 @@ class FoodTypeSelectorScreen extends StatefulWidget {
 }
 
 class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
-  final List<String> availableTypes = [
-    "Brasileira",
-    "Italiana",
-    "Japonesa",
-    "Mexicana",
-    "Indiana",
-    "Árabe",
-    "Francesa",
-    "Vegetariana",
-    "Vegana",
-    "Hambúrguer",
-    "Pizza",
-    "Sushi",
-    "Churrasco",
-    "Frutos do Mar",
-    "Comida Saudável",
-    "Fast Food",
-    "Doces e Sobremesas",
-    "Lanches",
-    "Cafeteria",
-  ];
+  final List<String> availableTypes = FoodTypes.available;
 
   late List<String> selectedTypes;
   bool _isSaving = false;

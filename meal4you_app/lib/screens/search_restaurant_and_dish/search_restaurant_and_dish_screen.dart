@@ -5,6 +5,7 @@ import 'package:meal4you_app/services/favorite/meal_favorite_service.dart';
 import 'package:meal4you_app/services/favorite/restaurant_favorite_service.dart';
 import 'package:meal4you_app/services/search_restaurant/search_restaurant_service.dart';
 import 'package:meal4you_app/services/search_meal/search_meal_service.dart';
+import 'package:meal4you_app/utils/constants/food_types.dart';
 import 'package:meal4you_app/widgets/navigation/client_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/search/restaurant_card.dart';
 import 'package:meal4you_app/widgets/search/meal_card.dart';
@@ -35,9 +36,28 @@ class _SearchRestaurantAndDishScreenState
   bool _loadingMeals = false;
   final Set<int> _restaurantFavoriteLoading = {};
   final Set<int> _mealFavoriteLoading = {};
+  final Set<String> _selectedFoodTypes = {};
+  RangeValues? _selectedPriceRange;
+  static const double _minFilterPrice = 1;
+  static const double _maxFilterPrice = 50;
 
   String get _query => _searchController.text.trim().toLowerCase();
   bool get _isSearching => _query.isNotEmpty;
+
+  List<String> get _availableFoodTypes => FoodTypes.available;
+
+  int get _activeFilterCount {
+    var total = _selectedFoodTypes.length;
+    if (_selectedPriceRange != null &&
+        _selectedPriceRange!.start > _minFilterPrice) {
+      total += 1;
+    }
+    if (_selectedPriceRange != null &&
+        _selectedPriceRange!.end < _maxFilterPrice) {
+      total += 1;
+    }
+    return total;
+  }
 
   @override
   void initState() {
@@ -60,32 +80,241 @@ class _SearchRestaurantAndDishScreenState
     }
   }
 
-  List<RestauranteResponseDTO> _filteredRestaurants() {
-    if (!_isSearching) return _restaurantes;
+  bool _matchesSelectedFoodType(String type) {
+    if (_selectedFoodTypes.isEmpty) return true;
+    return _selectedFoodTypes.contains(type.trim());
+  }
 
+  bool _matchesSelectedPriceRange(double price) {
+    final range = _normalizedPriceRange(_selectedPriceRange);
+    if (range == null) return true;
+    if (price < range.start) {
+      return false;
+    }
+
+    if (range.end >= _maxFilterPrice) {
+      return true;
+    }
+
+    return price <= range.end;
+  }
+
+  RangeValues? _normalizedPriceRange(RangeValues? source) {
+    if (source == null) return null;
+
+    final start = source.start
+        .clamp(_minFilterPrice, _maxFilterPrice)
+        .toDouble();
+    final end = source.end.clamp(_minFilterPrice, _maxFilterPrice).toDouble();
+
+    if (end < start) {
+      return RangeValues(start, start);
+    }
+
+    return RangeValues(start, end);
+  }
+
+  List<RestauranteResponseDTO> _filteredRestaurants() {
     return _restaurantes.where((restaurant) {
       final nome = restaurant.nome.toLowerCase();
       final tipo = restaurant.tipoComida.toLowerCase();
       final descricao = (restaurant.descricao ?? '').toLowerCase();
-      return nome.contains(_query) ||
+      final matchesQuery =
+          !_isSearching ||
+          nome.contains(_query) ||
           tipo.contains(_query) ||
           descricao.contains(_query);
+      final matchesType = _matchesSelectedFoodType(restaurant.tipoComida);
+      return matchesQuery && matchesType;
     }).toList();
   }
 
   List<MealResponseDTO> _filteredMeals() {
-    if (!_isSearching) return _refeicoes;
-
     return _refeicoes.where((meal) {
       final nome = meal.nome.toLowerCase();
       final tipo = meal.tipo.toLowerCase();
       final descricao = (meal.descricao ?? '').toLowerCase();
       final restricoes = meal.restricoes.join(' ').toLowerCase();
-      return nome.contains(_query) ||
+      final matchesQuery =
+          !_isSearching ||
+          nome.contains(_query) ||
           tipo.contains(_query) ||
           descricao.contains(_query) ||
           restricoes.contains(_query);
+      final matchesType = _matchesSelectedFoodType(meal.tipo);
+      final matchesPrice = _matchesSelectedPriceRange(meal.preco);
+      return matchesQuery && matchesType && matchesPrice;
     }).toList();
+  }
+
+  String _currency(double value) => 'R\$ ${value.toStringAsFixed(2)}';
+
+  void _openFiltersSheet() {
+    final allTypes = _availableFoodTypes;
+    const minPrice = _minFilterPrice;
+    const maxPrice = _maxFilterPrice;
+    final currentRange =
+        _normalizedPriceRange(_selectedPriceRange) ??
+        const RangeValues(minPrice, maxPrice);
+    final tempSelectedTypes = Set<String>.from(_selectedFoodTypes);
+    var tempRange = currentRange;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, sheetSetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            'Filtros',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            sheetSetState(() {
+                              tempSelectedTypes.clear();
+                              tempRange = const RangeValues(minPrice, maxPrice);
+                            });
+                          },
+                          child: const Text('Limpar'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Tipos de comida',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    if (allTypes.isEmpty)
+                      Text(
+                        'Ainda não há tipos de comida para filtrar.',
+                        style: TextStyle(color: Colors.grey[600]),
+                      )
+                    else
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: allTypes.map((type) {
+                          final selected = tempSelectedTypes.contains(type);
+                          return FilterChip(
+                            label: Text(type),
+                            selected: selected,
+                            onSelected: (value) {
+                              sheetSetState(() {
+                                if (value) {
+                                  tempSelectedTypes.add(type);
+                                } else {
+                                  tempSelectedTypes.remove(type);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Faixa de preço (pratos)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(_currency(tempRange.start)),
+                        Text(
+                          tempRange.end >= _maxFilterPrice
+                              ? '${_currency(_maxFilterPrice)}+'
+                              : _currency(tempRange.end),
+                        ),
+                      ],
+                    ),
+                    RangeSlider(
+                      values: tempRange,
+                      min: minPrice,
+                      max: maxPrice,
+                      divisions: 49,
+                      activeColor: const Color.fromARGB(255, 157, 0, 255),
+                      labels: RangeLabels(
+                        _currency(tempRange.start),
+                        tempRange.end >= _maxFilterPrice
+                            ? '${_currency(_maxFilterPrice)}+'
+                            : _currency(tempRange.end),
+                      ),
+                      onChanged: (values) {
+                        sheetSetState(() {
+                          tempRange = RangeValues(
+                            values.start.roundToDouble(),
+                            values.end.roundToDouble(),
+                          );
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            157,
+                            0,
+                            255,
+                          ),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _selectedFoodTypes
+                              ..clear()
+                              ..addAll(tempSelectedTypes);
+                            final isDefaultRange =
+                                tempRange.start == _minFilterPrice &&
+                                tempRange.end == _maxFilterPrice;
+                            _selectedPriceRange = isDefaultRange
+                                ? null
+                                : tempRange;
+                          });
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Aplicar filtros'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _loadRestaurants(int pageNumber) async {
@@ -264,16 +493,60 @@ class _SearchRestaurantAndDishScreenState
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.tune),
-                          color: Colors.grey[700],
-                        ),
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Material(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: _openFiltersSheet,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.tune, color: Colors.grey[700]),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Filtros',
+                                      style: TextStyle(
+                                        color: Colors.grey[800],
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (_activeFilterCount > 0)
+                            Positioned(
+                              right: -6,
+                              top: -6,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(255, 157, 0, 255),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  '$_activeFilterCount',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
