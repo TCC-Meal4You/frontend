@@ -36,15 +36,56 @@ class _SearchRestaurantAndDishScreenState
   final Set<int> _restaurantFavoriteLoading = {};
   final Set<int> _mealFavoriteLoading = {};
 
+  String get _query => _searchController.text.trim().toLowerCase();
+  bool get _isSearching => _query.isNotEmpty;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _searchController.addListener(_onSearchChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _loadRestaurants(0);
     });
+  }
+
+  void _onSearchChanged() {
+    if (!mounted) return;
+    setState(() {});
+
+    if (_query.isNotEmpty && _refeicoes.isEmpty && !_loadingMeals) {
+      _loadMeals(0);
+    }
+  }
+
+  List<RestauranteResponseDTO> _filteredRestaurants() {
+    if (!_isSearching) return _restaurantes;
+
+    return _restaurantes.where((restaurant) {
+      final nome = restaurant.nome.toLowerCase();
+      final tipo = restaurant.tipoComida.toLowerCase();
+      final descricao = (restaurant.descricao ?? '').toLowerCase();
+      return nome.contains(_query) ||
+          tipo.contains(_query) ||
+          descricao.contains(_query);
+    }).toList();
+  }
+
+  List<MealResponseDTO> _filteredMeals() {
+    if (!_isSearching) return _refeicoes;
+
+    return _refeicoes.where((meal) {
+      final nome = meal.nome.toLowerCase();
+      final tipo = meal.tipo.toLowerCase();
+      final descricao = (meal.descricao ?? '').toLowerCase();
+      final restricoes = meal.restricoes.join(' ').toLowerCase();
+      return nome.contains(_query) ||
+          tipo.contains(_query) ||
+          descricao.contains(_query) ||
+          restricoes.contains(_query);
+    }).toList();
   }
 
   Future<void> _loadRestaurants(int pageNumber) async {
@@ -103,7 +144,12 @@ class _SearchRestaurantAndDishScreenState
     }
   }
 
-  Future<void> _toggleRestaurantFavorite(int index) async {
+  Future<void> _toggleRestaurantFavoriteById(int restaurantId) async {
+    final index = _restaurantes.indexWhere(
+      (restaurant) => restaurant.idRestaurante == restaurantId,
+    );
+    if (index == -1) return;
+
     final restaurante = _restaurantes[index];
     final restauranteId = restaurante.idRestaurante;
 
@@ -136,7 +182,10 @@ class _SearchRestaurantAndDishScreenState
     }
   }
 
-  Future<void> _toggleMealFavorite(int index) async {
+  Future<void> _toggleMealFavoriteById(int mealId) async {
+    final index = _refeicoes.indexWhere((meal) => meal.idRefeicao == mealId);
+    if (index == -1) return;
+
     final refeicao = _refeicoes[index];
     final refeicaoId = refeicao.idRefeicao;
 
@@ -170,6 +219,7 @@ class _SearchRestaurantAndDishScreenState
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -263,12 +313,17 @@ class _SearchRestaurantAndDishScreenState
   }
 
   Widget _buildRestaurantsTab() {
+    final restaurantes = _filteredRestaurants();
+
     if (_restaurantes.isEmpty && _loadingRestaurants) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_restaurantes.isEmpty) {
-      return const Center(child: Text('Nenhum restaurante encontrado'));
+    if (restaurantes.isEmpty) {
+      final message = _isSearching
+          ? 'Nenhum restaurante encontrado para "${_searchController.text.trim()}"'
+          : 'Nenhum restaurante encontrado';
+      return Center(child: Text(message));
     }
 
     return Column(
@@ -288,32 +343,39 @@ class _SearchRestaurantAndDishScreenState
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _restaurantes.length,
+            itemCount: restaurantes.length,
             itemBuilder: (context, index) {
-              final restaurant = _restaurantes[index];
+              final restaurant = restaurantes[index];
               return RestaurantCard(
                 restaurant: restaurant,
-                onFavorite: () => _toggleRestaurantFavorite(index),
+                onFavorite: () =>
+                    _toggleRestaurantFavoriteById(restaurant.idRestaurante),
               );
             },
           ),
         ),
-        _buildPaginationControls(
-          currentPage: _restaurantPage,
-          totalPages: _restaurantTotalPages,
-          onPageChanged: (page) => _loadRestaurants(page),
-        ),
+        if (!_isSearching)
+          _buildPaginationControls(
+            currentPage: _restaurantPage,
+            totalPages: _restaurantTotalPages,
+            onPageChanged: (page) => _loadRestaurants(page),
+          ),
       ],
     );
   }
 
   Widget _buildMealsTab() {
+    final refeicoes = _filteredMeals();
+
     if (_refeicoes.isEmpty && _loadingMeals) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_refeicoes.isEmpty && !_loadingMeals) {
-      return const Center(child: Text('Nenhuma refeição encontrada'));
+    if (refeicoes.isEmpty && !_loadingMeals) {
+      final message = _isSearching
+          ? 'Nenhum prato encontrado para "${_searchController.text.trim()}"'
+          : 'Nenhuma refeição encontrada';
+      return Center(child: Text(message));
     }
 
     return Column(
@@ -333,21 +395,22 @@ class _SearchRestaurantAndDishScreenState
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _refeicoes.length,
+            itemCount: refeicoes.length,
             itemBuilder: (context, index) {
-              final meal = _refeicoes[index];
+              final meal = refeicoes[index];
               return MealCard(
                 meal: meal,
-                onFavorite: () => _toggleMealFavorite(index),
+                onFavorite: () => _toggleMealFavoriteById(meal.idRefeicao),
               );
             },
           ),
         ),
-        _buildPaginationControls(
-          currentPage: _mealPage,
-          totalPages: _mealTotalPages,
-          onPageChanged: (page) => _loadMeals(page),
-        ),
+        if (!_isSearching)
+          _buildPaginationControls(
+            currentPage: _mealPage,
+            totalPages: _mealTotalPages,
+            onPageChanged: (page) => _loadMeals(page),
+          ),
       ],
     );
   }
