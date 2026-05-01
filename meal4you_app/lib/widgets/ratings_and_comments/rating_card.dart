@@ -5,8 +5,15 @@ import 'package:meal4you_app/utils/formatter/date_formatter.dart';
 
 class RatingCard extends StatelessWidget {
   final UserRatingResponseDTO rating;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
-  const RatingCard({super.key, required this.rating});
+  const RatingCard({
+    super.key,
+    required this.rating,
+    this.onEdit,
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +75,33 @@ class RatingCard extends StatelessWidget {
           if (rating.comment != null && rating.comment!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(rating.comment!, style: const TextStyle(fontSize: 14)),
+          ],
+          if (onEdit != null || onDelete != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (onEdit != null)
+                  TextButton.icon(
+                    onPressed: onEdit,
+                    icon: const Icon(Icons.edit, size: 18),
+                    label: const Text('Editar'),
+                  ),
+                if (onDelete != null)
+                  TextButton.icon(
+                    onPressed: onDelete,
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: Colors.red,
+                    ),
+                    label: const Text(
+                      'Excluir',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+              ],
+            ),
           ],
         ],
       ),
