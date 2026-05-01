@@ -4,7 +4,6 @@ import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/search_meal/search_meal_service.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
-// import removed: restaurant_card not used in this screen
 import 'package:meal4you_app/widgets/search/meal_card.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_card.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_editor.dart';
@@ -55,7 +54,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
   Future<void> _loadRatings() async {
     setState(() => _loadingRatings = true);
     try {
-      // Primeiro tenta obter avaliações públicas do restaurante (se existir endpoint).
       try {
         final public = await RatingService.listarAvaliacoesPorRestaurante(
           widget.restaurant.idRestaurante,
@@ -66,7 +64,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
         });
         return;
       } catch (e) {
-        // Se endpoint não existir ou falhar, volta ao fallback: carregar apenas as avaliações do usuário
       }
 
       final all = await RatingService.verMinhasAvaliacoes();
@@ -82,11 +79,11 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
   }
 
   Future<void> _openEditor({UserRatingResponseDTO? existing}) async {
-    await showModalBottomSheet(
+    await showDialog(
       context: context,
-      isScrollControlled: true,
       builder: (_) => RatingEditor(
         restaurantId: widget.restaurant.idRestaurante,
+        restaurantName: widget.restaurant.nome,
         existing: existing,
         onSaved: (saved) => _loadRatings(),
       ),

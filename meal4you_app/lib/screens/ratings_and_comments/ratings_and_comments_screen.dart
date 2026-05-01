@@ -124,11 +124,12 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                       existing = null;
                     }
 
-                    await showModalBottomSheet(
+                    await showDialog(
                       context: context,
-                      isScrollControlled: true,
                       builder: (_) => RatingEditor(
                         restaurantId: widget.restaurantId!,
+                        restaurantName:
+                            existing?.restaurantName ?? 'Restaurante',
                         existing: existing, // may be null
                         onSaved: (saved) => _loadRatings(),
                       ),
@@ -194,11 +195,12 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                     return RatingCard(
                       rating: rating,
                       onEdit: () async {
-                        await showModalBottomSheet(
+                        await showDialog(
                           context: context,
-                          isScrollControlled: true,
                           builder: (_) => RatingEditor(
                             restaurantId: rating.restaurantId ?? 0,
+                            restaurantName:
+                                rating.restaurantName ?? 'Restaurante',
                             existing: rating,
                             onSaved: (saved) => _loadRatings(),
                           ),

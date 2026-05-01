@@ -1,6 +1,7 @@
 class UserRatingResponseDTO {
   final int ratingId;
   final int? restaurantId;
+  final String? restaurantName;
   final String userName;
   final double rating;
   final String? comment;
@@ -9,6 +10,7 @@ class UserRatingResponseDTO {
   UserRatingResponseDTO({
     required this.ratingId,
     this.restaurantId,
+    this.restaurantName,
     required this.userName,
     required this.rating,
     this.comment,
@@ -42,6 +44,7 @@ class UserRatingResponseDTO {
     return UserRatingResponseDTO(
       ratingId: json['idAvaliacao'] ?? 0,
       restaurantId: json['idRestaurante'] ?? json['id_restaurante'],
+      restaurantName: json['nomeRestaurante'] ?? json['restaurantName'],
       userName: json['nomeUsuario'] ?? '',
       rating: (json['nota'] ?? 0).toDouble(),
       comment: json['comentario'],
