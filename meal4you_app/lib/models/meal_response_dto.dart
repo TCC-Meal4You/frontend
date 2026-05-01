@@ -1,5 +1,6 @@
 class MealResponseDTO {
   final int idRefeicao;
+  final int? idRestaurante;
   final String nome;
   final double preco;
   final String tipo;
@@ -11,6 +12,7 @@ class MealResponseDTO {
 
   MealResponseDTO({
     required this.idRefeicao,
+    this.idRestaurante,
     required this.nome,
     required this.preco,
     required this.tipo,
@@ -23,6 +25,7 @@ class MealResponseDTO {
 
   MealResponseDTO copyWith({
     int? idRefeicao,
+    int? idRestaurante,
     String? nome,
     double? preco,
     String? tipo,
@@ -34,6 +37,7 @@ class MealResponseDTO {
   }) {
     return MealResponseDTO(
       idRefeicao: idRefeicao ?? this.idRefeicao,
+      idRestaurante: idRestaurante ?? this.idRestaurante,
       nome: nome ?? this.nome,
       preco: preco ?? this.preco,
       tipo: tipo ?? this.tipo,
@@ -69,6 +73,7 @@ class MealResponseDTO {
 
     return MealResponseDTO(
       idRefeicao: json['idRefeicao'] ?? json['id_refeicao'] ?? json['id'] ?? 0,
+      idRestaurante: json['idRestaurante'] ?? json['id_restaurante'],
       nome: json['nome'] ?? '',
       preco: (json['preco'] ?? 0).toDouble(),
       tipo: json['tipo'] ?? '',
