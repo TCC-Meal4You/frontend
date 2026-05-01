@@ -42,51 +42,72 @@ class SearchMealService {
       throw Exception('Token de autenticação não encontrado');
     }
 
+    // Primeiro, faz uma requisição para saber o total de páginas
+    const String uriPrimeiraRequisicao = '$baseUrl/listar-todas?pagina=1';
+    final responsePrimeira = await http.get(
+      Uri.parse(uriPrimeiraRequisicao),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (responsePrimeira.statusCode != 200) {
+      throw Exception(
+        'Erro ao listar refeições (${responsePrimeira.statusCode})',
+      );
+    }
+
+    final dataPrimeira = jsonDecode(responsePrimeira.body);
+    final paginacaoPrimeira = PaginacaoRefeicoesResponseDTO.fromJson(
+      dataPrimeira,
+    );
+    final totalPaginas = paginacaoPrimeira.totalPaginas;
+
+    debugPrint('🍽️ [SearchMealService] Total de páginas: $totalPaginas');
+
+    // Limita a 5 páginas para evitar carregamento muito lento
+    final maxPaginas = (totalPaginas > 5) ? 5 : totalPaginas;
+
+    // Faz requisições para as demais páginas em paralelo
+    final futures = <Future<http.Response>>[];
+    for (int i = 2; i <= maxPaginas; i++) {
+      final uri = '$baseUrl/listar-todas?pagina=$i';
+      futures.add(
+        http.get(Uri.parse(uri), headers: {'Authorization': 'Bearer $token'}),
+      );
+    }
+
+    // Aguarda todas as requisições em paralelo
+    final respostasParalelas = await Future.wait(futures);
+
     final List<MealResponseDTO> todasRefeicoesDoRestaurante = [];
-    int paginaAtual = 1;
-    int totalPaginas = 1;
 
-    // Itera por todas as páginas até encontrar refeições do restaurante
-    while (paginaAtual <= totalPaginas) {
-      final uri = '$baseUrl/listar-todas?pagina=$paginaAtual';
+    // Processa a primeira página
+    final refeicoesPage1 = paginacaoPrimeira.refeicoes
+        .where((refeicao) => refeicao.idRestaurante == idRestaurante)
+        .toList();
+    todasRefeicoesDoRestaurante.addAll(refeicoesPage1);
 
-      final response = await http.get(
-        Uri.parse(uri),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+    debugPrint(
+      '🍽️ [SearchMealService] Página 1: ${refeicoesPage1.length} refeições encontradas',
+    );
 
-      debugPrint(
-        '🍽️ [SearchMealService] GET $uri -> ${response.statusCode}',
-      );
+    // Processa as demais páginas
+    for (int i = 0; i < respostasParalelas.length; i++) {
+      final response = respostasParalelas[i];
+      final pageNumber = i + 2;
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final paginacao = PaginacaoRefeicoesResponseDTO.fromJson(data);
 
-        totalPaginas = paginacao.totalPaginas;
-
-        debugPrint(
-          '🍽️ [SearchMealService] Página $paginaAtual/$totalPaginas: ${paginacao.refeicoes.length} refeições',
-        );
-
-        // Filtra apenas refeições do restaurante solicitado
         final refeicoesDoRestaurante = paginacao.refeicoes
             .where((refeicao) => refeicao.idRestaurante == idRestaurante)
             .toList();
 
         todasRefeicoesDoRestaurante.addAll(refeicoesDoRestaurante);
 
-        if (refeicoesDoRestaurante.isNotEmpty) {
-          debugPrint(
-            '🍽️ [SearchMealService] Encontradas ${refeicoesDoRestaurante.length} refeições do restaurante $idRestaurante',
-          );
-        }
-
-        paginaAtual++;
-      } else if (response.statusCode == 401) {
-        throw Exception('Usuário não autenticado');
-      } else {
-        throw Exception('Erro ao listar refeições (${response.statusCode})');
+        debugPrint(
+          '🍽️ [SearchMealService] Página $pageNumber: ${refeicoesDoRestaurante.length} refeições encontradas',
+        );
       }
     }
 
