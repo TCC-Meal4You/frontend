@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_card.dart';
+import 'package:meal4you_app/widgets/ratings_and_comments/rating_editor.dart';
 
 class RatingsAndCommentsScreen extends StatefulWidget {
-  const RatingsAndCommentsScreen({super.key});
+  final int? restaurantId;
+
+  const RatingsAndCommentsScreen({super.key, this.restaurantId});
 
   @override
   State<RatingsAndCommentsScreen> createState() =>
@@ -29,7 +32,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
     });
 
     try {
-      final ratings = await RatingService.getMyRestaurantRatings();
+      final ratings = await RatingService.verMinhasAvaliacoes();
       setState(() {
         _ratings = ratings;
         _isLoading = false;
@@ -40,6 +43,27 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<bool> _confirmDeleteRating() async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Excluir avaliação'),
+        content: const Text('Tem certeza que deseja excluir esta avaliação?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    return shouldDelete ?? false;
   }
 
   @override
@@ -77,6 +101,44 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
             ],
           ),
           backgroundColor: Colors.yellow,
+          actions: [
+            if (widget.restaurantId != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFF0FE687),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () async {
+                    UserRatingResponseDTO? existing;
+                    try {
+                      existing = _ratings.firstWhere(
+                        (r) => r.restaurantId == widget.restaurantId,
+                      );
+                    } catch (e) {
+                      existing = null;
+                    }
+
+                    await showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) => RatingEditor(
+                        restaurantId: widget.restaurantId!,
+                        existing: existing, // may be null
+                        onSaved: (saved) => _loadRatings(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Escrever Avaliação'),
+                ),
+              ),
+          ],
         ),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -129,7 +191,44 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                   itemCount: _ratings.length,
                   itemBuilder: (context, index) {
                     final rating = _ratings[index];
-                    return RatingCard(rating: rating);
+                    return RatingCard(
+                      rating: rating,
+                      onEdit: () async {
+                        await showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => RatingEditor(
+                            restaurantId: rating.restaurantId ?? 0,
+                            existing: rating,
+                            onSaved: (saved) => _loadRatings(),
+                          ),
+                        );
+                      },
+                      onDelete: () async {
+                        if (rating.restaurantId == null) return;
+                        final confirmed = await _confirmDeleteRating();
+                        if (!confirmed) return;
+                        try {
+                          await RatingService.excluirAvaliacao(
+                            rating.restaurantId!,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Avaliação excluída com sucesso'),
+                            ),
+                          );
+                          _loadRatings();
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                e.toString().replaceAll('Exception: ', ''),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    );
                   },
                 ),
               ),
