@@ -63,8 +63,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
           _loadingRatings = false;
         });
         return;
-      } catch (e) {
-      }
+      } catch (e) {}
 
       final all = await RatingService.verMinhasAvaliacoes();
       setState(() {
