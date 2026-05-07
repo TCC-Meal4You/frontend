@@ -32,7 +32,8 @@ String formatExactDateTime(DateTime date) {
 
 String formatExactDateOrDateOnly(DateTime date, {bool? hasTime}) {
   final localDate = date.toLocal();
-  final datePart = '${localDate.day.toString().padLeft(2, '0')}/${localDate.month.toString().padLeft(2, '0')}/${localDate.year}';
+  final datePart =
+      '${localDate.day.toString().padLeft(2, '0')}/${localDate.month.toString().padLeft(2, '0')}/${localDate.year}';
   final showTime = hasTime ?? true;
   if (!showTime) return datePart;
   return '$datePart ${localDate.hour.toString().padLeft(2, '0')}:${localDate.minute.toString().padLeft(2, '0')}';
