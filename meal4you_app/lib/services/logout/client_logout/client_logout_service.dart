@@ -14,14 +14,37 @@ class ClientLogoutService {
     final header = await UserTokenSaving.getAuthorizationHeader();
     if (header == null) return;
 
-    final uri = Uri.parse('$_baseUrl/logout');
+    final candidates = [
+      Uri.parse('$_baseUrl/logout'),
+      Uri.parse('https://backend-production-b24f.up.railway.app/logout'),
+    ];
+    List<String> errors = [];
 
-    final response = await client.post(uri, headers: {'Authorization': header});
-
-    if (response.statusCode == 200 || response.statusCode == 204) {
-      await UserTokenSaving.clearAll();
-    } else {
-      throw HttpException("Erro ao deslogar: ${response.statusCode}");
+    for (final uri in candidates) {
+      try {
+        final request = http.Request('POST', uri);
+        request.headers['Authorization'] = header;
+        final streamedResponse = await client.send(request);
+        final response = await http.Response.fromStream(streamedResponse);
+        
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          await UserTokenSaving.clearAll();
+          return;
+        }
+        
+        errors.add('${uri.toString()} => ${response.statusCode}');
+        
+        if (response.statusCode == 301 || response.statusCode == 302 || 
+            response.statusCode == 307 || response.statusCode == 308) {
+          continue;
+        }
+      } catch (e) {
+        errors.add('${uri.toString()} => Exception: $e');
+        continue;
+      }
     }
+
+    await UserTokenSaving.clearAll();
+    throw HttpException("Erro ao deslogar (todos os candidates falharam): ${errors.join(' | ')}");
   }
 }

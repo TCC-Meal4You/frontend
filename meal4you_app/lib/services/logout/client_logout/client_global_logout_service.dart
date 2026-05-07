@@ -14,18 +14,38 @@ class ClientGlobalLogoutService {
   Future<void> logoutGlobal() async {
     final header = await UserTokenSaving.getAuthorizationHeader();
 
-    final response = await client.post(
+    final candidates = [
       Uri.parse('$_baseUrl/logout-global'),
-      headers: {
-        'Content-Type': 'application/json',
-        if (header != null) 'Authorization': header,
-      },
-    );
+      Uri.parse('https://backend-production-b24f.up.railway.app/logout-global'),
+    ];
+    List<String> errors = [];
 
-    if (response.statusCode == 200 || response.statusCode == 204) {
-      await UserTokenSaving.clearAll();
-    } else {
-      throw HttpException("Erro no logout global: ${response.statusCode}");
+    for (final uri in candidates) {
+      try {
+        final request = http.Request('POST', uri);
+        request.headers['Content-Type'] = 'application/json';
+        if (header != null) request.headers['Authorization'] = header;
+        final streamedResponse = await client.send(request);
+        final response = await http.Response.fromStream(streamedResponse);
+        
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          await UserTokenSaving.clearAll();
+          return;
+        }
+        
+        errors.add('${uri.toString()} => ${response.statusCode}');
+        
+        if (response.statusCode == 301 || response.statusCode == 302 || 
+            response.statusCode == 307 || response.statusCode == 308) {
+          continue;
+        }
+      } catch (e) {
+        errors.add('${uri.toString()} => Exception: $e');
+        continue;
+      }
     }
+    
+    await UserTokenSaving.clearAll();
+    throw HttpException("Erro no logout global (todos os candidates falharam): ${errors.join(' | ')}");
   }
 }
