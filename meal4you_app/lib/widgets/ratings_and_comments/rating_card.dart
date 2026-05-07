@@ -3,7 +3,6 @@ import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/stars_rating.dart';
 import 'package:meal4you_app/utils/formatter/date_formatter.dart';
 
-
 String _avatarLabel(
   UserRatingResponseDTO rating, {
   String? currentUserName,
@@ -17,15 +16,17 @@ String _avatarLabel(
   if (currentUserEmail != null &&
       email.isNotEmpty &&
       email == currentUserEmail) {
-    if (currentUserName != null && currentUserName.trim().isNotEmpty)
+    if (currentUserName != null && currentUserName.trim().isNotEmpty) {
       return currentUserName;
+    }
   }
 
   if (currentUserId != null &&
       rating.userId != null &&
       rating.userId == currentUserId) {
-    if (currentUserName != null && currentUserName.trim().isNotEmpty)
+    if (currentUserName != null && currentUserName.trim().isNotEmpty) {
       return currentUserName;
+    }
   }
 
   if (email.isNotEmpty) return email;
@@ -33,8 +34,9 @@ String _avatarLabel(
   final userId = rating.userId;
   if (userId != null && userId > 0) return 'Usuário #$userId';
 
-  if (currentUserName != null && currentUserName.trim().isNotEmpty)
+  if (currentUserName != null && currentUserName.trim().isNotEmpty) {
     return currentUserName;
+  }
 
   return 'Usuário';
 }
@@ -99,9 +101,6 @@ class RatingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-      '🔍 RatingCard debug - userName="${rating.userName}", userEmail="${rating.userEmail}", userId=${rating.userId}, currentUserName=$currentUserName, currentUserEmail=$currentUserEmail, currentUserId=$currentUserId',
-    );
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
