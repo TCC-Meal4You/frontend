@@ -127,6 +127,11 @@ class Meal4You extends StatelessWidget {
               builder: (_) => const RatingsAndCommentsScreen(),
             );
 
+          case '/clientRatings':
+            return MaterialPageRoute(
+              builder: (_) => const RatingsAndCommentsScreen(),
+            );
+
           case '/sendPasswordCode':
             final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
