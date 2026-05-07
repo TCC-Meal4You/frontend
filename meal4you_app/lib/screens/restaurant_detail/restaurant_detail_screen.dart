@@ -3,6 +3,7 @@ import 'package:meal4you_app/models/restaurante_response_dto.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/search_meal/search_meal_service.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/widgets/search/meal_card.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_card.dart';
@@ -24,26 +25,75 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
   List<UserRatingResponseDTO> _ratings = [];
   bool _loadingMeals = false;
   bool _loadingRatings = false;
+  String? _currentUserName;
+  String? _currentUserEmail;
+  int? _currentUserId;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _loadMeals();
+    _loadUserName();
     _loadRatings();
   }
 
+  Future<void> _loadUserName() async {
+    try {
+      final userData = await UserTokenSaving.getUserData();
+      final email = await UserTokenSaving.getUserEmail();
+      String? extracted;
+      int? extractedId;
+      if (userData != null) {
+        extracted =
+            userData['nome'] ??
+            userData['name'] ??
+            userData['fullName'] ??
+            userData['userName'];
+        if (extracted == null && userData['user'] is Map) {
+          final u = userData['user'];
+          extracted = u['nome'] ?? u['name'] ?? u['fullName'];
+        }
+        // try to extract id from common fields
+        final rawId =
+            userData['id'] ??
+            userData['idUsuario'] ??
+            userData['userId'] ??
+            (userData['user'] is Map ? userData['user']['id'] : null);
+        if (rawId != null) {
+          extractedId = int.tryParse(rawId.toString());
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        _currentUserName = extracted;
+        _currentUserEmail = email;
+        _currentUserId = extractedId;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _currentUserName = null;
+        _currentUserEmail = null;
+        _currentUserId = null;
+      });
+    }
+  }
+
   Future<void> _loadMeals() async {
+    if (!mounted) return;
     setState(() => _loadingMeals = true);
     try {
       final response = await SearchMealService.listarRefeicoesPorRestaurante(
         widget.restaurant.idRestaurante,
       );
+      if (!mounted) return;
       setState(() {
         _meals = response.refeicoes;
         _loadingMeals = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loadingMeals = false);
       ScaffoldMessenger.of(
         context,
@@ -52,12 +102,14 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
   }
 
   Future<void> _loadRatings() async {
+    if (!mounted) return;
     setState(() => _loadingRatings = true);
     try {
       try {
         final public = await RatingService.listarAvaliacoesPorRestaurante(
           widget.restaurant.idRestaurante,
         );
+        if (!mounted) return;
         setState(() {
           _ratings = public;
           _loadingRatings = false;
@@ -66,6 +118,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
       } catch (e) {}
 
       final all = await RatingService.verMinhasAvaliacoes();
+      if (!mounted) return;
       setState(() {
         _ratings = all
             .where((r) => r.restaurantId == widget.restaurant.idRestaurante)
@@ -73,6 +126,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
         _loadingRatings = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loadingRatings = false);
     }
   }
@@ -158,8 +212,9 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
 
   Widget _buildMenuTab() {
     if (_loadingMeals) return const Center(child: CircularProgressIndicator());
-    if (_meals.isEmpty)
+    if (_meals.isEmpty) {
       return const Center(child: Text('Nenhum prato disponível'));
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -172,10 +227,12 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
   }
 
   Widget _buildRatingsTab() {
-    if (_loadingRatings)
+    if (_loadingRatings) {
       return const Center(child: CircularProgressIndicator());
-    if (_ratings.isEmpty)
+    }
+    if (_ratings.isEmpty) {
       return const Center(child: Text('Nenhuma avaliação ainda'));
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -184,13 +241,19 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
         final r = _ratings[i];
         return RatingCard(
           rating: r,
+          currentUserName: _currentUserName,
+          currentUserEmail: _currentUserEmail,
+          currentUserId: _currentUserId,
           onEdit: () => _openEditor(existing: r),
           onDelete: () async {
             if (r.restaurantId == null) return;
             final confirmed = await _confirmDeleteRating();
             if (!confirmed) return;
             try {
-              await RatingService.excluirAvaliacao(r.restaurantId!);
+              await RatingService.excluirAvaliacao(
+                idAvaliacao: r.ratingId,
+                idRestaurante: r.restaurantId,
+              );
               await _loadRatings();
             } catch (e) {
               ScaffoldMessenger.of(context).showSnackBar(

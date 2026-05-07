@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_card.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_editor.dart';
 
@@ -18,11 +19,68 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
   List<UserRatingResponseDTO> _ratings = [];
   bool _isLoading = true;
   String? _errorMessage;
+  bool _isAdmUser = false;
+  bool _loadingUserRole = true;
+  String? _currentUserName;
+  String? _currentUserEmail;
+  int? _currentUserId;
 
   @override
   void initState() {
     super.initState();
+    _loadUserRole();
     _loadRatings();
+  }
+
+  Future<void> _loadUserRole() async {
+    try {
+      final userData = await UserTokenSaving.getUserData();
+      final email = await UserTokenSaving.getUserEmail();
+      final isAdm =
+          userData?['userType'] == 'adm' || userData?['isAdm'] == true;
+      // try to extract current user's saved name for fallback display
+      String? extractedName;
+      int? extractedId;
+      if (userData != null) {
+        extractedName =
+            userData['nome'] ??
+            userData['name'] ??
+            userData['fullName'] ??
+            userData['userName'];
+        if (extractedName == null && userData['user'] is Map) {
+          final u = userData['user'];
+          extractedName = u['nome'] ?? u['name'] ?? u['fullName'];
+        }
+        final rawId =
+            userData['id'] ?? userData['idUsuario'] ?? userData['userId'];
+        if (rawId != null) {
+          extractedId = int.tryParse(rawId.toString());
+        } else if (userData['user'] is Map) {
+          final u = userData['user'];
+          final nestedId = u['id'];
+          if (nestedId != null) {
+            extractedId = int.tryParse(nestedId.toString());
+          }
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        _isAdmUser = isAdm;
+        _loadingUserRole = false;
+        _currentUserName = extractedName;
+        _currentUserEmail = email;
+        _currentUserId = extractedId;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isAdmUser = false;
+        _loadingUserRole = false;
+        _currentUserName = null;
+        _currentUserEmail = null;
+        _currentUserId = null;
+      });
+    }
   }
 
   Future<void> _loadRatings() async {
@@ -194,42 +252,56 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                     final rating = _ratings[index];
                     return RatingCard(
                       rating: rating,
-                      onEdit: () async {
-                        await showDialog(
-                          context: context,
-                          builder: (_) => RatingEditor(
-                            restaurantId: rating.restaurantId ?? 0,
-                            restaurantName:
-                                rating.restaurantName ?? 'Restaurante',
-                            existing: rating,
-                            onSaved: (saved) => _loadRatings(),
-                          ),
-                        );
-                      },
-                      onDelete: () async {
-                        if (rating.restaurantId == null) return;
-                        final confirmed = await _confirmDeleteRating();
-                        if (!confirmed) return;
-                        try {
-                          await RatingService.excluirAvaliacao(
-                            rating.restaurantId!,
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Avaliação excluída com sucesso'),
-                            ),
-                          );
-                          _loadRatings();
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                e.toString().replaceAll('Exception: ', ''),
-                              ),
-                            ),
-                          );
-                        }
-                      },
+                      showActions: !_loadingUserRole && !_isAdmUser,
+                      currentUserName: _currentUserName,
+                      currentUserEmail: _currentUserEmail,
+                      currentUserId: _currentUserId,
+                      onEdit: _loadingUserRole || _isAdmUser
+                          ? null
+                          : () async {
+                              await showDialog(
+                                context: context,
+                                builder: (_) => RatingEditor(
+                                  restaurantId: rating.restaurantId ?? 0,
+                                  restaurantName:
+                                      rating.restaurantName ?? 'Restaurante',
+                                  existing: rating,
+                                  onSaved: (saved) => _loadRatings(),
+                                ),
+                              );
+                            },
+                      onDelete: _loadingUserRole || _isAdmUser
+                          ? null
+                          : () async {
+                              if (rating.restaurantId == null) return;
+                              final confirmed = await _confirmDeleteRating();
+                              if (!confirmed) return;
+                              try {
+                                await RatingService.excluirAvaliacao(
+                                  idAvaliacao: rating.ratingId,
+                                  idRestaurante: rating.restaurantId,
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Avaliação excluída com sucesso',
+                                    ),
+                                  ),
+                                );
+                                _loadRatings();
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString().replaceAll(
+                                        'Exception: ',
+                                        '',
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
                     );
                   },
                 ),
