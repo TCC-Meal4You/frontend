@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:meal4you_app/models/user_rating_request_dto.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
@@ -53,25 +52,18 @@ class _RatingEditorState extends State<RatingEditor> {
             : _commentController.text.trim(),
       );
 
-      debugPrint(
-        '📝 [RatingEditor] DTO construído: restaurantId=${dto.idRestaurante}, nota=${dto.nota}, comentario=${dto.comentario}',
-      );
 
       UserRatingResponseDTO response;
       if (widget.existing == null) {
-        debugPrint('📝 [RatingEditor] Criando nova avaliação...');
         response = await RatingService.avaliarRestaurante(dto);
       } else {
-        debugPrint('📝 [RatingEditor] Atualizando avaliação existente...');
         response = await RatingService.atualizarAvaliacao(dto);
       }
 
-      debugPrint('✅ [RatingEditor] Resposta recebida: $response');
 
       if (widget.onSaved != null) widget.onSaved!(response);
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
-      debugPrint('❌ [RatingEditor] Erro ao salvar: $e');
       if (!mounted) return;
       final msg = e.toString().replaceAll('Exception: ', '');
       String userMessage = msg;
