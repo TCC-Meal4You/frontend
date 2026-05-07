@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
 import 'package:meal4you_app/services/delete_account/delete_client_account_service.dart';
+import 'package:meal4you_app/services/rating/rating_service.dart';
 import 'package:meal4you_app/services/search_profile/search_client_profile_service.dart';
 import 'package:meal4you_app/services/update_email/request_client_email_change_service.dart';
 import 'package:meal4you_app/services/update_profile/update_client_profile_service.dart';
@@ -472,6 +473,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
         Navigator.pop(context);
 
         await UserTokenSaving.clearAll();
+        RatingService.clearCachedData();
 
         if (!mounted) return;
 
