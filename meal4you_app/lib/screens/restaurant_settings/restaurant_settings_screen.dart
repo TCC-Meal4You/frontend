@@ -19,7 +19,6 @@ String formatCep(String cep) {
 
 class RestaurantSettingsScreen extends StatefulWidget {
   const RestaurantSettingsScreen({super.key});
-
   @override
   State<RestaurantSettingsScreen> createState() =>
       _RestaurantSettingsScreenState();
@@ -36,10 +35,8 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
   final TextEditingController bairroController = TextEditingController();
   final TextEditingController cidadeController = TextEditingController();
   final TextEditingController ufController = TextEditingController();
-
   bool _isLoadingCep = false;
   bool _cepFetchSuccess = false;
-
   @override
   void initState() {
     super.initState();
@@ -51,14 +48,11 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
   Future<void> _loadInitialData() async {
     if (!mounted) return;
     final provider = Provider.of<RestaurantProvider>(context, listen: false);
-
     final restaurantData =
         await UserTokenSaving.getRestaurantDataForCurrentUser();
-
     if (restaurantData != null) {
       final id = restaurantData['idRestaurante'] ?? restaurantData['id'] ?? 0;
       final endereco = restaurantData['endereco'] as Map<String, dynamic>?;
-
       provider.updateRestaurant(
         id: id,
         name: restaurantData['nome'] ?? '',
@@ -90,7 +84,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
             (endereco?['cidade'] ?? restaurantData['cidade'])?.toString() ?? '',
         uf: (endereco?['uf'] ?? restaurantData['uf'])?.toString() ?? '',
       );
-
       nameController.text = provider.name;
       descriptionController.text = provider.description;
       cepController.text = formatCep(provider.cep);
@@ -100,19 +93,13 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
       bairroController.text = provider.bairro;
       cidadeController.text = provider.cidade;
       ufController.text = provider.uf;
-    } else {
-      print(
-        "⚠️ [SettingsScreen] Nenhum dado de restaurante encontrado no storage.",
-      );
-    }
+    } else {}
   }
 
   Future<void> _updateBasicInfo() async {
     final provider = Provider.of<RestaurantProvider>(context, listen: false);
-
     try {
       await UpdateRestaurantService.updateRestaurant(provider: provider);
-
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -131,10 +118,8 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
   Future<void> _updateActiveStatus(bool newValue) async {
     final provider = Provider.of<RestaurantProvider>(context, listen: false);
     provider.updateIsActive(newValue);
-
     try {
       await UpdateRestaurantService.updateRestaurant(provider: provider);
-
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -167,34 +152,27 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
       builder: (context) =>
           FoodTypeSelectorScreen(restaurantId: provider.id ?? 0),
     );
-
     setState(() {});
   }
 
   Future<void> _buscarCep() async {
     final provider = Provider.of<RestaurantProvider>(context, listen: false);
     final cep = cepController.text.replaceAll('-', '').trim();
-
     if (cep.length != 8) {
       return;
     }
-
     setState(() {
       _isLoadingCep = true;
       _cepFetchSuccess = false;
     });
-
     try {
       final endereco = await ViaCepService.consultarCep(cep);
-
       if (!mounted) return;
-
       if (endereco != null) {
         final logradouro = endereco['logradouro'] ?? '';
         final bairro = endereco['bairro'] ?? '';
         final cidade = endereco['localidade'] ?? endereco['cidade'] ?? '';
         final uf = endereco['uf'] ?? '';
-
         setState(() {
           logradouroController.text = logradouro;
           bairroController.text = bairro;
@@ -202,12 +180,10 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
           ufController.text = uf;
           _cepFetchSuccess = true;
         });
-
         provider.updateLogradouro(logradouro);
         provider.updateBairro(bairro);
         provider.updateCidade(cidade);
         provider.updateEstado(uf);
-
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -219,19 +195,16 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-
       setState(() {
         logradouroController.clear();
         bairroController.clear();
         cidadeController.clear();
         ufController.clear();
       });
-
       provider.updateLogradouro('');
       provider.updateBairro('');
       provider.updateCidade('');
       provider.updateEstado('');
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro ao buscar CEP: $e'),
@@ -250,7 +223,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<RestaurantProvider>(context);
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xFFF9F9FB),
@@ -310,7 +282,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                       const SizedBox(height: 12),
                       Divider(color: Colors.black),
                       const SizedBox(height: 12),
-
                       const Row(
                         children: [
                           Icon(
@@ -328,7 +299,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-
                       TextField(
                         controller: cepController,
                         keyboardType: TextInputType.number,
@@ -340,7 +310,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                           setState(() {
                             _cepFetchSuccess = false;
                           });
-
                           if (cepLimpo.length == 8) {
                             _buscarCep();
                           } else if (cepLimpo.length < 8) {
@@ -380,7 +349,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         inputFormatters: [CepInputFormatter()],
                       ),
                       const SizedBox(height: 12),
-
                       TextField(
                         controller: logradouroController,
                         enabled: false,
@@ -393,7 +361,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
                       Row(
                         children: [
                           Expanded(
@@ -427,7 +394,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
-
                       TextField(
                         controller: bairroController,
                         enabled: false,
@@ -440,7 +406,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
                       Row(
                         children: [
                           Expanded(
@@ -503,8 +468,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                   ),
                 ),
               ),
-
-              // Card de status
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -683,10 +646,8 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                             context,
                             listen: false,
                           );
-
                           final TextEditingController confirmationController =
                               TextEditingController();
-
                           final result = await showDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -720,7 +681,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                               ],
                             ),
                           );
-
                           if (result == true) {
                             try {
                               await RestaurantDeleteService.deleteRestaurant(
@@ -728,16 +688,12 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                                 nomeConfirmacao: confirmationController.text
                                     .trim(),
                               );
-
                               await UserTokenSaving.clearRestaurantDataForCurrentUser();
                               await UserTokenSaving.clearRestaurantId();
-
                               provider.resetRestaurant();
-
                               nameController.clear();
                               descriptionController.clear();
                               locationController.clear();
-
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -746,7 +702,6 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                                   backgroundColor: Colors.green,
                                 ),
                               );
-
                               Navigator.pushNamedAndRemoveUntil(
                                 context,
                                 '/createAdmRestaurant',

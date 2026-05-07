@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-
 class RestaurantManagementButtons extends StatelessWidget {
   final IconData icon;
   final Color color;
   final Color iconColor;
   final String title;
   final VoidCallback onTap;
-
   const RestaurantManagementButtons({
     super.key,
     required this.icon,
@@ -15,7 +13,6 @@ class RestaurantManagementButtons extends StatelessWidget {
     required this.title,
     required this.onTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -55,4 +52,4 @@ class RestaurantManagementButtons extends StatelessWidget {
       ),
     );
   }
-}
+}

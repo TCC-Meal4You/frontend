@@ -10,20 +10,16 @@ import 'package:meal4you_app/widgets/social_button/social_login_and_register.dar
 import 'package:meal4you_app/widgets/submit_button/submit_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
-
 class AdmRegisterScreen extends StatefulWidget {
   const AdmRegisterScreen({super.key});
-
   @override
   State<AdmRegisterScreen> createState() => _AdmRegisterScreenState();
 }
-
 class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
   bool _isLoading = false;
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
     baseUrl: 'https://backend-production-b24f.up.railway.app',
   );
-
   @override
   void initState() {
     super.initState();
@@ -32,7 +28,6 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
     RegisterControllers.senhaController.clear();
     RegisterControllers.confirmarSenhaController.clear();
   }
-
   Future<void> _sendCode() async {
     if (RegisterControllers.nomeController.text.length < 3) {
       if (!mounted) return;
@@ -43,7 +38,6 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
       );
       return;
     }
-
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(RegisterControllers.emailController.text.trim())) {
       if (!mounted) return;
@@ -52,7 +46,6 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
       );
       return;
     }
-
     if (RegisterControllers.senhaController.text !=
         RegisterControllers.confirmarSenhaController.text) {
       if (!mounted) return;
@@ -61,7 +54,6 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
       ).showSnackBar(const SnackBar(content: Text("As senhas não conferem!")));
       return;
     }
-
     if (RegisterControllers.senhaController.text.trim().length < 6) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -71,25 +63,20 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
       );
       return;
     }
-
     setState(() => _isLoading = true);
-
     final email = RegisterControllers.emailController.text.trim();
     final nome = RegisterControllers.nomeController.text;
     final senha = RegisterControllers.senhaController.text.trim();
-
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('register_email', email);
       await prefs.setString('register_nome', nome);
       await prefs.setString('register_senha', senha);
       await prefs.setBool('register_isAdmin', true);
-
       await _verifyEmailService.sendVerificationCode(
         email: email,
         isAdmin: true,
       );
-
       if (!mounted) return;
       Navigator.pushNamed(context, '/verifyCode');
     } catch (e) {
@@ -101,7 +88,6 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -195,11 +181,9 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 15),
-
                           const SocialLoginAndRegister(isAdmin: true),
                           const SizedBox(height: 10),
                           const OrDivider(),
-
                           const SizedBox(height: 10),
                           CustomTextField(
                             controller: RegisterControllers.nomeController,
@@ -223,18 +207,13 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
                             label: "Confirmar Senha...",
                             obscure: true,
                           ),
-
                           const SizedBox(height: 20),
-
                           SubmitButton(
                             isLoading: _isLoading,
                             onPressed: _sendCode,
                           ),
-
                           const SizedBox(height: 15),
-
                           const LoginRedirectText(userType: UserType.adm),
-
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -249,4 +228,4 @@ class _AdmRegisterScreenState extends State<AdmRegisterScreen> {
       ),
     );
   }
-}
+}

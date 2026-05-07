@@ -2,45 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/restriction/restriction_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
-
 class RestrictionsChoiceScreen extends StatefulWidget {
   const RestrictionsChoiceScreen({super.key});
-
   @override
   State<RestrictionsChoiceScreen> createState() => _ButtonSelectedState();
 }
-
 class ButtonItem {
   final String name;
   final int? id;
-
   ButtonItem(this.name, {this.id});
 }
-
 class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
   List<ButtonItem> selected = [];
   List<ButtonItem> buttons = [];
   bool isLoadingRestrictions = true;
-
   @override
   void initState() {
     super.initState();
     _carregarRestricoes();
   }
-
   Future<void> _carregarRestricoes() async {
     setState(() => isLoadingRestrictions = true);
     try {
       final restricoes = await RestrictionService.listarRestricoes();
-
       if (mounted) {
         setState(() {
           buttons = restricoes.map((restricao) {
             return ButtonItem(restricao.nome, id: restricao.idRestricao);
           }).toList();
-
           buttons.insert(0, ButtonItem('Nenhuma Restrição'));
-
           isLoadingRestrictions = false;
         });
       }
@@ -50,7 +40,6 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
           buttons = [ButtonItem('Nenhuma Restrição')];
           isLoadingRestrictions = false;
         });
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao carregar restrições: $e'),
@@ -60,15 +49,12 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
       }
     }
   }
-
   bool _isNoneSelected() {
     return selected.any((item) => item.name == 'Nenhuma Restrição');
   }
-
   bool _haveOthersSelected() {
     return selected.any((item) => item.name != 'Nenhuma Restrição');
   }
-
   void _add(ButtonItem button) {
     setState(() {
       if (button.name == 'Nenhuma Restrição') {
@@ -83,13 +69,11 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
       }
     });
   }
-
   void _remove(ButtonItem button) {
     setState(() {
       selected.remove(button);
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -109,7 +93,6 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      // ignore: deprecated_member_use
                       color: Colors.black.withOpacity(0.05),
                       blurRadius: 10,
                       offset: Offset(0, 2),
@@ -152,11 +135,9 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                           final noneActivated = _isNoneSelected();
                           final othersActivated = _haveOthersSelected();
                           final isSelected = selected.contains(button);
-
                           final disabled =
                               (noneActivated && !isNone) ||
                               (othersActivated && isNone);
-
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             decoration: BoxDecoration(
@@ -172,7 +153,6 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  // ignore: deprecated_member_use
                                   color: Colors.black.withOpacity(0.05),
                                   blurRadius: 4,
                                   offset: Offset(0, 2),
@@ -264,7 +244,6 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      // ignore: deprecated_member_use
                       color: Colors.black.withOpacity(0.05),
                       blurRadius: 10,
                       offset: Offset(0, -4),
@@ -284,17 +263,14 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
                                       .where((item) => item.id != null)
                                       .map((item) => item.id!)
                                       .toList();
-
                                   if (idsRestricoes.isNotEmpty) {
                                     await UserRestrictionService.atualizarRestricoes(
                                       idsRestricoes,
                                     );
                                   }
-
                                   await UserTokenSaving.setRestrictionsCompleted(
                                     true,
                                   );
-
                                   if (context.mounted) {
                                     Navigator.pushReplacementNamed(
                                       context,
@@ -383,4 +359,4 @@ class _ButtonSelectedState extends State<RestrictionsChoiceScreen> {
       ),
     );
   }
-}
+}

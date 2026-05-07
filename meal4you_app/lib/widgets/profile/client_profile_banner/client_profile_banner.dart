@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 class ClientProfileBanner extends StatelessWidget {
   final bool isLoading;
   final String initial;
   final String emailText;
   final VoidCallback onLogout;
-
   const ClientProfileBanner({
     super.key,
     required this.isLoading,
@@ -14,7 +12,6 @@ class ClientProfileBanner extends StatelessWidget {
     required this.emailText,
     required this.onLogout,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -121,4 +118,4 @@ class ClientProfileBanner extends StatelessWidget {
       ),
     );
   }
-}
+}

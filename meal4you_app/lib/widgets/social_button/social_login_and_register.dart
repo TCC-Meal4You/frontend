@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/services/google_register_and_login/google_register_and_login_service.dart';
-
 class SocialLoginAndRegister extends StatelessWidget {
   final bool isAdmin;
-
   const SocialLoginAndRegister({
     super.key,
     this.isAdmin = false,
   });
-
   Future<void> _handleGoogleAction(BuildContext context) async {
     final googleRegisterAndLoginService = GoogleRegisterAndLoginService();
-
     try {
       await googleRegisterAndLoginService.signInWithGoogle(
         context: context,
@@ -29,7 +25,6 @@ class SocialLoginAndRegister extends StatelessWidget {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -57,4 +52,4 @@ class SocialLoginAndRegister extends StatelessWidget {
       ),
     );
   }
-}
+}

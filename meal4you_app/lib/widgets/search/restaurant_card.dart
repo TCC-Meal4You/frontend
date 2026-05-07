@@ -2,19 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/restaurante_response_dto.dart';
 import 'package:meal4you_app/widgets/search/restriction_chip.dart';
 import 'package:meal4you_app/screens/restaurant_detail/restaurant_detail_screen.dart';
-
 class RestaurantCard extends StatelessWidget {
   final RestauranteResponseDTO restaurant;
   final VoidCallback? onTap;
   final VoidCallback? onFavorite;
-
   const RestaurantCard({
     super.key,
     required this.restaurant,
     this.onTap,
     this.onFavorite,
   });
-
   @override
   Widget build(BuildContext context) {
     final compatibilidade = _calcularCompatibilidade();
@@ -207,11 +204,9 @@ class RestaurantCard extends StatelessWidget {
       ),
     );
   }
-
   String? _calcularCompatibilidade() {
     return null;
   }
-
   List<Widget> _buildRestrictionChips() {
     final tipos = restaurant.tipoComida
         .split(',')
@@ -219,4 +214,4 @@ class RestaurantCard extends StatelessWidget {
         .toList();
     return tipos.map((tipo) => RestrictionChip(label: tipo)).toList();
   }
-}
+}

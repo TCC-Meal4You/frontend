@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 class RestaurantProvider extends ChangeNotifier {
   int? _id;
   String _name = '';
@@ -13,7 +12,6 @@ class RestaurantProvider extends ChangeNotifier {
   String _bairro = '';
   String _cidade = '';
   String _uf = '';
-
   int? get id => _id;
   String get name => _name;
   String get description => _description;
@@ -26,7 +24,6 @@ class RestaurantProvider extends ChangeNotifier {
   String get bairro => _bairro;
   String get cidade => _cidade;
   String get uf => _uf;
-
   void updateRestaurant({
     required int id,
     required String name,
@@ -55,67 +52,54 @@ class RestaurantProvider extends ChangeNotifier {
     _uf = uf ?? '';
     notifyListeners();
   }
-
   void updateId(int id) {
     _id = id;
     notifyListeners();
   }
-
   void updateName(String name) {
     _name = name;
     notifyListeners();
   }
-
   void updateDescription(String description) {
     _description = description;
     notifyListeners();
   }
-
   void updateIsActive(bool isActive) {
     _isActive = isActive;
     notifyListeners();
   }
-
   void updateFoodTypes(List<String> foodTypes) {
     _foodTypes = foodTypes;
     notifyListeners();
   }
-
   void updateCep(String cep) {
     _cep = cep.replaceAll('-', '').replaceAll(RegExp(r'[^0-9]'), '');
     notifyListeners();
   }
-
   void updateLogradouro(String logradouro) {
     _logradouro = logradouro;
     notifyListeners();
   }
-
   void updateNumero(String numero) {
     _numero = numero;
     notifyListeners();
   }
-
   void updateComplemento(String complemento) {
     _complemento = complemento;
     notifyListeners();
   }
-
   void updateBairro(String bairro) {
     _bairro = bairro;
     notifyListeners();
   }
-
   void updateCidade(String cidade) {
     _cidade = cidade;
     notifyListeners();
   }
-
   void updateEstado(String uf) {
     _uf = uf;
     notifyListeners();
   }
-
   void clearRestaurant() {
     _id = null;
     _name = '';
@@ -131,7 +115,6 @@ class RestaurantProvider extends ChangeNotifier {
     _uf = '';
     notifyListeners();
   }
-
   void resetRestaurant() {
     _id = null;
     _name = '';
@@ -147,4 +130,4 @@ class RestaurantProvider extends ChangeNotifier {
     _uf = '';
     notifyListeners();
   }
-}
+}

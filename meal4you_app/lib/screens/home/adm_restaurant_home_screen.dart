@@ -6,15 +6,12 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/restaurant_management_buttons/restaurant_management_buttons.dart';
 import 'package:provider/provider.dart';
-
 class AdmRestaurantHomeScreen extends StatefulWidget {
   const AdmRestaurantHomeScreen({super.key});
-
   @override
   State<AdmRestaurantHomeScreen> createState() =>
       _AdmRestaurantHomeScreenState();
 }
-
 class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
   @override
   void initState() {
@@ -23,20 +20,15 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
       _loadRestaurantData();
     });
   }
-
   Future<void> _loadRestaurantData() async {
     if (!mounted) return;
-
     final email = await UserTokenSaving.getUserEmail();
     if (email == null || !mounted) return;
-
     final restaurantData = await UserTokenSaving.getRestaurantDataForUser(
       email,
     );
-
     if (restaurantData != null && mounted) {
       final provider = Provider.of<RestaurantProvider>(context, listen: false);
-
       provider.updateRestaurant(
         id: restaurantData['id'] ?? 0,
         name: restaurantData['nome'] ?? '',
@@ -56,12 +48,10 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final admLogoutHandler = AdmLogoutHandler();
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
-
     final String name = restaurantProvider.name.isNotEmpty
         ? restaurantProvider.name
         : 'Sem nome';
@@ -71,10 +61,8 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
     final List<String> foodTypes = restaurantProvider.foodTypes.isNotEmpty
         ? restaurantProvider.foodTypes
         : [];
-
     return PopScope(
       canPop: false,
-      // ignore: deprecated_member_use
       onPopInvoked: (bool didPop) {
         if (didPop) return;
       },
@@ -164,7 +152,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                     ],
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -248,7 +235,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       const SizedBox(height: 12),
                       RestaurantManagementButtons(
                         icon: Icons.restaurant_menu_outlined,
-                        // ignore: deprecated_member_use
                         color: Colors.purpleAccent.withOpacity(0.15),
                         iconColor: Colors.purple,
                         title: 'Gerenciar Cardápio',
@@ -258,7 +244,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       ),
                       RestaurantManagementButtons(
                         icon: Icons.eco_outlined,
-                        // ignore: deprecated_member_use
                         color: Colors.greenAccent.withOpacity(0.15),
                         iconColor: Colors.green,
                         title: 'Gerenciar Ingredientes',
@@ -268,13 +253,11 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       ),
                       RestaurantManagementButtons(
                         icon: Icons.chat_bubble_outline,
-                        // ignore: deprecated_member_use
                         color: Color.fromARGB(
                           255,
                           255,
                           170,
                           0,
-                          // ignore: deprecated_member_use
                         ).withOpacity(0.15),
                         iconColor: const Color.fromARGB(255, 255, 170, 0),
                         title: 'Avaliações e Comentários',
@@ -284,7 +267,6 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                       ),
                       RestaurantManagementButtons(
                         icon: Icons.settings_outlined,
-                        // ignore: deprecated_member_use
                         color: Colors.blueAccent.withOpacity(0.15),
                         iconColor: Colors.blue,
                         title: 'Configurações',
@@ -303,4 +285,4 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
       ),
     );
   }
-}
+}

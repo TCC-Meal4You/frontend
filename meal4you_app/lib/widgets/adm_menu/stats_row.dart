@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/widgets/adm_menu/stat_card.dart';
-
 class StatsRow extends StatelessWidget {
   final int totalRefeicoes;
   final int refeicoesDisponiveis;
   final int refeicoesIndisponiveis;
-
   const StatsRow({
     super.key,
     required this.totalRefeicoes,
     required this.refeicoesDisponiveis,
     required this.refeicoesIndisponiveis,
   });
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -36,4 +33,4 @@ class StatsRow extends StatelessWidget {
       ],
     );
   }
-}
+}

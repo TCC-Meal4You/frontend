@@ -4,18 +4,15 @@ import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_global_logout_service.dart';
 import 'package:meal4you_app/services/logout/adm_logout/adm_logout_service.dart';
 import 'package:provider/provider.dart';
-
 class AdmLogoutHandler {
   final AdmLogoutService _admLogoutService;
   final AdmGlobalLogoutService _admGlobalLogoutService;
-
   AdmLogoutHandler({
     AdmLogoutService? admLogoutService,
     AdmGlobalLogoutService? admGlobalLogoutService,
   }) : _admLogoutService = admLogoutService ?? AdmLogoutService(),
        _admGlobalLogoutService =
            admGlobalLogoutService ?? AdmGlobalLogoutService();
-
   Future<void> showLogoutDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
@@ -51,7 +48,6 @@ class AdmLogoutHandler {
       },
     );
   }
-
   Future<void> _handleLogout(
     BuildContext context, {
     required bool onlyThisDevice,
@@ -61,23 +57,18 @@ class AdmLogoutHandler {
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
-
     try {
       if (onlyThisDevice) {
         await _admLogoutService.logout();
       } else {
         await _admGlobalLogoutService.logoutGlobal();
       }
-
       final provider = Provider.of<RestaurantProvider>(context, listen: false);
       provider.clearRestaurant();
-
       LoginControllers.emailController.clear();
       LoginControllers.senhaController.clear();
-
       if (!context.mounted) return;
       Navigator.of(context).pop();
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -87,7 +78,6 @@ class AdmLogoutHandler {
           ),
         ),
       );
-
       Navigator.of(
         context,
       ).pushNamedAndRemoveUntil('/admLogin', (route) => false);
@@ -99,4 +89,4 @@ class AdmLogoutHandler {
       ).showSnackBar(SnackBar(content: Text('Erro ao deslogar: $e')));
     }
   }
-}
+}

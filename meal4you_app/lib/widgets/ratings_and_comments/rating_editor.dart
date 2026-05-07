@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_rating_request_dto.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
-
 class RatingEditor extends StatefulWidget {
   final int restaurantId;
   final String restaurantName;
   final UserRatingResponseDTO? existing;
   final void Function(UserRatingResponseDTO)? onSaved;
-
   const RatingEditor({
     super.key,
     required this.restaurantId,
@@ -16,16 +14,13 @@ class RatingEditor extends StatefulWidget {
     this.existing,
     this.onSaved,
   });
-
   @override
   State<RatingEditor> createState() => _RatingEditorState();
 }
-
 class _RatingEditorState extends State<RatingEditor> {
   double _rating = 5;
   final TextEditingController _commentController = TextEditingController();
   bool _loading = false;
-
   @override
   void initState() {
     super.initState();
@@ -34,13 +29,11 @@ class _RatingEditorState extends State<RatingEditor> {
       _commentController.text = widget.existing!.comment ?? '';
     }
   }
-
   @override
   void dispose() {
     _commentController.dispose();
     super.dispose();
   }
-
   Future<void> _submit() async {
     setState(() => _loading = true);
     try {
@@ -51,16 +44,12 @@ class _RatingEditorState extends State<RatingEditor> {
             ? null
             : _commentController.text.trim(),
       );
-
-
       UserRatingResponseDTO response;
       if (widget.existing == null) {
         response = await RatingService.avaliarRestaurante(dto);
       } else {
         response = await RatingService.atualizarAvaliacao(dto);
       }
-
-
       if (widget.onSaved != null) widget.onSaved!(response);
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
@@ -79,7 +68,6 @@ class _RatingEditorState extends State<RatingEditor> {
       if (mounted) setState(() => _loading = false);
     }
   }
-
   Widget _buildStar(int index) {
     final selected = index < _rating;
     return GestureDetector(
@@ -91,12 +79,10 @@ class _RatingEditorState extends State<RatingEditor> {
       ),
     );
   }
-
   String _getRatingLabel() {
     final labels = ['Muito ruim', 'Ruim', 'Regular', 'Muito bom', 'Excelente'];
     return labels[_rating.toInt() - 1];
   }
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -112,7 +98,6 @@ class _RatingEditorState extends State<RatingEditor> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header com close button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -135,8 +120,6 @@ class _RatingEditorState extends State<RatingEditor> {
                 ],
               ),
               const SizedBox(height: 12),
-
-              // Subtitle com nome do restaurante
               Text(
                 'Como foi sua experiência no ${widget.restaurantName}?',
                 textAlign: TextAlign.center,
@@ -147,8 +130,6 @@ class _RatingEditorState extends State<RatingEditor> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Seção: Sua Avaliação
               Align(
                 alignment: Alignment.centerLeft,
                 child: const Text(
@@ -161,8 +142,6 @@ class _RatingEditorState extends State<RatingEditor> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // Estrelas
               Column(
                 children: [
                   Row(
@@ -181,8 +160,6 @@ class _RatingEditorState extends State<RatingEditor> {
                 ],
               ),
               const SizedBox(height: 24),
-
-              // Seção: Seu Comentário
               Align(
                 alignment: Alignment.centerLeft,
                 child: const Text(
@@ -195,8 +172,6 @@ class _RatingEditorState extends State<RatingEditor> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // Campo de texto com contador
               TextField(
                 controller: _commentController,
                 maxLines: 4,
@@ -222,8 +197,6 @@ class _RatingEditorState extends State<RatingEditor> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // Botões
               Row(
                 children: [
                   Expanded(
@@ -285,4 +258,4 @@ class _RatingEditorState extends State<RatingEditor> {
       ),
     );
   }
-}
+}

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 class ClientSettingsSocialLoginInfoBox extends StatelessWidget {
   final String message;
-
   const ClientSettingsSocialLoginInfoBox({super.key, required this.message});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,4 +30,4 @@ class ClientSettingsSocialLoginInfoBox extends StatelessWidget {
       ),
     );
   }
-}
+}

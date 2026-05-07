@@ -7,25 +7,20 @@ import 'package:meal4you_app/services/restriction/restriction_service.dart';
 import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/manage_ingredients/ingredient_card.dart';
 import 'package:meal4you_app/widgets/manage_ingredients/ingredient_empty_state.dart';
-
 class ManageIngredientsScreen extends StatefulWidget {
   const ManageIngredientsScreen({super.key});
-
   @override
   State<ManageIngredientsScreen> createState() =>
       _ManageIngredientsScreenState();
 }
-
 class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
   List<IngredientResponseDTO> ingredientes = [];
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
     _carregarIngredientes();
   }
-
   Future<void> _carregarIngredientes() async {
     setState(() => isLoading = true);
     try {
@@ -52,7 +47,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
       }
     }
   }
-
   Future<bool> _confirmarDeletar(
     int id,
     String nome,
@@ -78,7 +72,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
         ],
       ),
     );
-
     if (confirmado == true) {
       onDeleteStart();
       try {
@@ -109,7 +102,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
     }
     return false;
   }
-
   void _mostrarModalAdicionarIngrediente() async {
     final nomeController = TextEditingController();
     List<RestrictionResponseDTO> restricoes = [];
@@ -117,7 +109,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
     bool isLoadingRestricoes = true;
     bool isSaving = false;
     String? mensagemErro;
-
     try {
       restricoes = await RestrictionService.listarRestricoes();
       isLoadingRestricoes = false;
@@ -132,9 +123,7 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
         );
       }
     }
-
     if (!mounted) return;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -189,10 +178,8 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                           padding: const EdgeInsets.all(12),
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            // ignore: deprecated_member_use
                             color: Colors.red.withOpacity(0.1),
                             border: Border.all(
-                              // ignore: deprecated_member_use
                               color: Colors.red.withOpacity(0.3),
                             ),
                             borderRadius: BorderRadius.circular(8),
@@ -327,7 +314,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                         ? null
                         : () async {
                             final navigator = Navigator.of(context);
-
                             if (nomeController.text.isEmpty) {
                               setModalState(() {
                                 mensagemErro =
@@ -335,7 +321,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                               });
                               return;
                             }
-
                             if (nomeController.text.length < 3) {
                               setModalState(() {
                                 mensagemErro =
@@ -343,20 +328,16 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                               });
                               return;
                             }
-
                             setModalState(() {
                               mensagemErro = null;
                               isSaving = true;
                             });
-
                             try {
                               final dto = IngredientRequestDTO(
                                 nome: nomeController.text,
                                 restricoesIds: restricoesSelecionadas,
                               );
-
                               await IngredientService.cadastrarIngrediente(dto);
-
                               if (mounted) {
                                 await _carregarIngredientes();
                                 navigator.pop();
@@ -409,7 +390,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -433,7 +413,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -461,7 +440,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -489,7 +467,6 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                // ignore: deprecated_member_use
                 color: const Color(0xFF0FE687).withOpacity(0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
@@ -515,9 +492,7 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          // ignore: deprecated_member_use
                           const Color(0xFF0FE687).withOpacity(0.15),
-                          // ignore: deprecated_member_use
                           const Color(0xFF0FE687).withOpacity(0.08),
                         ],
                       ),
@@ -565,4 +540,4 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
       ),
     );
   }
-}
+}

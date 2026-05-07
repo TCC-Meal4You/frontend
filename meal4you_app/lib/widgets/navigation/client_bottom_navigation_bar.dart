@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 class ClientBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
-
   const ClientBottomNavigationBar({super.key, required this.currentIndex});
-
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
@@ -30,7 +27,6 @@ class ClientBottomNavigationBar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: (index) {
         if (index == currentIndex) return;
-
         final routeName = switch (index) {
           0 => '/clientHome',
           1 => '/searchRestaurantAndDish',
@@ -38,10 +34,9 @@ class ClientBottomNavigationBar extends StatelessWidget {
           3 => '/clientProfile',
           _ => null,
         };
-
         if (routeName == null) return;
         Navigator.pushReplacementNamed(context, routeName);
       },
     );
   }
-}
+}

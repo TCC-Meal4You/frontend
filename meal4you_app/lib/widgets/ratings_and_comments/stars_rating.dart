@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 class StarsRating extends StatelessWidget {
   final double rating;
-
   const StarsRating({super.key, required this.rating});
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -18,4 +15,4 @@ class StarsRating extends StatelessWidget {
       }),
     );
   }
-}
+}

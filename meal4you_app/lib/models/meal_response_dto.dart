@@ -9,7 +9,6 @@ class MealResponseDTO {
   final bool favorito;
   final List<MealIngredientDTO> ingredientes;
   final List<String> restricoes;
-
   MealResponseDTO({
     required this.idRefeicao,
     this.idRestaurante,
@@ -22,7 +21,6 @@ class MealResponseDTO {
     required this.ingredientes,
     required this.restricoes,
   });
-
   MealResponseDTO copyWith({
     int? idRefeicao,
     int? idRestaurante,
@@ -48,11 +46,9 @@ class MealResponseDTO {
       restricoes: restricoes ?? this.restricoes,
     );
   }
-
   factory MealResponseDTO.fromJson(Map<String, dynamic> json) {
     final ingredientesJson = json['ingredientes'] ?? json['ingrediente'];
     final restricoesJson = json['restricoes'] ?? json['restricao'];
-
     final restricoesList =
         (restricoesJson as List<dynamic>?)
             ?.map((e) {
@@ -64,13 +60,11 @@ class MealResponseDTO {
             .where((r) => r.isNotEmpty)
             .toList() ??
         [];
-
     final ingredientesList =
         (ingredientesJson as List<dynamic>?)
             ?.map((e) => MealIngredientDTO.fromJson(e, restricoesList))
             .toList() ??
         [];
-
     return MealResponseDTO(
       idRefeicao: json['idRefeicao'] ?? json['id_refeicao'] ?? json['id'] ?? 0,
       idRestaurante: json['idRestaurante'] ?? json['id_restaurante'],
@@ -85,18 +79,15 @@ class MealResponseDTO {
     );
   }
 }
-
 class MealIngredientDTO {
   final int idIngrediente;
   final String nome;
   final List<String> restricoes;
-
   MealIngredientDTO({
     required this.idIngrediente,
     required this.nome,
     required this.restricoes,
   });
-
   factory MealIngredientDTO.fromJson(
     Map<String, dynamic> json,
     List<String> restricoesDaRefeicao,
@@ -107,4 +98,4 @@ class MealIngredientDTO {
       restricoes: restricoesDaRefeicao,
     );
   }
-}
+}

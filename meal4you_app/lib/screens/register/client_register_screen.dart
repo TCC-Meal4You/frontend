@@ -9,20 +9,16 @@ import 'package:meal4you_app/widgets/submit_button/submit_button.dart';
 import 'package:meal4you_app/widgets/redirect_text/login_redirect_text.dart';
 import 'package:meal4you_app/widgets/or_divider/or_divider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 class ClientRegisterScreen extends StatefulWidget {
   const ClientRegisterScreen({super.key});
-
   @override
   State<ClientRegisterScreen> createState() => _ClientRegisterScreenState();
 }
-
 class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
   bool _isLoading = false;
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
     baseUrl: 'https://backend-production-b24f.up.railway.app',
   );
-
   @override
   void initState() {
     super.initState();
@@ -31,7 +27,6 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
     RegisterControllers.senhaController.clear();
     RegisterControllers.confirmarSenhaController.clear();
   }
-
   Future<void> _sendCode() async {
     if (RegisterControllers.nomeController.text.trim().length < 3) {
       if (!mounted) return;
@@ -42,7 +37,6 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       );
       return;
     }
-
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(RegisterControllers.emailController.text.trim())) {
       if (!mounted) return;
@@ -51,7 +45,6 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       );
       return;
     }
-
     if (RegisterControllers.senhaController.text !=
         RegisterControllers.confirmarSenhaController.text) {
       if (!mounted) return;
@@ -60,7 +53,6 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       ).showSnackBar(const SnackBar(content: Text("As senhas não conferem!")));
       return;
     }
-
     if (RegisterControllers.senhaController.text.trim().length < 6) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,25 +62,20 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       );
       return;
     }
-
     setState(() => _isLoading = true);
-
     final email = RegisterControllers.emailController.text.trim();
     final nome = RegisterControllers.nomeController.text;
     final senha = RegisterControllers.senhaController.text.trim();
-
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('register_email', email);
       await prefs.setString('register_nome', nome);
       await prefs.setString('register_senha', senha);
       await prefs.setBool('register_isAdmin', false);
-
       await _verifyEmailService.sendVerificationCode(
         email: email,
         isAdmin: false,
       );
-
       if (!mounted) return;
       Navigator.pushNamed(context, '/verifyCode');
     } catch (e) {
@@ -100,7 +87,6 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -191,13 +177,10 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 15),
-
                           const SocialLoginAndRegister(isAdmin: false),
                           const SizedBox(height: 10),
                           const OrDivider(),
-
                           const SizedBox(height: 10),
-
                           CustomTextField(
                             controller: RegisterControllers.nomeController,
                             label: "Nome...",
@@ -220,18 +203,13 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                             label: "Confirmar Senha...",
                             obscure: true,
                           ),
-
                           const SizedBox(height: 20),
-
                           SubmitButton(
                             isLoading: _isLoading,
                             onPressed: _sendCode,
                           ),
-
                           const SizedBox(height: 15),
-
                           const LoginRedirectText(userType: UserType.client),
-
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -246,4 +224,4 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       ),
     );
   }
-}
+}

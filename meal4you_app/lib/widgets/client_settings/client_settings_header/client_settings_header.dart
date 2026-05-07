@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 class ClientSettingsHeader extends StatelessWidget {
   final String initial;
   final VoidCallback onLogout;
-
   const ClientSettingsHeader({
     super.key,
     required this.initial,
     required this.onLogout,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -71,7 +68,6 @@ class ClientSettingsHeader extends StatelessWidget {
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                // ignore: deprecated_member_use
                 color: Colors.white.withOpacity(0.3),
                 border: Border.all(color: Colors.white, width: 3),
               ),
@@ -109,4 +105,4 @@ class ClientSettingsHeader extends StatelessWidget {
       ),
     );
   }
-}
+}

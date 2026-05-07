@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/ingredient_response_dto.dart';
 import 'package:meal4you_app/widgets/manage_ingredients/restriction_chip.dart';
-
 class IngredientCard extends StatefulWidget {
   final IngredientResponseDTO ingrediente;
   final Future<bool> Function(int, String, VoidCallback) onDelete;
-
   const IngredientCard({
     super.key,
     required this.ingrediente,
     required this.onDelete,
   });
-
   @override
   State<IngredientCard> createState() => _IngredientCardState();
 }
-
 class _IngredientCardState extends State<IngredientCard> {
   bool _isDeleting = false;
-
   Future<void> _handleDelete() async {
     if (_isDeleting) return;
-
     try {
       final success = await widget.onDelete(
         widget.ingrediente.idIngrediente,
@@ -32,7 +26,6 @@ class _IngredientCardState extends State<IngredientCard> {
           }
         },
       );
-
       if (!success && mounted) {
         setState(() => _isDeleting = false);
       }
@@ -42,7 +35,6 @@ class _IngredientCardState extends State<IngredientCard> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -52,7 +44,6 @@ class _IngredientCardState extends State<IngredientCard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 15,
             offset: const Offset(0, 5),
@@ -128,4 +119,4 @@ class _IngredientCardState extends State<IngredientCard> {
       ),
     );
   }
-}
+}

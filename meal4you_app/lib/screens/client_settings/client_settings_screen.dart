@@ -14,7 +14,6 @@ import 'package:meal4you_app/widgets/client_settings/client_settings_personal_in
 
 class ClientSettingsScreen extends StatefulWidget {
   const ClientSettingsScreen({super.key});
-
   @override
   State<ClientSettingsScreen> createState() => _ClientSettingsScreenState();
 }
@@ -29,10 +28,8 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
   bool _isSocialLogin = false;
   bool _isEditing = false;
   bool _isSaving = false;
-
   final _nomeController = TextEditingController();
   final _senhaController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -51,7 +48,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
     var email = _email;
     var senha = _senha;
     var isSocialLogin = false;
-
     try {
       final userData = await UserTokenSaving.getUserData().timeout(
         const Duration(seconds: 4),
@@ -62,7 +58,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       final savedPassword = await UserTokenSaving.getUserPassword().timeout(
         const Duration(seconds: 4),
       );
-
       Map<String, dynamic>? profileData;
       try {
         profileData = await SearchClientProfileService.buscarMeuPerfil()
@@ -70,17 +65,14 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       } catch (_) {
         profileData = null;
       }
-
       final localName = _extractName(userData);
       final profileName = _extractName(profileData);
       final localEmail = _extractEmail(userData, savedEmail);
       final profileEmail = _extractEmail(profileData, savedEmail);
-
       final extractedName = profileName.isNotEmpty ? profileName : localName;
       final extractedEmail = profileEmail.isNotEmpty
           ? profileEmail
           : localEmail;
-
       nome = extractedName.isNotEmpty ? extractedName : 'Usuário';
       email = extractedEmail.isNotEmpty
           ? extractedEmail
@@ -88,7 +80,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       senha = (savedPassword ?? '').trim();
       isSocialLogin = _detectSocialLogin(userData, senha);
     } catch (e) {
-      debugPrint('Erro ao carregar dados do cliente no settings: $e');
     } finally {
       if (!mounted) return;
       setState(() {
@@ -105,51 +96,41 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
   bool _detectSocialLogin(Map<String, dynamic>? userData, String senha) {
     if (senha.isNotEmpty) return false;
     if (userData == null) return true;
-
     final provider = (userData['provider'] ?? userData['authProvider'] ?? '')
         .toString()
         .toLowerCase();
-
     final hasGoogleHints =
         provider.contains('google') ||
         userData['googleId'] != null ||
         userData['firebaseUid'] != null;
-
     return hasGoogleHints || senha.isEmpty;
   }
 
   String _extractName(Map<String, dynamic>? userData) {
     if (userData == null) return '';
-
     final topLevelName = (userData['nome'] ?? userData['name'] ?? '')
         .toString()
         .trim();
     if (topLevelName.isNotEmpty) return topLevelName;
-
     final user = userData['user'];
     if (user is Map<String, dynamic>) {
       final nestedName = (user['nome'] ?? user['name'] ?? '').toString().trim();
       if (nestedName.isNotEmpty) return nestedName;
     }
-
     return '';
   }
 
   String _extractEmail(Map<String, dynamic>? userData, String? savedEmail) {
     final fromSaved = (savedEmail ?? '').trim();
     if (fromSaved.isNotEmpty) return fromSaved;
-
     if (userData == null) return '';
-
     final topLevelEmail = (userData['email'] ?? '').toString().trim();
     if (topLevelEmail.isNotEmpty) return topLevelEmail;
-
     final user = userData['user'];
     if (user is Map<String, dynamic>) {
       final nestedEmail = (user['email'] ?? '').toString().trim();
       if (nestedEmail.isNotEmpty) return nestedEmail;
     }
-
     return '';
   }
 
@@ -181,10 +162,8 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
 
   Future<void> _saveChanges() async {
     if (_isSaving) return;
-
     final novoNome = _nomeController.text.trim();
     final novaSenha = _senhaController.text.trim();
-
     if (novoNome.isEmpty && novaSenha.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -194,7 +173,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       );
       return;
     }
-
     if (novoNome.isNotEmpty && novoNome.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -204,7 +182,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       );
       return;
     }
-
     if (novaSenha.isNotEmpty && novaSenha.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -214,14 +191,12 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       );
       return;
     }
-
     if (novaSenha.isNotEmpty) {
       final confirmed = await _showPasswordChangeWarningDialog();
       if (confirmed != true) {
         return;
       }
     }
-
     if (_isSocialLogin && novaSenha.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -231,15 +206,12 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       );
       return;
     }
-
     setState(() => _isSaving = true);
-
     try {
       await UpdateClientProfileService.atualizarMeuPerfil(
         nome: novoNome.isNotEmpty ? novoNome : null,
         senha: novaSenha.isNotEmpty ? novaSenha : null,
       );
-
       if (novoNome.isNotEmpty) {
         final userData = await UserTokenSaving.getUserData();
         if (userData != null) {
@@ -250,18 +222,13 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
           await UserTokenSaving.saveUserData(userData);
         }
       }
-
       if (novaSenha.isNotEmpty) {
         await UserTokenSaving.saveUserPassword(novaSenha);
       }
-
       if (!mounted) return;
-
       if (novaSenha.isNotEmpty) {
         await UserTokenSaving.clearAll();
-
         if (!mounted) return;
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Senha alterada com sucesso! Faça login novamente.'),
@@ -269,7 +236,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
             duration: Duration(seconds: 3),
           ),
         );
-
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/clientLogin',
@@ -277,7 +243,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
         );
         return;
       }
-
       setState(() {
         if (novoNome.isNotEmpty) {
           _nome = novoNome;
@@ -288,7 +253,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
         _senhaController.clear();
         _obscureSenha = true;
       });
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Perfil atualizado com sucesso!'),
@@ -391,12 +355,10 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
               ElevatedButton(
                 onPressed: () {
                   final email = emailController.text.trim();
-
                   if (email.isEmpty) {
                     setStateDialog(() => errorMessage = 'Digite seu email');
                     return;
                   }
-
                   final emailRegex = RegExp(
                     r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,4}$',
                   );
@@ -406,7 +368,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                     );
                     return;
                   }
-
                   Navigator.pop(context, email);
                 },
                 style: ElevatedButton.styleFrom(
@@ -419,13 +380,10 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
           ),
         ),
       );
-
       if (emailConfirmado == null || emailConfirmado.isEmpty) {
         return;
       }
-
       if (!mounted) return;
-
       final confirmed = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
@@ -451,13 +409,10 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
           ],
         ),
       );
-
       if (confirmed != true) {
         return;
       }
-
       if (!mounted) return;
-
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -465,25 +420,19 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
           child: CircularProgressIndicator(color: Color(0xFFF04438)),
         ),
       );
-
       try {
         await DeleteClientAccountService.deletarMinhaConta(emailConfirmado);
-
         if (!mounted) return;
         Navigator.pop(context);
-
         await UserTokenSaving.clearAll();
         RatingService.clearCachedData();
-
         if (!mounted) return;
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Conta deletada com sucesso.'),
             backgroundColor: Colors.green,
           ),
         );
-
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/profileChoice',
@@ -492,7 +441,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       } catch (e) {
         if (!mounted) return;
         Navigator.pop(context);
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao deletar conta: $e'),
@@ -508,7 +456,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
   Future<void> _showEmailChangeDialog() async {
     final emailController = TextEditingController();
     String? errorMessage;
-
     final novoEmail = await showDialog<String>(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -557,21 +504,17 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
             ElevatedButton(
               onPressed: () {
                 final email = emailController.text.trim();
-
                 if (email.isEmpty) {
                   setStateDialog(() => errorMessage = 'Digite um e-mail');
                   return;
                 }
-
                 final emailRegex = RegExp(r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,4}$');
-
                 if (!emailRegex.hasMatch(email)) {
                   setStateDialog(
                     () => errorMessage = 'Digite um e-mail válido',
                   );
                   return;
                 }
-
                 Navigator.pop(context, email);
               },
               style: ElevatedButton.styleFrom(
@@ -584,7 +527,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
         ),
       ),
     );
-
     if (novoEmail != null && novoEmail.isNotEmpty) {
       await _requestEmailChange(novoEmail);
     }
@@ -600,13 +542,10 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
         ),
       ),
     );
-
     try {
       await RequestClientEmailChangeService.solicitarAlteracaoEmail(novoEmail);
-
       if (!mounted) return;
       Navigator.pop(context);
-
       Navigator.pushNamed(
         context,
         '/verifyEmailChange',
@@ -615,7 +554,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context);
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
       );
@@ -625,7 +563,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final clientLogoutHandler = ClientLogoutHandler();
-
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(

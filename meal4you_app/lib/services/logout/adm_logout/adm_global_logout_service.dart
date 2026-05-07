@@ -1,24 +1,18 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
-
 class AdmGlobalLogoutService {
   static const String _baseUrl =
       "https://backend-production-b24f.up.railway.app/admins";
-
   final http.Client adm;
-
   AdmGlobalLogoutService({http.Client? adm}) : adm = adm ?? http.Client();
-
   Future<void> logoutGlobal() async {
     final header = await UserTokenSaving.getAuthorizationHeader();
-
     final candidates = [
       Uri.parse('$_baseUrl/logout-global'),
       Uri.parse('https://backend-production-b24f.up.railway.app/logout-global'),
     ];
     List<String> errors = [];
-
     for (final uri in candidates) {
       try {
         final request = http.Request('POST', uri);
@@ -26,14 +20,11 @@ class AdmGlobalLogoutService {
         if (header != null) request.headers['Authorization'] = header;
         final streamedResponse = await adm.send(request);
         final response = await http.Response.fromStream(streamedResponse);
-
         if (response.statusCode == 200 || response.statusCode == 204) {
           await UserTokenSaving.clearAll();
           return;
         }
-
         errors.add('${uri.toString()} => ${response.statusCode}');
-
         if (response.statusCode == 301 ||
             response.statusCode == 302 ||
             response.statusCode == 307 ||
@@ -45,10 +36,9 @@ class AdmGlobalLogoutService {
         continue;
       }
     }
-
     await UserTokenSaving.clearAll();
     throw HttpException(
       "Erro no logout global ADM (todos os candidates falharam): ${errors.join(' | ')}",
     );
   }
-}
+}

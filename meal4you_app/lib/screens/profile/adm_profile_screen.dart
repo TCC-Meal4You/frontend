@@ -10,14 +10,11 @@ import 'package:meal4you_app/services/update_profile/update_adm_profile_service.
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
 import 'package:provider/provider.dart';
-
 class AdmProfileScreen extends StatefulWidget {
   const AdmProfileScreen({super.key});
-
   @override
   State<AdmProfileScreen> createState() => _AdmProfileScreenState();
 }
-
 class _AdmProfileScreenState extends State<AdmProfileScreen> {
   String _email = '';
   String _nome = '';
@@ -28,29 +25,24 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
   bool _isSaving = false;
   bool _isSocialLogin = false;
   bool _restaurantActive = false;
-
   final _nomeController = TextEditingController();
   final _senhaController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _refreshRestaurantStatus();
   }
-
   @override
   void dispose() {
     _nomeController.dispose();
     _senhaController.dispose();
     super.dispose();
   }
-
   Future<void> _refreshRestaurantStatus() async {
     final restaurantData =
         await UserTokenSaving.getRestaurantDataForCurrentUser();
@@ -60,14 +52,12 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       });
     }
   }
-
   Future<void> _loadUserData() async {
     try {
       final profileData = await SearchAdmProfileService.buscarMeuPerfil();
       final senhaLocal = await UserTokenSaving.getUserPassword();
       final restaurantData =
           await UserTokenSaving.getRestaurantDataForCurrentUser();
-
       if (mounted) {
         setState(() {
           _email = profileData['email'] ?? 'Sem email';
@@ -84,11 +74,9 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         setState(() {
           _isLoading = false;
         });
-
         if (e.toString().contains('401') ||
             e.toString().contains('Não autorizado')) {
           await UserTokenSaving.clearAll();
-
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Sua sessão expirou. Faça login novamente.'),
@@ -96,7 +84,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
               duration: Duration(seconds: 3),
             ),
           );
-
           Navigator.of(
             context,
           ).pushNamedAndRemoveUntil('/profileChoice', (route) => false);
@@ -111,7 +98,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       }
     }
   }
-
   void _toggleEditMode() {
     setState(() {
       _isEditing = !_isEditing;
@@ -121,7 +107,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       }
     });
   }
-
   void _cancelEdit() {
     setState(() {
       _isEditing = false;
@@ -130,13 +115,10 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       _obscureSenha = true;
     });
   }
-
   Future<void> _saveChanges() async {
     if (_isSaving) return;
-
     final novoNome = _nomeController.text.trim();
     final novaSenha = _senhaController.text.trim();
-
     if (novoNome.isEmpty && novaSenha.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -146,7 +128,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       );
       return;
     }
-
     if (novoNome.isNotEmpty && novoNome.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -156,7 +137,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       );
       return;
     }
-
     if (novaSenha.isNotEmpty && novaSenha.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -166,32 +146,25 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       );
       return;
     }
-
     if (novaSenha.isNotEmpty) {
       final confirmed = await _showPasswordChangeWarningDialog();
       if (confirmed != true) {
         return;
       }
     }
-
     setState(() {
       _isSaving = true;
     });
-
     try {
       await UpdateAdmProfileService.atualizarMeuPerfil(
         nome: novoNome.isNotEmpty ? novoNome : null,
         senha: novaSenha.isNotEmpty ? novaSenha : null,
       );
-
       if (novaSenha.isNotEmpty) {
         await UserTokenSaving.saveUserPassword(novaSenha);
-
         if (!mounted) return;
         await UserTokenSaving.clearAll();
-
         if (!mounted) return;
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Senha alterada com sucesso! Faça login novamente.'),
@@ -199,11 +172,9 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
             duration: Duration(seconds: 3),
           ),
         );
-
         Navigator.pushNamedAndRemoveUntil(context, '/admLogin', (_) => false);
         return;
       }
-
       if (mounted) {
         setState(() {
           if (novoNome.isNotEmpty) _nome = novoNome;
@@ -212,7 +183,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
           _senhaController.clear();
           _obscureSenha = true;
         });
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Perfil atualizado com sucesso!'),
@@ -234,7 +204,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       }
     }
   }
-
   Future<bool?> _showPasswordChangeWarningDialog() async {
     return await showDialog<bool>(
       context: context,
@@ -261,11 +230,9 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       ),
     );
   }
-
   Future<void> _showEmailChangeDialog() async {
     final emailController = TextEditingController();
     String? errorMessage;
-
     final novoEmail = await showDialog<String>(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -320,14 +287,12 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
             ElevatedButton(
               onPressed: () {
                 final email = emailController.text.trim();
-
                 if (email.isEmpty) {
                   setState(() {
                     errorMessage = 'Digite um email';
                   });
                   return;
                 }
-
                 final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                 if (!emailRegex.hasMatch(email)) {
                   setState(() {
@@ -335,7 +300,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                   });
                   return;
                 }
-
                 Navigator.pop(context, email);
               },
               style: ElevatedButton.styleFrom(
@@ -348,12 +312,10 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         ),
       ),
     );
-
     if (novoEmail != null && novoEmail.isNotEmpty) {
       await _requestEmailChange(novoEmail);
     }
   }
-
   Future<void> _requestEmailChange(String novoEmail) async {
     showDialog(
       context: context,
@@ -364,13 +326,10 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         ),
       ),
     );
-
     try {
       await RequestEmailChangeService.solicitarAlteracaoEmail(novoEmail);
-
       if (!mounted) return;
       Navigator.pop(context);
-
       Navigator.pushNamed(
         context,
         '/verifyEmailChange',
@@ -379,17 +338,14 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context);
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
       );
     }
   }
-
   Future<void> _showDeleteAccountDialog() async {
     final emailController = TextEditingController();
     String? errorMessage;
-
     final emailConfirmado = await showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -445,14 +401,12 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
             ElevatedButton(
               onPressed: () {
                 final email = emailController.text.trim();
-
                 if (email.isEmpty) {
                   setState(() {
                     errorMessage = 'Digite seu email';
                   });
                   return;
                 }
-
                 final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                 if (!emailRegex.hasMatch(email)) {
                   setState(() {
@@ -460,7 +414,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                   });
                   return;
                 }
-
                 Navigator.pop(context, email);
               },
               style: ElevatedButton.styleFrom(
@@ -473,12 +426,10 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         ),
       ),
     );
-
     if (emailConfirmado != null && emailConfirmado.isNotEmpty) {
       await _showFinalDeleteWarning(emailConfirmado);
     }
   }
-
   Future<void> _showFinalDeleteWarning(String email) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -505,12 +456,10 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
         ],
       ),
     );
-
     if (confirmed == true) {
       await _deleteAccount(email);
     }
   }
-
   Future<void> _deleteAccount(String email) async {
     showDialog(
       context: context,
@@ -518,28 +467,21 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       builder: (context) =>
           const Center(child: CircularProgressIndicator(color: Colors.red)),
     );
-
     try {
       await DeleteAdmAccountService.deletarMinhaConta(email);
-
       if (!mounted) return;
-
       await UserTokenSaving.clearAll();
-
       final restaurantProvider = Provider.of<RestaurantProvider>(
         context,
         listen: false,
       );
       restaurantProvider.clearRestaurant();
-
       RegisterControllers.nomeController.clear();
       RegisterControllers.emailController.clear();
       RegisterControllers.senhaController.clear();
       RegisterControllers.confirmarSenhaController.clear();
-
       if (!mounted) return;
       Navigator.pop(context);
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Conta deletada com sucesso!'),
@@ -547,7 +489,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
           duration: Duration(seconds: 3),
         ),
       );
-
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/profileChoice',
@@ -556,17 +497,14 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context);
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final admLogoutHandler = AdmLogoutHandler();
-
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -636,7 +574,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        // ignore: deprecated_member_use
                         color: Colors.white.withOpacity(0.3),
                         border: Border.all(color: Colors.white, width: 3),
                       ),
@@ -672,7 +609,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                   ],
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -739,7 +675,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                               ],
                             ),
                             const SizedBox(height: 20),
-
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -799,9 +734,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                   ),
                               ],
                             ),
-
                             const SizedBox(height: 20),
-
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -932,7 +865,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                   ),
                               ],
                             ),
-
                             if (_isEditing) ...[
                               const SizedBox(height: 24),
                               SizedBox(
@@ -974,9 +906,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
@@ -1066,9 +996,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
@@ -1099,7 +1027,6 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                               ],
                             ),
                             const SizedBox(height: 20),
-
                             const Text(
                               'Tipo de Conta',
                               style: TextStyle(
@@ -1116,9 +1043,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                                 color: Colors.black87,
                               ),
                             ),
-
                             const SizedBox(height: 16),
-
                             const Text(
                               'Visibilidade do Restaurante',
                               style: TextStyle(
@@ -1187,9 +1112,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
@@ -1261,4 +1184,4 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       ),
     );
   }
-}
+}

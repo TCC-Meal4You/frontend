@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/widgets/navigation/profile_choice_back_button.dart';
-
 class AdmLoginFormsIcon extends StatelessWidget {
   const AdmLoginFormsIcon({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -13,4 +11,4 @@ class AdmLoginFormsIcon extends StatelessWidget {
       child: Center(child: const ProfileChoiceBackButton()),
     );
   }
-}
+}

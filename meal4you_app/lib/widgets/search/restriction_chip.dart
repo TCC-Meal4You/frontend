@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 class RestrictionChip extends StatelessWidget {
   final String label;
-
   const RestrictionChip({super.key, required this.label});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -24,4 +21,4 @@ class RestrictionChip extends StatelessWidget {
       ),
     );
   }
-}
+}

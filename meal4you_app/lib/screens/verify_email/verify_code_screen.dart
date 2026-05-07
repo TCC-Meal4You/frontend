@@ -9,7 +9,6 @@ import 'package:meal4you_app/utils/formatter/paste_code_formatter.dart';
 
 class VerifyCodeScreen extends StatefulWidget {
   const VerifyCodeScreen({super.key});
-
   @override
   State<VerifyCodeScreen> createState() => _VerifyCodeScreenState();
 }
@@ -21,15 +20,12 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
     6,
     (_) => TextEditingController(),
   );
-
   bool _isButtonEnabled = false;
   bool _isLoading = false;
   bool _isResendLoading = false;
-
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
     baseUrl: 'https://backend-production-b24f.up.railway.app',
   );
-
   @override
   void dispose() {
     _codeController.dispose();
@@ -46,25 +42,19 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
     for (int i = 0; i < 6; i++) {
       _digitControllers[i].text = fullCode[i];
     }
-
     _codeController.text = fullCode;
-
     FocusScope.of(context).unfocus();
-
     setState(() => _isButtonEnabled = true);
   }
 
   void _onDigitChanged(int index, String value) {
     if (value.length > 1) return;
-
     if (value.isNotEmpty && index < 5) {
       _focusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
     }
-
     _codeController.text = _digitControllers.map((e) => e.text).join();
-
     setState(() {
       _isButtonEnabled = _codeController.text.length == 6;
     });
@@ -72,7 +62,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
   Future<void> _confirmCode() async {
     setState(() => _isLoading = true);
-
     try {
       final prefs = await SharedPreferences.getInstance();
       final email = prefs.getString('register_email')!;
@@ -80,7 +69,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
       final senha = prefs.getString('register_senha')!;
       final isAdmin = prefs.getBool('register_isAdmin')!;
       final codigo = _codeController.text.trim();
-
       await _verifyEmailService.confirmCode(
         email: email,
         nome: nome,
@@ -88,9 +76,7 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
         codigo: codigo,
         isAdmin: isAdmin,
       );
-
       Map<String, dynamic> loginResponse;
-
       if (isAdmin) {
         loginResponse = await AdmLoginService.loginAdm(
           email: email,
@@ -102,13 +88,11 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
           senha: senha,
         );
       }
-
       final token = loginResponse['token'] ?? loginResponse['accessToken'];
       if (token != null) {
         await UserTokenSaving.saveCurrentUserEmail(email);
         await UserTokenSaving.saveToken(token);
         await UserTokenSaving.saveUserPassword(senha);
-
         final userData = <String, dynamic>{
           ...Map<String, dynamic>.from(loginResponse),
           'email': email,
@@ -116,28 +100,17 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
           'isAdm': isAdmin,
         };
         await UserTokenSaving.saveUserData(userData);
-
-        print('✅ REGISTRO - Email salvo: $email');
-        print('✅ REGISTRO - Token salvo');
-        print(
-          '✅ REGISTRO - UserData salvo com userType: ${isAdmin ? "adm" : "client"}',
-        );
-        print('✅ REGISTRO - UserData completo: $userData');
       }
-
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cadastro realizado com sucesso!')),
       );
-
       Navigator.pushReplacementNamed(
         context,
         isAdmin ? '/createAdmRestaurant' : '/restrictionsChoice',
       );
     } catch (e) {
       if (!mounted) return;
-
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erro: $e')));
@@ -148,19 +121,15 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
   Future<void> _resendCode() async {
     setState(() => _isResendLoading = true);
-
     try {
       final prefs = await SharedPreferences.getInstance();
       final email = prefs.getString('register_email')!;
       final isAdmin = prefs.getBool('register_isAdmin')!;
-
       await _verifyEmailService.sendVerificationCode(
         email: email,
         isAdmin: isAdmin,
       );
-
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Código reenviado com sucesso!'),
@@ -169,7 +138,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erro ao reenviar: $e')));
@@ -218,7 +186,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                 },
               ),
               const SizedBox(height: 40),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(6, (index) {
@@ -229,14 +196,11 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                     child: TextField(
                       controller: _digitControllers[index],
                       focusNode: _focusNodes[index],
-
                       onChanged: (v) => _onDigitChanged(index, v),
-
                       inputFormatters: [
                         PasteCodeFormatter(onCodeComplete: _handlePastedCode),
                         FilteringTextInputFormatter.digitsOnly,
                       ],
-
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       maxLength: 1,
@@ -265,9 +229,7 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                   );
                 }),
               ),
-
               const SizedBox(height: 40),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -302,9 +264,7 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                         ),
                 ),
               ),
-
               const SizedBox(height: 20),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

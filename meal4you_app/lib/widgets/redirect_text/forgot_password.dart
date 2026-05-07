@@ -1,11 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
 class ForgotPasswordRedirectText extends StatelessWidget {
   final bool isAdm;
-
   const ForgotPasswordRedirectText({super.key, required this.isAdm});
-
   @override
   Widget build(BuildContext context) {
     return RichText(
@@ -36,4 +33,4 @@ class ForgotPasswordRedirectText extends StatelessWidget {
       ),
     );
   }
-}
+}

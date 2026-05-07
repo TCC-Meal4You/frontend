@@ -11,9 +11,7 @@ import 'package:meal4you_app/widgets/ratings_and_comments/rating_editor.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
   final RestauranteResponseDTO restaurant;
-
   const RestaurantDetailScreen({super.key, required this.restaurant});
-
   @override
   State<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
 }
@@ -28,7 +26,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
   String? _currentUserName;
   String? _currentUserEmail;
   int? _currentUserId;
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +51,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
           final u = userData['user'];
           extracted = u['nome'] ?? u['name'] ?? u['fullName'];
         }
-        // try to extract id from common fields
         final rawId =
             userData['id'] ??
             userData['idUsuario'] ??
@@ -116,7 +112,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
         });
         return;
       } catch (e) {}
-
       final all = await RatingService.verMinhasAvaliacoes();
       if (!mounted) return;
       setState(() {
@@ -215,7 +210,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
     if (_meals.isEmpty) {
       return const Center(child: Text('Nenhum prato disponível'));
     }
-
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _meals.length,
@@ -233,7 +227,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
     if (_ratings.isEmpty) {
       return const Center(child: Text('Nenhuma avaliação ainda'));
     }
-
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _ratings.length,

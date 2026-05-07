@@ -1,11 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class RestaurantDeleteService {
   static const String baseUrl =
       "https://backend-production-b24f.up.railway.app/restaurantes";
-
   static Future<void> deleteRestaurant({
     required int restaurantId,
     required String nomeConfirmacao,
@@ -15,7 +13,6 @@ class RestaurantDeleteService {
       if (token == null) {
         throw Exception("Token não encontrado. Faça login novamente.");
       }
-
       final uri = Uri.parse(
         "$baseUrl/$restaurantId?nomeConfirmacao=$nomeConfirmacao",
       );
@@ -26,9 +23,7 @@ class RestaurantDeleteService {
           'Authorization': 'Bearer $token',
         },
       );
-
       if (response.statusCode == 200) {
-        debugPrint("✅ Restaurante deletado com sucesso!");
       } else if (response.statusCode == 400) {
         throw Exception("Nome de confirmação incorreto.");
       } else if (response.statusCode == 401) {
@@ -43,7 +38,6 @@ class RestaurantDeleteService {
         throw Exception("Erro ao deletar restaurante: ${response.statusCode}");
       }
     } catch (e) {
-      debugPrint("❌ Erro no DeleteRestaurantService: $e");
       rethrow;
     }
   }

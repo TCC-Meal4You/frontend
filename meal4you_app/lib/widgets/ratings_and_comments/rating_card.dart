@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/stars_rating.dart';
 import 'package:meal4you_app/utils/formatter/date_formatter.dart';
-
 String _avatarLabel(
   UserRatingResponseDTO rating, {
   String? currentUserName,
@@ -11,7 +10,6 @@ String _avatarLabel(
 }) {
   final name = rating.userName.trim();
   if (name.isNotEmpty) return name;
-
   final email = rating.userEmail?.trim() ?? '';
   if (currentUserEmail != null &&
       email.isNotEmpty &&
@@ -20,7 +18,6 @@ String _avatarLabel(
       return currentUserName;
     }
   }
-
   if (currentUserId != null &&
       rating.userId != null &&
       rating.userId == currentUserId) {
@@ -28,19 +25,14 @@ String _avatarLabel(
       return currentUserName;
     }
   }
-
   if (email.isNotEmpty) return email;
-
   final userId = rating.userId;
   if (userId != null && userId > 0) return 'Usuário #$userId';
-
   if (currentUserName != null && currentUserName.trim().isNotEmpty) {
     return currentUserName;
   }
-
   return 'Usuário';
 }
-
 String _avatarInitialFromRating(
   UserRatingResponseDTO rating, {
   String? currentUserName,
@@ -49,7 +41,6 @@ String _avatarInitialFromRating(
 }) {
   final name = rating.userName.trim();
   if (name.isNotEmpty) return name.characters.first.toUpperCase();
-
   final email = rating.userEmail?.trim() ?? '';
   if (currentUserEmail != null &&
       email.isNotEmpty &&
@@ -58,7 +49,6 @@ String _avatarInitialFromRating(
       return currentUserName.trim().characters.first.toUpperCase();
     }
   }
-
   if (currentUserId != null &&
       rating.userId != null &&
       rating.userId == currentUserId) {
@@ -66,19 +56,15 @@ String _avatarInitialFromRating(
       return currentUserName.trim().characters.first.toUpperCase();
     }
   }
-
   if (email.isNotEmpty) {
     final local = email.split('@').first;
     if (local.isNotEmpty) return local.characters.first.toUpperCase();
   }
-
   if (currentUserName != null && currentUserName.trim().isNotEmpty) {
     return currentUserName.trim().characters.first.toUpperCase();
   }
-
   return 'U';
 }
-
 class RatingCard extends StatelessWidget {
   final UserRatingResponseDTO rating;
   final VoidCallback? onEdit;
@@ -87,7 +73,6 @@ class RatingCard extends StatelessWidget {
   final String? currentUserName;
   final String? currentUserEmail;
   final int? currentUserId;
-
   const RatingCard({
     super.key,
     required this.rating,
@@ -98,7 +83,6 @@ class RatingCard extends StatelessWidget {
     this.currentUserEmail,
     this.currentUserId,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -109,7 +93,6 @@ class RatingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 15,
             offset: const Offset(0, 5),
@@ -202,4 +185,4 @@ class RatingCard extends StatelessWidget {
       ),
     );
   }
-}
+}

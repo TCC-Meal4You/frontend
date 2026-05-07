@@ -9,29 +9,23 @@ import 'package:meal4you_app/utils/constants/food_types.dart';
 import 'package:meal4you_app/widgets/navigation/client_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/search/restaurant_card.dart';
 import 'package:meal4you_app/widgets/search/meal_card.dart';
-
 class SearchRestaurantAndDishScreen extends StatefulWidget {
   const SearchRestaurantAndDishScreen({super.key});
-
   @override
   State<SearchRestaurantAndDishScreen> createState() =>
       _SearchRestaurantAndDishScreenState();
 }
-
 class _SearchRestaurantAndDishScreenState
     extends State<SearchRestaurantAndDishScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-
   List<RestauranteResponseDTO> _restaurantes = [];
   List<MealResponseDTO> _refeicoes = [];
-
   int _restaurantPage = 0;
   int _mealPage = 0;
   int _restaurantTotalPages = 1;
   int _mealTotalPages = 1;
-
   bool _loadingRestaurants = false;
   bool _loadingMeals = false;
   final Set<int> _restaurantFavoriteLoading = {};
@@ -40,12 +34,9 @@ class _SearchRestaurantAndDishScreenState
   RangeValues? _selectedPriceRange;
   static const double _minFilterPrice = 1;
   static const double _maxFilterPrice = 50;
-
   String get _query => _searchController.text.trim().toLowerCase();
   bool get _isSearching => _query.isNotEmpty;
-
   List<String> get _availableFoodTypes => FoodTypes.available;
-
   int get _activeFilterCount {
     var total = _selectedFoodTypes.length;
     if (_selectedPriceRange != null &&
@@ -58,62 +49,49 @@ class _SearchRestaurantAndDishScreenState
     }
     return total;
   }
-
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _searchController.addListener(_onSearchChanged);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _loadRestaurants(0);
     });
   }
-
   void _onSearchChanged() {
     if (!mounted) return;
     setState(() {});
-
     if (_query.isNotEmpty && _refeicoes.isEmpty && !_loadingMeals) {
       _loadMeals(0);
     }
   }
-
   bool _matchesSelectedFoodType(String type) {
     if (_selectedFoodTypes.isEmpty) return true;
     return _selectedFoodTypes.contains(type.trim());
   }
-
   bool _matchesSelectedPriceRange(double price) {
     final range = _normalizedPriceRange(_selectedPriceRange);
     if (range == null) return true;
     if (price < range.start) {
       return false;
     }
-
     if (range.end >= _maxFilterPrice) {
       return true;
     }
-
     return price <= range.end;
   }
-
   RangeValues? _normalizedPriceRange(RangeValues? source) {
     if (source == null) return null;
-
     final start = source.start
         .clamp(_minFilterPrice, _maxFilterPrice)
         .toDouble();
     final end = source.end.clamp(_minFilterPrice, _maxFilterPrice).toDouble();
-
     if (end < start) {
       return RangeValues(start, start);
     }
-
     return RangeValues(start, end);
   }
-
   List<RestauranteResponseDTO> _filteredRestaurants() {
     return _restaurantes.where((restaurant) {
       final nome = restaurant.nome.toLowerCase();
@@ -128,7 +106,6 @@ class _SearchRestaurantAndDishScreenState
       return matchesQuery && matchesType;
     }).toList();
   }
-
   List<MealResponseDTO> _filteredMeals() {
     return _refeicoes.where((meal) {
       final nome = meal.nome.toLowerCase();
@@ -146,9 +123,7 @@ class _SearchRestaurantAndDishScreenState
       return matchesQuery && matchesType && matchesPrice;
     }).toList();
   }
-
   String _currency(double value) => 'R\$ ${value.toStringAsFixed(2)}';
-
   void _openFiltersSheet() {
     final allTypes = _availableFoodTypes;
     const minPrice = _minFilterPrice;
@@ -158,7 +133,6 @@ class _SearchRestaurantAndDishScreenState
         const RangeValues(minPrice, maxPrice);
     final tempSelectedTypes = Set<String>.from(_selectedFoodTypes);
     var tempRange = currentRange;
-
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -316,20 +290,16 @@ class _SearchRestaurantAndDishScreenState
       },
     );
   }
-
   Future<void> _loadRestaurants(int pageNumber) async {
     if (!mounted) return;
     if (_loadingRestaurants) {
       return;
     }
-
     setState(() => _loadingRestaurants = true);
-
     try {
       final response = await SearchRestaurantService.listarRestaurantes(
         pageNumber + 1,
       );
-
       if (!mounted) return;
       setState(() {
         _restaurantes = response.restaurantes;
@@ -345,18 +315,14 @@ class _SearchRestaurantAndDishScreenState
       );
     }
   }
-
   Future<void> _loadMeals(int pageNumber) async {
     if (!mounted) return;
     if (_loadingMeals) {
       return;
     }
-
     setState(() => _loadingMeals = true);
-
     try {
       final response = await SearchMealService.listarRefeicoes(pageNumber + 1);
-
       if (!mounted) return;
       setState(() {
         _refeicoes = response.refeicoes;
@@ -372,27 +338,22 @@ class _SearchRestaurantAndDishScreenState
       ).showSnackBar(SnackBar(content: Text('Erro ao carregar refeições: $e')));
     }
   }
-
   Future<void> _toggleRestaurantFavoriteById(int restaurantId) async {
     final index = _restaurantes.indexWhere(
       (restaurant) => restaurant.idRestaurante == restaurantId,
     );
     if (index == -1) return;
-
     final restaurante = _restaurantes[index];
     final restauranteId = restaurante.idRestaurante;
-
     if (_restaurantFavoriteLoading.contains(restauranteId)) {
       return;
     }
-
     setState(() {
       _restaurantFavoriteLoading.add(restauranteId);
       _restaurantes[index] = restaurante.copyWith(
         favorito: !restaurante.favorito,
       );
     });
-
     try {
       await RestaurantFavoriteService.alternarFavorito(restauranteId);
     } catch (e) {
@@ -410,23 +371,18 @@ class _SearchRestaurantAndDishScreenState
       });
     }
   }
-
   Future<void> _toggleMealFavoriteById(int mealId) async {
     final index = _refeicoes.indexWhere((meal) => meal.idRefeicao == mealId);
     if (index == -1) return;
-
     final refeicao = _refeicoes[index];
     final refeicaoId = refeicao.idRefeicao;
-
     if (_mealFavoriteLoading.contains(refeicaoId)) {
       return;
     }
-
     setState(() {
       _mealFavoriteLoading.add(refeicaoId);
       _refeicoes[index] = refeicao.copyWith(favorito: !refeicao.favorito);
     });
-
     try {
       await MealFavoriteService.alternarFavorito(refeicaoId);
     } catch (e) {
@@ -444,7 +400,6 @@ class _SearchRestaurantAndDishScreenState
       });
     }
   }
-
   @override
   void dispose() {
     _tabController.dispose();
@@ -452,7 +407,6 @@ class _SearchRestaurantAndDishScreenState
     _searchController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -584,21 +538,17 @@ class _SearchRestaurantAndDishScreenState
       ),
     );
   }
-
   Widget _buildRestaurantsTab() {
     final restaurantes = _filteredRestaurants();
-
     if (_restaurantes.isEmpty && _loadingRestaurants) {
       return const Center(child: CircularProgressIndicator());
     }
-
     if (restaurantes.isEmpty) {
       final message = _isSearching
           ? 'Nenhum restaurante encontrado para "${_searchController.text.trim()}"'
           : 'Nenhum restaurante encontrado';
       return Center(child: Text(message));
     }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -636,21 +586,17 @@ class _SearchRestaurantAndDishScreenState
       ],
     );
   }
-
   Widget _buildMealsTab() {
     final refeicoes = _filteredMeals();
-
     if (_refeicoes.isEmpty && _loadingMeals) {
       return const Center(child: CircularProgressIndicator());
     }
-
     if (refeicoes.isEmpty && !_loadingMeals) {
       final message = _isSearching
           ? 'Nenhum prato encontrado para "${_searchController.text.trim()}"'
           : 'Nenhuma refeição encontrada';
       return Center(child: Text(message));
     }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -687,7 +633,6 @@ class _SearchRestaurantAndDishScreenState
       ],
     );
   }
-
   Widget _buildPaginationControls({
     required int currentPage,
     required int totalPages,
@@ -696,7 +641,6 @@ class _SearchRestaurantAndDishScreenState
     if (totalPages <= 1) {
       return const SizedBox.shrink();
     }
-
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
@@ -738,4 +682,4 @@ class _SearchRestaurantAndDishScreenState
       ),
     );
   }
-}
+}

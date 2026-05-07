@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-
 class SubmitButton extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onPressed;
   final String? buttonText;
   final Color? buttonColor;
-
   const SubmitButton({
     super.key,
     required this.isLoading,
@@ -13,12 +11,10 @@ class SubmitButton extends StatelessWidget {
     this.buttonText,
     this.buttonColor,
   });
-
   @override
   Widget build(BuildContext context) {
     final Color color = buttonColor ?? const Color.fromARGB(255, 157, 0, 255);
     final String text = buttonText ?? 'Cadastrar';
-
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
@@ -40,4 +36,4 @@ class SubmitButton extends StatelessWidget {
             ),
     );
   }
-}
+}

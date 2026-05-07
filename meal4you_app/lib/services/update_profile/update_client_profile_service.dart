@@ -1,29 +1,23 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
-
 class UpdateClientProfileService {
   static const String baseUrl =
       'https://backend-production-b24f.up.railway.app/usuarios';
-
   static Future<Map<String, dynamic>> atualizarMeuPerfil({
     String? nome,
     String? senha,
   }) async {
     final token = await UserTokenSaving.getToken();
-
     if (token == null) {
       throw Exception('Token não encontrado');
     }
-
     final body = <String, dynamic>{};
     if (nome != null && nome.isNotEmpty) body['nome'] = nome;
     if (senha != null && senha.isNotEmpty) body['senha'] = senha;
-
     if (body.isEmpty) {
       throw Exception('Nenhuma alteração detectada');
     }
-
     final response = await http.put(
       Uri.parse(baseUrl),
       headers: {
@@ -32,7 +26,6 @@ class UpdateClientProfileService {
       },
       body: jsonEncode(body),
     );
-
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else if (response.statusCode == 400) {
@@ -43,4 +36,4 @@ class UpdateClientProfileService {
       throw Exception('Erro ao atualizar perfil: ${response.statusCode}');
     }
   }
-}
+}

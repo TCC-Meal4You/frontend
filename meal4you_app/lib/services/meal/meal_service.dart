@@ -3,17 +3,14 @@ import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/meal_request_dto.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
-
 class MealService {
   static const String baseUrl =
       'https://backend-production-b24f.up.railway.app/refeicoes';
-
   static Future<MealResponseDTO> cadastrarRefeicao(MealRequestDTO dto) async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
       throw Exception('Token não encontrado. Faça login novamente.');
     }
-
     final response = await http.post(
       Uri.parse(baseUrl),
       headers: {
@@ -22,7 +19,6 @@ class MealService {
       },
       body: jsonEncode(dto.toJson()),
     );
-
     if (response.statusCode == 200) {
       return MealResponseDTO.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 400) {
@@ -37,18 +33,15 @@ class MealService {
       throw Exception('Erro ao cadastrar refeição: ${response.statusCode}');
     }
   }
-
   static Future<List<MealResponseDTO>> listarMinhasRefeicoes() async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
       throw Exception('Token não encontrado. Faça login novamente.');
     }
-
     final response = await http.get(
       Uri.parse(baseUrl),
       headers: {'Authorization': 'Bearer $token'},
     );
-
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((json) => MealResponseDTO.fromJson(json)).toList();
@@ -58,7 +51,6 @@ class MealService {
       throw Exception('Erro ao listar refeições: ${response.statusCode}');
     }
   }
-
   static Future<MealResponseDTO> atualizarRefeicao(
     int id,
     MealRequestDTO dto,
@@ -67,7 +59,6 @@ class MealService {
     if (token == null) {
       throw Exception('Token não encontrado. Faça login novamente.');
     }
-
     final response = await http.put(
       Uri.parse('$baseUrl/$id'),
       headers: {
@@ -76,7 +67,6 @@ class MealService {
       },
       body: jsonEncode(dto.toJson()),
     );
-
     if (response.statusCode == 200) {
       return MealResponseDTO.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 400) {
@@ -91,18 +81,15 @@ class MealService {
       throw Exception('Erro ao atualizar refeição: ${response.statusCode}');
     }
   }
-
   static Future<void> deletarRefeicao(int id) async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
       throw Exception('Token não encontrado. Faça login novamente.');
     }
-
     final response = await http.delete(
       Uri.parse('$baseUrl/$id'),
       headers: {'Authorization': 'Bearer $token'},
     );
-
     if (response.statusCode == 200) {
       return;
     } else if (response.statusCode == 403) {
@@ -113,7 +100,6 @@ class MealService {
       throw Exception('Erro ao deletar refeição: ${response.statusCode}');
     }
   }
-
   static Future<MealResponseDTO> atualizarDisponibilidade(
     int id,
     bool disponivel,
@@ -122,7 +108,6 @@ class MealService {
     if (token == null) {
       throw Exception('Token não encontrado. Faça login novamente.');
     }
-
     final response = await http.patch(
       Uri.parse('$baseUrl/$id/disponibilidade'),
       headers: {
@@ -131,7 +116,6 @@ class MealService {
       },
       body: jsonEncode({'disponivel': disponivel}),
     );
-
     if (response.statusCode == 200) {
       return MealResponseDTO.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 400) {
@@ -146,4 +130,4 @@ class MealService {
       );
     }
   }
-}
+}

@@ -2,25 +2,20 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/paginacao_restaurante_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
-
 class SearchRestaurantService {
   static const String baseUrl =
       'https://backend-production-b24f.up.railway.app/restaurantes';
-
   static Future<PaginacaoRestauranteResponseDTO> listarRestaurantes(
     int numPagina,
   ) async {
     final token = await UserTokenSaving.getToken();
-
     if (token == null) {
       throw Exception('Token de autenticação não encontrado');
     }
-
     final response = await http.get(
       Uri.parse('$baseUrl?numPagina=$numPagina'),
       headers: {'Authorization': 'Bearer $token'},
     );
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return PaginacaoRestauranteResponseDTO.fromJson(data);
@@ -30,4 +25,4 @@ class SearchRestaurantService {
       throw Exception('Erro ao listar restaurantes (${response.statusCode})');
     }
   }
-}
+}

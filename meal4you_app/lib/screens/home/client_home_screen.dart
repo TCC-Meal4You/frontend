@@ -6,7 +6,6 @@ import 'package:meal4you_app/widgets/navigation/client_bottom_navigation_bar.dar
 
 class ClientHomeScreen extends StatefulWidget {
   const ClientHomeScreen({super.key});
-
   @override
   State<ClientHomeScreen> createState() => _ClientHomeScreenState();
 }
@@ -15,7 +14,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   final ClientLogoutHandler _clientlogoutHandler = ClientLogoutHandler();
   List<String> _restricoes = [];
   bool _loadingRestricoes = true;
-
   @override
   void initState() {
     super.initState();
@@ -25,7 +23,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   Future<void> _carregarRestricoes() async {
     try {
       final nomesRestricoes = await UserRestrictionService.buscarRestricoes();
-
       if (!mounted) return;
       setState(() {
         _restricoes = nomesRestricoes.isNotEmpty
@@ -34,7 +31,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         _loadingRestricoes = false;
       });
     } catch (e) {
-      print('Erro ao carregar restrições: $e');
       if (!mounted) return;
       setState(() {
         _restricoes = ['Erro ao carregar'];

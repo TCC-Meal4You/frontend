@@ -8,24 +8,19 @@ import 'package:meal4you_app/widgets/adm_menu/stats_row.dart';
 import 'package:meal4you_app/widgets/adm_menu/dish_card.dart';
 import 'package:meal4you_app/widgets/adm_menu/empty_state.dart';
 import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
-
 class AdmMenuScreen extends StatefulWidget {
   const AdmMenuScreen({super.key});
-
   @override
   State<AdmMenuScreen> createState() => _AdmMenuScreenState();
 }
-
 class _AdmMenuScreenState extends State<AdmMenuScreen> {
   List<MealResponseDTO> refeicoes = [];
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
     _carregarRefeicoes();
   }
-
   Future<void> _carregarRefeicoes() async {
     setState(() => isLoading = true);
     try {
@@ -54,12 +49,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       }
     }
   }
-
   int get _totalRefeicoes => refeicoes.length;
   int get _refeicoesDisponiveis => refeicoes.where((r) => r.disponivel).length;
   int get _refeicoesIndisponiveis =>
       refeicoes.where((r) => !r.disponivel).length;
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -83,7 +76,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -113,7 +105,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -141,7 +132,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                // ignore: deprecated_member_use
                 color: const Color(0xFF9D00FF).withOpacity(0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
@@ -192,7 +182,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       ),
     );
   }
-
   Future<void> _atualizarDisponibilidade(int id, bool disponivel) async {
     try {
       await MealService.atualizarDisponibilidade(id, disponivel);
@@ -230,7 +219,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       }
     }
   }
-
   Future<bool> _confirmarDeletar(int id, VoidCallback onDeleteStart) async {
     final confirmado = await showDialog<bool>(
       context: context,
@@ -252,7 +240,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
         ],
       ),
     );
-
     if (confirmado == true) {
       onDeleteStart();
       try {
@@ -283,7 +270,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     }
     return false;
   }
-
   Future<void> _mostrarModalAdicionarRefeicao() async {
     final nomeController = TextEditingController();
     final precoController = TextEditingController();
@@ -297,7 +283,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     bool isSaving = false;
     String? mensagemErro;
     String filtroIngredientes = '';
-
     try {
       ingredientes = await IngredientService.listarMeusIngredientes();
       isLoadingIngredientes = false;
@@ -312,9 +297,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
         );
       }
     }
-
     if (!mounted) return;
-
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -371,10 +354,8 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                           padding: const EdgeInsets.all(12),
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            // ignore: deprecated_member_use
                             color: Colors.red.withOpacity(0.1),
                             border: Border.all(
-                              // ignore: deprecated_member_use
                               color: Colors.red.withOpacity(0.3),
                             ),
                             borderRadius: BorderRadius.circular(8),
@@ -673,7 +654,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                         ? null
                         : () async {
                             final navigator = Navigator.of(context);
-
                             if (nomeController.text.isEmpty ||
                                 precoController.text.isEmpty ||
                                 tipoSelecionado == null) {
@@ -683,7 +663,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               });
                               return;
                             }
-
                             if (nomeController.text.length < 3) {
                               setModalState(() {
                                 mensagemErro =
@@ -691,7 +670,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               });
                               return;
                             }
-
                             if (ingredientesSelecionados.isEmpty) {
                               setModalState(() {
                                 mensagemErro =
@@ -699,12 +677,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               });
                               return;
                             }
-
                             setModalState(() {
                               mensagemErro = null;
                               isSaving = true;
                             });
-
                             try {
                               final preco = double.tryParse(
                                 precoController.text.replaceAll(',', '.'),
@@ -712,7 +688,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               if (preco == null) {
                                 throw Exception('Preço inválido');
                               }
-
                               final dto = MealRequestDTO(
                                 nome: nomeController.text,
                                 preco: preco,
@@ -724,9 +699,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                 disponivel: disponivel,
                                 ingredientesIds: ingredientesSelecionados,
                               );
-
                               await MealService.cadastrarRefeicao(dto);
-
                               if (mounted) {
                                 await _carregarRefeicoes();
                                 navigator.pop();
@@ -781,7 +754,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       ),
     );
   }
-
   Future<void> _mostrarModalEditarRefeicao(MealResponseDTO refeicao) async {
     final nomeController = TextEditingController(text: refeicao.nome);
     final precoController = TextEditingController(
@@ -800,7 +772,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     bool isSaving = false;
     String? mensagemErro;
     String filtroIngredientes = '';
-
     try {
       ingredientes = await IngredientService.listarMeusIngredientes();
       isLoadingIngredientes = false;
@@ -815,9 +786,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
         );
       }
     }
-
     if (!mounted) return;
-
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -874,10 +843,8 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                           padding: const EdgeInsets.all(12),
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            // ignore: deprecated_member_use
                             color: Colors.red.withOpacity(0.1),
                             border: Border.all(
-                              // ignore: deprecated_member_use
                               color: Colors.red.withOpacity(0.3),
                             ),
                             borderRadius: BorderRadius.circular(8),
@@ -1160,7 +1127,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                         ? null
                         : () async {
                             final navigator = Navigator.of(context);
-
                             if (nomeController.text.isEmpty ||
                                 precoController.text.isEmpty ||
                                 tipoSelecionado == null) {
@@ -1170,7 +1136,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               });
                               return;
                             }
-
                             if (nomeController.text.length < 3) {
                               setModalState(() {
                                 mensagemErro =
@@ -1178,7 +1143,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               });
                               return;
                             }
-
                             if (ingredientesSelecionados.isEmpty) {
                               setModalState(() {
                                 mensagemErro =
@@ -1186,7 +1150,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               });
                               return;
                             }
-
                             final precoAtual = double.tryParse(
                               precoController.text.replaceAll(',', '.'),
                             );
@@ -1195,7 +1158,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                 .toSet();
                             final ingredientesNovos = ingredientesSelecionados
                                 .toSet();
-
                             final descricaoAtual =
                                 descricaoController.text.trim().isEmpty
                                 ? ''
@@ -1205,7 +1167,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                     refeicao.descricao!.trim().isEmpty)
                                 ? ''
                                 : refeicao.descricao!.trim();
-
                             final semAlteracoes =
                                 nomeController.text == refeicao.nome &&
                                 precoAtual == refeicao.preco &&
@@ -1217,7 +1178,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                 ingredientesNovos
                                     .difference(ingredientesOriginais)
                                     .isEmpty;
-
                             if (semAlteracoes) {
                               setModalState(() {
                                 mensagemErro =
@@ -1225,12 +1185,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               });
                               return;
                             }
-
                             setModalState(() {
                               mensagemErro = null;
                               isSaving = true;
                             });
-
                             try {
                               final preco = double.tryParse(
                                 precoController.text.replaceAll(',', '.'),
@@ -1238,7 +1196,6 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                               if (preco == null) {
                                 throw Exception('Preço inválido');
                               }
-
                               final dto = MealRequestDTO(
                                 nome: nomeController.text,
                                 preco: preco,
@@ -1250,12 +1207,10 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
                                 disponivel: refeicao.disponivel,
                                 ingredientesIds: ingredientesSelecionados,
                               );
-
                               await MealService.atualizarRefeicao(
                                 refeicao.idRefeicao,
                                 dto,
                               );
-
                               if (mounted) {
                                 await _carregarRefeicoes();
                                 navigator.pop();
@@ -1310,4 +1265,4 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       ),
     );
   }
-}
+}

@@ -4,27 +4,22 @@ import 'package:meal4you_app/services/update_email/update_client_email_service.d
 import 'package:meal4you_app/services/update_email/update_email_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/utils/formatter/paste_code_formatter.dart';
-
 class VerifyEmailChangeScreen extends StatefulWidget {
   final String novoEmail;
   final bool isAdm;
-
   const VerifyEmailChangeScreen({
     super.key,
     required this.novoEmail,
     this.isAdm = true,
   });
-
   @override
   State<VerifyEmailChangeScreen> createState() =>
       _VerifyEmailChangeScreenState();
 }
-
 class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
   final _codeControllers = List.generate(6, (_) => TextEditingController());
   final _focusNodes = List.generate(6, (_) => FocusNode());
   bool _isLoading = false;
-
   @override
   void dispose() {
     for (var controller in _codeControllers) {
@@ -35,17 +30,14 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
     }
     super.dispose();
   }
-
   String get _code =>
       _codeControllers.map((controller) => controller.text).join();
-
   void _handlePastedCode(String fullCode) {
     for (int i = 0; i < 6; i++) {
       _codeControllers[i].text = fullCode[i];
     }
     FocusScope.of(context).unfocus();
   }
-
   Future<void> _showConfirmationDialog() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -71,12 +63,10 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
         ],
       ),
     );
-
     if (confirmed == true) {
       await _confirmEmailChange();
     }
   }
-
   Future<void> _confirmEmailChange() async {
     if (_code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -87,11 +77,9 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
       );
       return;
     }
-
     setState(() {
       _isLoading = true;
     });
-
     try {
       if (widget.isAdm) {
         await UpdateEmailService.atualizarEmail(
@@ -104,13 +92,9 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
           codigoVerificacao: _code,
         );
       }
-
       if (!mounted) return;
-
       await UserTokenSaving.clearAll();
-
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('E-mail alterado com sucesso! Faça login novamente.'),
@@ -118,7 +102,6 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
           duration: Duration(seconds: 3),
         ),
       );
-
       Navigator.pushNamedAndRemoveUntil(
         context,
         widget.isAdm ? '/admLogin' : '/clientLogin',
@@ -126,17 +109,14 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-
       setState(() {
         _isLoading = false;
       });
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -269,4 +249,4 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
       ),
     );
   }
-}
+}

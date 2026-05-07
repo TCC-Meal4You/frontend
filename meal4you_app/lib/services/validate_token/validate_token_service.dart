@@ -5,21 +5,16 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 class ValidateTokenService {
   static const String _baseUrl =
       'https://backend-production-b24f.up.railway.app';
-
   static Future<bool> validateToken() async {
     try {
       final token = await UserTokenSaving.getToken();
-
       if (token == null || token.isEmpty) {
         return false;
       }
-
       final userData = await UserTokenSaving.getUserData();
       final userType = userData?['userType'];
       final isClient = userType == 'client';
-
       final endpoint = isClient ? '/usuarios' : '/admins';
-
       final response = await http
           .get(
             Uri.parse('$_baseUrl$endpoint'),
@@ -34,18 +29,14 @@ class ValidateTokenService {
               throw TimeoutException('Timeout ao validar token');
             },
           );
-
       if (response.statusCode == 200) {
         return true;
       }
-
       if (response.statusCode == 401) {
         return false;
       }
-
       return false;
     } catch (e) {
-      print('❌ Erro ao validar token: $e');
       return false;
     }
   }

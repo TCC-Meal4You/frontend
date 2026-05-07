@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
-
 class ClientLoginService {
   static const String baseUrl =
       "https://backend-production-b24f.up.railway.app/usuarios/login";
@@ -22,7 +21,6 @@ class ClientLoginService {
       throw Exception("Erro ao logar: ${response.body}");
     }
   }
-
   static Future<void> handleLogin(
     BuildContext context,
     String email,
@@ -30,15 +28,12 @@ class ClientLoginService {
   ) async {
     try {
       await UserTokenSaving.clearAll();
-
       final response = await loginClient(email: email, senha: senha);
       final token = response["token"] ?? response["accessToken"];
       if (token == null) throw Exception("Token não retornado.");
-
       await UserTokenSaving.saveCurrentUserEmail(email);
       await UserTokenSaving.saveToken(token);
       await UserTokenSaving.saveUserPassword(senha);
-
       final userData = <String, dynamic>{
         ...Map<String, dynamic>.from(response),
         'email': email,
@@ -46,11 +41,9 @@ class ClientLoginService {
         'isAdm': false,
       };
       await UserTokenSaving.saveUserData(userData);
-
       bool hasCompletedRestrictions = false;
       try {
         final restricoes = await UserRestrictionService.buscarRestricoes();
-
         hasCompletedRestrictions = restricoes.isNotEmpty;
         if (hasCompletedRestrictions) {
           await UserTokenSaving.setRestrictionsCompleted(true);
@@ -68,22 +61,18 @@ class ClientLoginService {
           return;
         }
       }
-
       final savedEmail = await UserTokenSaving.getUserEmail();
       if (savedEmail == null) throw Exception("Email não encontrado.");
       if (!context.mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Login realizado: $savedEmail"),
           backgroundColor: const Color.fromARGB(255, 157, 0, 255),
         ),
       );
-
       final destino = hasCompletedRestrictions
           ? '/clientHome'
           : '/restrictionsChoice';
-
       Navigator.pushNamedAndRemoveUntil(context, destino, (_) => false);
     } catch (e) {
       if (context.mounted) {
@@ -93,4 +82,4 @@ class ClientLoginService {
       }
     }
   }
-}
+}

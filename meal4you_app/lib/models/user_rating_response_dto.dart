@@ -9,7 +9,6 @@ class UserRatingResponseDTO {
   final String? comment;
   final DateTime ratingDate;
   final bool hasTime;
-
   UserRatingResponseDTO({
     required this.ratingId,
     this.userId,
@@ -22,16 +21,13 @@ class UserRatingResponseDTO {
     required this.ratingDate,
     this.hasTime = false,
   });
-
   factory UserRatingResponseDTO.fromJson(Map<String, dynamic> json) {
     String? readStringFrom(dynamic source, List<String> keys) {
       if (source == null) return null;
-
       if (source is Map) {
         for (final key in keys) {
           final value = source[key];
           if (value == null) continue;
-
           if (value is String) {
             final trimmed = value.trim();
             if (trimmed.isNotEmpty) return trimmed;
@@ -43,52 +39,42 @@ class UserRatingResponseDTO {
             if (text.isNotEmpty && text != 'null') return text;
           }
         }
-
         for (final value in source.values) {
           final nested = readStringFrom(value, keys);
           if (nested != null && nested.isNotEmpty) return nested;
         }
       }
-
       if (source is List) {
         for (final value in source) {
           final nested = readStringFrom(value, keys);
           if (nested != null && nested.isNotEmpty) return nested;
         }
       }
-
       return null;
     }
-
     dynamic findValueFrom(dynamic source, List<String> keys) {
       if (source == null) return null;
-
       if (source is Map) {
         for (final key in keys) {
           if (source.containsKey(key) && source[key] != null) {
             return source[key];
           }
         }
-
         for (final value in source.values) {
           final nested = findValueFrom(value, keys);
           if (nested != null) return nested;
         }
       }
-
       if (source is List) {
         for (final value in source) {
           final nested = findValueFrom(value, keys);
           if (nested != null) return nested;
         }
       }
-
       return null;
     }
-
     DateTime parseRatingDate(dynamic value) {
       if (value == null) return DateTime.now();
-
       if (value is int) {
         if (value > 1000000000000) {
           return DateTime.fromMillisecondsSinceEpoch(value).toLocal();
@@ -97,18 +83,14 @@ class UserRatingResponseDTO {
           return DateTime.fromMillisecondsSinceEpoch(value * 1000).toLocal();
         }
       }
-
       final raw = value.toString().trim();
       if (raw.isEmpty) return DateTime.now();
-
       final iso = DateTime.tryParse(raw);
       if (iso != null) return iso.toLocal();
-
       final directPatterns = [
         RegExp(r'^(\d{2})/(\d{2})/(\d{4})[ T](\d{2}):(\d{2})(?::(\d{2}))?$'),
         RegExp(r'^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$'),
       ];
-
       for (final pattern in directPatterns) {
         final match = pattern.firstMatch(raw);
         if (match != null) {
@@ -120,7 +102,6 @@ class UserRatingResponseDTO {
             match.group(5),
             match.group(6),
           ];
-
           if (pattern.pattern.startsWith('^(\\d{2})')) {
             final day = int.tryParse(groups[0] ?? '');
             final month = int.tryParse(groups[1] ?? '');
@@ -144,13 +125,11 @@ class UserRatingResponseDTO {
           }
         }
       }
-
       final normalized = raw
           .replaceAll('T', ' ')
           .replaceAll('Z', '')
           .replaceAll('z', '');
       final parts = normalized.split(' ');
-
       final dateParts = parts.first.split('/');
       if (dateParts.length == 3) {
         final day = int.tryParse(dateParts[0]);
@@ -168,14 +147,11 @@ class UserRatingResponseDTO {
                 : 0;
             return DateTime(year, month, day, hour, minute, second);
           }
-
           return DateTime(year, month, day);
         }
       }
-
       return DateTime.now();
     }
-
     final rawDateValue = findValueFrom(json, [
       'dataAvaliacao',
       'createdAt',
@@ -187,7 +163,6 @@ class UserRatingResponseDTO {
       'updatedAt',
       'data',
     ]);
-
     bool detectHasTime(dynamic value) {
       if (value == null) return false;
       if (value is int) return true;
@@ -195,10 +170,8 @@ class UserRatingResponseDTO {
       if (s.contains('T') || s.contains(':')) return true;
       return false;
     }
-
     final parsedDate = parseRatingDate(rawDateValue);
     final hasTimeFlag = detectHasTime(rawDateValue);
-
     return UserRatingResponseDTO(
       ratingId: json['idAvaliacao'] ?? 0,
       userId: json['idUsuario'] ?? json['id_usuario'],
@@ -240,4 +213,4 @@ class UserRatingResponseDTO {
       hasTime: hasTimeFlag,
     );
   }
-}
+}

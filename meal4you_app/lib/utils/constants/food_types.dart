@@ -20,6 +20,5 @@ class FoodTypes {
     'Lanches',
     'Cafeteria',
   ];
-
   const FoodTypes._();
-}
+}

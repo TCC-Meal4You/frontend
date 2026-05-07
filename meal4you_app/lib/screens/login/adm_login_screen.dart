@@ -11,14 +11,12 @@ import 'package:meal4you_app/widgets/submit_button/submit_button.dart';
 
 class AdmLoginScreen extends StatefulWidget {
   const AdmLoginScreen({super.key});
-
   @override
   State<AdmLoginScreen> createState() => _AdmLoginScreenState();
 }
 
 class _AdmLoginScreenState extends State<AdmLoginScreen> {
   bool _isLoading = false;
-
   @override
   void initState() {
     super.initState();
@@ -29,7 +27,6 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
   Future<void> _loginAdm() async {
     final email = LoginControllers.emailController.text.trim();
     final senha = LoginControllers.senhaController.text.trim();
-
     if (email.isEmpty || senha.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -39,15 +36,11 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
       );
       return;
     }
-
     setState(() => _isLoading = true);
-
     try {
       await AdmLoginService.handleLogin(context, email, senha);
-
       LoginControllers.emailController.clear();
       LoginControllers.senhaController.clear();
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -58,7 +51,6 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
         );
       }
     } catch (e) {
-      print('Erro no login: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -154,11 +146,9 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 15),
-
                           const SocialLoginAndRegister(isAdmin: true),
                           const SizedBox(height: 20),
                           const OrDivider(),
-
                           const SizedBox(height: 20),
                           CustomTextField(
                             controller: LoginControllers.emailController,
@@ -170,18 +160,14 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
                             label: "Senha...",
                             obscure: true,
                           ),
-
                           const SizedBox(height: 25),
-
                           SubmitButton(
                             isLoading: _isLoading,
                             onPressed: _loginAdm,
                             buttonText: "Logar",
                             buttonColor: const Color.fromARGB(255, 4, 128, 73),
                           ),
-
                           const SizedBox(height: 20),
-
                           const RegisterRedirectText(
                             registerUserType: RegisterUserType.adm,
                           ),

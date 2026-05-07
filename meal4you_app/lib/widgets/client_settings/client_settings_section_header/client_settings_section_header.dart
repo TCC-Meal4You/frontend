@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 class ClientSettingsSectionHeader extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -7,7 +6,6 @@ class ClientSettingsSectionHeader extends StatelessWidget {
   final String? actionLabel;
   final IconData? actionIcon;
   final VoidCallback? onActionTap;
-
   const ClientSettingsSectionHeader({
     super.key,
     required this.icon,
@@ -17,7 +15,6 @@ class ClientSettingsSectionHeader extends StatelessWidget {
     this.actionIcon,
     this.onActionTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -60,4 +57,4 @@ class ClientSettingsSectionHeader extends StatelessWidget {
       ],
     );
   }
-}
+}

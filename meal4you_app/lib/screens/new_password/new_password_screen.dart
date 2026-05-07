@@ -2,25 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/screens/confirm_password_code/confirm_password_code_screen.dart';
 import 'package:meal4you_app/providers/password_reset/password_reset_provider.dart';
 import 'package:provider/provider.dart';
-
 class NewPasswordScreen extends StatefulWidget {
   final bool isAdm;
-
   const NewPasswordScreen({super.key, required this.isAdm});
-
   @override
   State<NewPasswordScreen> createState() => _NewPasswordScreenState();
 }
-
 class _NewPasswordScreenState extends State<NewPasswordScreen> {
   final TextEditingController passwordController = TextEditingController();
-
   bool isLoading = false;
-
   @override
   Widget build(BuildContext context) {
     final flow = Provider.of<PasswordResetProvider>(context);
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -30,7 +23,6 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
-
               children: [
                 const Text(
                   "Definir nova senha",
@@ -41,17 +33,13 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                     color: Color(0xFF7B3AED),
                   ),
                 ),
-
                 const SizedBox(height: 10),
-
                 const Text(
                   "Insira sua nova Senha. Após isso, você será levado para a tela onde poderá inserir o código que lhe foi enviado.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, color: Colors.black87),
                 ),
-
                 const SizedBox(height: 30),
-
                 TextField(
                   controller: passwordController,
                   obscureText: true,
@@ -67,9 +55,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -89,7 +75,6 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                               );
                               return;
                             }
-
                             if (password.length < 6) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -102,17 +87,12 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                               );
                               return;
                             }
-
                             setState(() => isLoading = true);
-
                             await Future.delayed(
                               const Duration(milliseconds: 500),
                             );
-
                             flow.saveNewPassword(password);
-
                             setState(() => isLoading = false);
-
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -155,4 +135,4 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
       ),
     );
   }
-}
+}

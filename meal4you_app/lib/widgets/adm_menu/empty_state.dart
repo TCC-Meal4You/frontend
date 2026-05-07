@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
 class EmptyState extends StatelessWidget {
   const EmptyState({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -16,15 +14,12 @@ class EmptyState extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  // ignore: deprecated_member_use
                   const Color(0xFF9D00FF).withOpacity(0.1),
-                  // ignore: deprecated_member_use
                   const Color(0xFF9D00FF).withOpacity(0.05),
                 ],
               ),
               shape: BoxShape.circle,
               border: Border.all(
-                // ignore: deprecated_member_use
                 color: const Color(0xFF9D00FF).withOpacity(0.3),
                 width: 2,
               ),
@@ -58,4 +53,4 @@ class EmptyState extends StatelessWidget {
       ),
     );
   }
-}
+}

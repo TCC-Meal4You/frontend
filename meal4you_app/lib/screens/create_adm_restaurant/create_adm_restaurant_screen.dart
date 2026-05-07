@@ -19,7 +19,6 @@ String formatCep(String cep) {
 
 class CreateAdmRestaurantScreen extends StatefulWidget {
   const CreateAdmRestaurantScreen({super.key});
-
   @override
   State<CreateAdmRestaurantScreen> createState() =>
       _CreateAdmRestaurantScreenState();
@@ -35,14 +34,11 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
   final TextEditingController bairroController = TextEditingController();
   final TextEditingController cidadeController = TextEditingController();
   final TextEditingController ufController = TextEditingController();
-
   bool _isActive = false;
   bool _isLoadingCep = false;
-
   final Map<String, bool> _foodTypes = {
     for (final type in FoodTypes.available) type: false,
   };
-
   @override
   void initState() {
     super.initState();
@@ -53,12 +49,10 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
 
   void _loadProviderData() {
     if (!mounted) return;
-
     final restaurantProvider = Provider.of<RestaurantProvider>(
       context,
       listen: false,
     );
-
     nameController.text = restaurantProvider.name;
     descriptionController.text = restaurantProvider.description;
     cepController.text = formatCep(restaurantProvider.cep);
@@ -68,9 +62,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
     bairroController.text = restaurantProvider.bairro;
     cidadeController.text = restaurantProvider.cidade;
     ufController.text = restaurantProvider.uf;
-
     _isActive = restaurantProvider.isActive;
-
     for (var food in restaurantProvider.foodTypes) {
       if (_foodTypes.containsKey(food)) {
         _foodTypes[food] = true;
@@ -98,7 +90,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
       listen: false,
     );
     restaurantProvider.resetRestaurant();
-
     nameController.clear();
     descriptionController.clear();
     cepController.clear();
@@ -109,28 +100,21 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
     cidadeController.clear();
     ufController.clear();
     _isActive = false;
-
     for (var key in _foodTypes.keys) {
       _foodTypes[key] = false;
     }
-
     setState(() {});
   }
 
   Future<void> _buscarCep() async {
     final cep = cepController.text.replaceAll('-', '').trim();
-
     if (cep.isEmpty || cep.length != 8) {
       return;
     }
-
     setState(() => _isLoadingCep = true);
-
     try {
       final resultado = await ViaCepService.consultarCep(cep);
-
       if (!mounted) return;
-
       if (resultado != null) {
         setState(() {
           logradouroController.text = resultado['logradouro'] ?? '';
@@ -139,7 +123,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
           cidadeController.text = resultado['cidade'] ?? '';
           ufController.text = resultado['uf'] ?? '';
         });
-
         final provider = Provider.of<RestaurantProvider>(
           context,
           listen: false,
@@ -149,7 +132,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
         provider.updateBairro(bairroController.text);
         provider.updateCidade(cidadeController.text);
         provider.updateEstado(ufController.text);
-
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -166,7 +148,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
         cidadeController.clear();
         ufController.clear();
       });
-
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -186,7 +167,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
   Widget build(BuildContext context) {
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
     final admLogoutHandler = AdmLogoutHandler();
-
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -275,9 +255,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-
               Container(
                 width: 350,
                 padding: const EdgeInsets.all(16),
@@ -308,7 +286,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-
                     const Text(
                       "Nome do Restaurante *",
                       style: TextStyle(fontWeight: FontWeight.w500),
@@ -329,7 +306,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     const Text(
                       "Descrição *",
                       style: TextStyle(fontWeight: FontWeight.w500),
@@ -370,7 +346,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-
                     const Text(
                       "CEP *",
                       style: TextStyle(fontWeight: FontWeight.w500),
@@ -385,12 +360,10 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               context,
                               listen: false,
                             );
-
                         final cepLimpo = value
                             .replaceAll('-', '')
                             .replaceAll(RegExp(r'[^0-9]'), '');
                         restaurantProvider.updateCep(cepLimpo);
-
                         if (cepLimpo.length == 8) {
                           _buscarCep();
                         } else if (cepLimpo.length < 8) {
@@ -435,7 +408,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       inputFormatters: [CepInputFormatter()],
                     ),
                     const SizedBox(height: 12),
-
                     const Text(
                       "Logradouro *",
                       style: TextStyle(fontWeight: FontWeight.w500),
@@ -455,7 +427,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -514,7 +485,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-
                     const Text(
                       "Bairro *",
                       style: TextStyle(fontWeight: FontWeight.w500),
@@ -534,7 +504,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -596,7 +565,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                       ],
                     ),
                     const SizedBox(height: 30),
-
                     SwitchListTile(
                       title: const Text(
                         "Ativar visibilidade: seu restaurante ficará visível para todos os clientes.\nVocê pode alterar isso depois.",
@@ -659,20 +627,16 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                           );
                           activate = shouldActivate ?? false;
                         }
-
                         setState(() => _isActive = activate);
                         restaurantProvider.updateIsActive(_isActive);
                       },
                     ),
-
                     const SizedBox(height: 30),
-
                     const Text(
                       "Tipos de Comida * (selecione pelo menos um)",
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 8),
-
                     Wrap(
                       spacing: 8,
                       runSpacing: -8,
@@ -718,9 +682,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                         );
                       }).toList(),
                     ),
-
                     const SizedBox(height: 20),
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -729,7 +691,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               .where((e) => e.value)
                               .map((e) => e.key)
                               .toList();
-
                           if (nameController.text.isEmpty ||
                               descriptionController.text.isEmpty ||
                               selected.isEmpty ||
@@ -741,7 +702,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               ufController.text.isEmpty) {
                             String mensagemErro =
                                 "Preencha todos os campos obrigatórios.";
-
                             if (cepController.text.isNotEmpty &&
                                 (logradouroController.text.isEmpty ||
                                     bairroController.text.isEmpty ||
@@ -750,7 +710,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               mensagemErro =
                                   "Digite um CEP válido de 8 dígitos para preencher o endereço automaticamente.";
                             }
-
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(mensagemErro),
@@ -760,7 +719,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             );
                             return;
                           }
-
                           final token = await UserTokenSaving.getToken();
                           if (token == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -772,12 +730,10 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             );
                             return;
                           }
-
                           try {
                             final cepLimpo = cepController.text
                                 .replaceAll('-', '')
                                 .trim();
-
                             final restaurantData =
                                 await RegisterRestaurantService.registerRestaurant(
                                   name: nameController.text,
@@ -796,11 +752,9 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                   cidade: cidadeController.text.trim(),
                                   uf: ufController.text.trim(),
                                 );
-
                             final newRestaurantId =
                                 restaurantData['idRestaurante'] ??
                                 restaurantData['id'];
-
                             restaurantProvider.updateRestaurant(
                               id: newRestaurantId,
                               name: nameController.text,
@@ -815,59 +769,33 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                               cidade: cidadeController.text,
                               uf: ufController.text,
                             );
-
-                            print(
-                              '🏪 CRIAR RESTAURANTE - Iniciando salvamento...',
-                            );
-                            print('🏪 ID do restaurante: $newRestaurantId');
-
                             await UserTokenSaving.saveRestaurantId(
                               newRestaurantId,
                             );
-                            print('✅ RestaurantId salvo');
-
                             final currentUserData =
                                 await UserTokenSaving.getUserData();
-                            print('📦 UserData atual: $currentUserData');
-
                             if (currentUserData != null) {
                               final email =
                                   currentUserData['email'] ??
                                   (currentUserData['user']?['email']);
-
                               if (email != null) {
                                 await UserTokenSaving.saveCurrentUserEmail(
                                   email,
                                 );
-                                print('✅ Email garantido: $email');
-                              } else {
-                                print(
-                                  '⚠️ AVISO: Email não encontrado no userData!',
-                                );
-                              }
-
+                              } else {}
                               currentUserData['userType'] = 'adm';
                               currentUserData['isAdm'] = true;
                               await UserTokenSaving.saveUserData(
                                 currentUserData,
                               );
-                              print('✅ UserData atualizado com flags admin');
                             }
-
-                            // Validar que email existe antes de salvar restaurantData
                             final emailCheck =
                                 await UserTokenSaving.getUserEmail();
-                            print(
-                              '📧 Email disponível para vincular: $emailCheck',
-                            );
-
                             if (emailCheck == null) {
-                              print('❌ ERRO CRÍTICO: Email não disponível!');
                               throw Exception(
                                 'Email do usuário não encontrado',
                               );
                             }
-
                             final restaurantDataToSave = {
                               'idRestaurante': newRestaurantId,
                               'id': newRestaurantId,
@@ -885,25 +813,13 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 'uf': ufController.text,
                               },
                             };
-
                             await UserTokenSaving.saveRestaurantDataForCurrentUser(
                               restaurantDataToSave,
                             );
-                            print('✅ RestaurantData salvo com sucesso');
-
-                            // Validar que foi salvo corretamente
-                            final savedData =
-                                await UserTokenSaving.getRestaurantDataForCurrentUser();
-                            print(
-                              '🔍 Verificação - RestaurantData recuperado: ${savedData != null}',
-                            );
-
                             await Future.delayed(
                               const Duration(milliseconds: 100),
                             );
-
                             if (!mounted) return;
-
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
@@ -911,7 +827,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                                 ),
                               ),
                             );
-
                             Navigator.pushReplacementNamed(
                               context,
                               '/admRestaurantHome',
@@ -925,7 +840,6 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                             );
                           }
                         },
-
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           backgroundColor: const Color.fromARGB(
@@ -952,9 +866,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Text(

@@ -8,7 +8,6 @@ class RestauranteResponseDTO {
   final double? distancia;
   final String? tempoEntrega;
   final double? avaliacaoMedia;
-
   RestauranteResponseDTO({
     required this.idRestaurante,
     required this.nome,
@@ -20,7 +19,6 @@ class RestauranteResponseDTO {
     this.tempoEntrega,
     this.avaliacaoMedia,
   });
-
   RestauranteResponseDTO copyWith({
     int? idRestaurante,
     String? nome,
@@ -44,7 +42,6 @@ class RestauranteResponseDTO {
       avaliacaoMedia: avaliacaoMedia ?? this.avaliacaoMedia,
     );
   }
-
   factory RestauranteResponseDTO.fromJson(Map<String, dynamic> json) {
     return RestauranteResponseDTO(
       idRestaurante: json['idRestaurante'] ?? json['id'] ?? 0,
@@ -62,4 +59,4 @@ class RestauranteResponseDTO {
           : null,
     );
   }
-}
+}

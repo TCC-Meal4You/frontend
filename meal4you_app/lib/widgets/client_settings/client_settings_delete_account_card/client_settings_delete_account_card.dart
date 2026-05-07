@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/widgets/client_settings/client_settings_base_card/client_settings_base_card.dart';
-
 class ClientSettingsDeleteAccountCard extends StatelessWidget {
   final VoidCallback onDelete;
-
   const ClientSettingsDeleteAccountCard({super.key, required this.onDelete});
-
   @override
   Widget build(BuildContext context) {
     return ClientSettingsBaseCard(
@@ -55,4 +52,4 @@ class ClientSettingsDeleteAccountCard extends StatelessWidget {
       ),
     );
   }
-}
+}

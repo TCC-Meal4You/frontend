@@ -1,13 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_type.dart';
-
-
 class LoginRedirectText extends StatelessWidget {
   final UserType userType;
-
   const LoginRedirectText({super.key, required this.userType});
-
   @override
   Widget build(BuildContext context) {
     return RichText(
@@ -38,4 +34,4 @@ class LoginRedirectText extends StatelessWidget {
       ),
     );
   }
-}
+}

@@ -30,10 +30,8 @@ import 'package:meal4you_app/screens/confirm_password_code/confirm_password_code
 import 'package:meal4you_app/screens/verify_email_change/verify_email_change_screen.dart';
 import 'package:meal4you_app/screens/restaurant_detail/restaurant_detail_screen.dart';
 import 'package:meal4you_app/models/restaurante_response_dto.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -43,7 +41,6 @@ void main() async {
       rethrow;
     }
   }
-
   runApp(
     MultiProvider(
       providers: [
@@ -54,10 +51,8 @@ void main() async {
     ),
   );
 }
-
 class Meal4You extends StatelessWidget {
   const Meal4You({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -68,88 +63,71 @@ class Meal4You extends StatelessWidget {
         switch (settings.name) {
           case '/splash':
             return MaterialPageRoute(builder: (_) => const SplashScreen());
-
           case '/admLogin':
             return MaterialPageRoute(builder: (_) => const AdmLoginScreen());
           case '/clientLogin':
             return MaterialPageRoute(builder: (_) => const ClientLoginScreen());
-
           case '/admProfile':
             return MaterialPageRoute(builder: (_) => const AdmProfileScreen());
           case '/clientProfile':
             return MaterialPageRoute(
               builder: (_) => const ClientProfileScreen(),
             );
-
           case '/profileChoice':
             return MaterialPageRoute(
               builder: (_) => const ProfileChoiceScreen(),
             );
-
           case '/admRegister':
             return MaterialPageRoute(builder: (_) => const AdmRegisterScreen());
           case '/clientRegister':
             return MaterialPageRoute(
               builder: (_) => const ClientRegisterScreen(),
             );
-
           case '/restrictionsChoice':
             return MaterialPageRoute(
               builder: (_) => const RestrictionsChoiceScreen(),
             );
-
           case '/createAdmRestaurant':
             return MaterialPageRoute(
               builder: (_) => const CreateAdmRestaurantScreen(),
             );
-
           case '/clientHome':
             return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
-
           case '/admRestaurantHome':
             return MaterialPageRoute(
               builder: (_) => const AdmRestaurantHomeScreen(),
             );
-
           case '/admMenu':
             return MaterialPageRoute(builder: (_) => const AdmMenuScreen());
-
           case '/restaurantSettings':
             return MaterialPageRoute(
               builder: (_) => const RestaurantSettingsScreen(),
             );
-
           case '/verifyCode':
             return MaterialPageRoute(builder: (_) => const VerifyCodeScreen());
-
           case '/ratingsAndComments':
             return MaterialPageRoute(
               builder: (_) => const RatingsAndCommentsScreen(),
             );
-
           case '/clientRatings':
             return MaterialPageRoute(
               builder: (_) => const RatingsAndCommentsScreen(),
             );
-
           case '/sendPasswordCode':
             final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
               builder: (_) => SendPasswordCodeScreen(isAdm: args['isAdm']),
             );
-
           case '/newPassword':
             final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
               builder: (_) => NewPasswordScreen(isAdm: args['isAdm']),
             );
-
           case '/confirmPasswordCode':
             final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
               builder: (_) => ConfirmPasswordCodeScreen(isAdm: args['isAdm']),
             );
-
           case '/verifyEmailChange':
             final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
@@ -158,33 +136,27 @@ class Meal4You extends StatelessWidget {
                 isAdm: args['isAdm'] ?? true,
               ),
             );
-
           case '/manageIngredients':
             return MaterialPageRoute(
               builder: (_) => const ManageIngredientsScreen(),
             );
-
           case '/searchRestaurantAndDish':
             return MaterialPageRoute(
               builder: (_) => const SearchRestaurantAndDishScreen(),
             );
-
           case '/clientSettings':
             return MaterialPageRoute(
               builder: (_) => const ClientSettingsScreen(),
             );
-
           case '/clientFavorites':
             return MaterialPageRoute(
               builder: (_) => const ClientFavoritesScreen(),
             );
-
           case '/restaurantDetail':
             final args = settings.arguments as RestauranteResponseDTO;
             return MaterialPageRoute(
               builder: (_) => RestaurantDetailScreen(restaurant: args),
             );
-
           default:
             return MaterialPageRoute(
               builder: (_) => const Scaffold(
@@ -195,4 +167,4 @@ class Meal4You extends StatelessWidget {
       },
     );
   }
-}
+}

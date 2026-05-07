@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
-
 class ProfileChoiceBackButton extends StatefulWidget {
   final String routeName;
-
   const ProfileChoiceBackButton({super.key, this.routeName = '/profileChoice'});
-
   @override
   State<ProfileChoiceBackButton> createState() =>
       _ProfileChoiceBackButtonState();
 }
-
 class _ProfileChoiceBackButtonState extends State<ProfileChoiceBackButton>
     with SingleTickerProviderStateMixin {
   AnimationController? _controller;
   bool _pressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -23,17 +18,14 @@ class _ProfileChoiceBackButtonState extends State<ProfileChoiceBackButton>
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
   }
-
   @override
   void dispose() {
     _controller?.dispose();
     super.dispose();
   }
-
   void _goBack() {
     Navigator.of(context).pushReplacementNamed(widget.routeName);
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -51,7 +43,6 @@ class _ProfileChoiceBackButtonState extends State<ProfileChoiceBackButton>
             final t = _controller?.value ?? 0.5;
             final floatOffset = -3 + (t * 6);
             final scale = _pressed ? 0.96 : 1.0 + (t * 0.025);
-
             return Transform.translate(
               offset: Offset(0, floatOffset),
               child: Transform.scale(scale: scale, child: child),
@@ -119,4 +110,4 @@ class _ProfileChoiceBackButtonState extends State<ProfileChoiceBackButton>
       ),
     );
   }
-}
+}

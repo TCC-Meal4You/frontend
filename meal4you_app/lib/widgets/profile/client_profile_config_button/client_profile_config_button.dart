@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-
 class ClientProfileConfigButton extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String label;
   final VoidCallback onTap;
-
   const ClientProfileConfigButton({
     super.key,
     required this.icon,
@@ -13,7 +11,6 @@ class ClientProfileConfigButton extends StatelessWidget {
     required this.label,
     required this.onTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -45,4 +42,4 @@ class ClientProfileConfigButton extends StatelessWidget {
       ),
     );
   }
-}
+}

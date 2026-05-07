@@ -3,21 +3,16 @@ import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/update_restaurant/update_restaurant_service.dart';
 import 'package:meal4you_app/utils/constants/food_types.dart';
 import 'package:provider/provider.dart';
-
 class FoodTypeSelectorScreen extends StatefulWidget {
   final int restaurantId;
   const FoodTypeSelectorScreen({super.key, required this.restaurantId});
-
   @override
   State<FoodTypeSelectorScreen> createState() => _FoodTypeSelectorScreenState();
 }
-
 class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
   final List<String> availableTypes = FoodTypes.available;
-
   late List<String> selectedTypes;
   bool _isSaving = false;
-
   @override
   void initState() {
     super.initState();
@@ -30,7 +25,6 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
     });
     selectedTypes = [];
   }
-
   void _showValidationDialog() {
     showDialog(
       context: context,
@@ -79,23 +73,18 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
       ),
     );
   }
-
   Future<void> _saveSelection() async {
     if (selectedTypes.isEmpty) {
       _showValidationDialog();
       return;
     }
-
     final provider = Provider.of<RestaurantProvider>(context, listen: false);
-
     final initialTypes = List<String>.from(provider.foodTypes);
     final hasChanges =
         selectedTypes.length != initialTypes.length ||
         !selectedTypes.every((type) => initialTypes.contains(type));
-
     if (!hasChanges) {
       Navigator.pop(context);
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Nenhuma alteração foi detectada."),
@@ -105,16 +94,11 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
       );
       return;
     }
-
     setState(() => _isSaving = true);
-
     provider.updateFoodTypes(selectedTypes);
-
     try {
       await UpdateRestaurantService.updateRestaurant(provider: provider);
-
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Tipos de comida atualizados com sucesso!"),
@@ -124,7 +108,6 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erro: $e"), backgroundColor: Colors.redAccent),
       );
@@ -134,30 +117,24 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final initiallySelected = List<String>.from(
       Provider.of<RestaurantProvider>(context, listen: false).foodTypes,
     );
-
     final currentlySelected = selectedTypes
         .where((type) => initiallySelected.contains(type))
         .toList();
-
     final newlyAdded = selectedTypes
         .where((type) => !initiallySelected.contains(type))
         .toList();
-
     final availableToSelect = availableTypes
         .where((type) => !selectedTypes.contains(type))
         .toList();
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-
         if (selectedTypes.isEmpty) {
           _showValidationDialog();
         } else {
@@ -205,7 +182,6 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
@@ -244,7 +220,6 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                                     15,
                                     230,
                                     135,
-                                    // ignore: deprecated_member_use
                                   ).withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
@@ -290,7 +265,6 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                       const Divider(),
                       const SizedBox(height: 16),
                     ],
-
                     if (newlyAdded.isNotEmpty) ...[
                       const Align(
                         alignment: Alignment.centerLeft,
@@ -318,7 +292,6 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                               borderRadius: BorderRadius.circular(25),
                               boxShadow: [
                                 BoxShadow(
-                                  // ignore: deprecated_member_use
                                   color: Colors.deepPurple.withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
@@ -358,7 +331,6 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                       const Divider(),
                       const SizedBox(height: 16),
                     ],
-
                     if (availableToSelect.isNotEmpty) ...[
                       const Align(
                         alignment: Alignment.centerLeft,
@@ -373,7 +345,6 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                       ),
                       const SizedBox(height: 12),
                     ],
-
                     Wrap(
                       spacing: 12,
                       runSpacing: 12,
@@ -415,14 +386,12 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
                 ),
               ),
             ),
-
             Container(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 60),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    // ignore: deprecated_member_use
                     color: Colors.black.withOpacity(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -3),
@@ -479,4 +448,4 @@ class _FoodTypeSelectorScreenState extends State<FoodTypeSelectorScreen> {
       ),
     );
   }
-}
+}

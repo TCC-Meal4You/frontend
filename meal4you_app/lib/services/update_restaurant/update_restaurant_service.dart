@@ -6,7 +6,6 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 class UpdateRestaurantService {
   static const String baseUrl =
       'https://backend-production-b24f.up.railway.app/restaurantes';
-
   static Future<Map<String, dynamic>?> updateRestaurant({
     required RestaurantProvider provider,
   }) async {
@@ -17,15 +16,11 @@ class UpdateRestaurantService {
           "ID do restaurante não encontrado. Faça login novamente.",
         );
       }
-
       final token = await UserTokenSaving.getToken();
       if (token == null) {
         throw Exception("Token não encontrado.");
       }
-
       final url = Uri.parse('$baseUrl/$id');
-      print("🔸 Atualizando restaurante ID: $id");
-
       final response = await http.put(
         url,
         headers: {
@@ -48,14 +43,11 @@ class UpdateRestaurantService {
           'uf': provider.uf,
         }),
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         if (data['id'] != null) {
           await UserTokenSaving.saveRestaurantId(data['id']);
         }
-
         await UserTokenSaving.saveRestaurantDataForCurrentUser(data);
         return data;
       } else {
@@ -64,7 +56,6 @@ class UpdateRestaurantService {
         );
       }
     } catch (e) {
-      print('❌ Erro ao atualizar restaurante: $e');
       rethrow;
     }
   }

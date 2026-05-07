@@ -2,192 +2,133 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/validate_token/validate_token_service.dart';
 import 'dart:math' as math;
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
-
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _logoController;
   late Animation<double> _logoScale;
   late Animation<double> _logoRotation;
-
   late AnimationController _textController;
   late Animation<double> _textOpacity;
   late Animation<Offset> _textSlide;
-
   late AnimationController _bgController;
-
   late AnimationController _pulseController;
   late Animation<double> _pulseScale;
-
   late AnimationController _particlesController;
-
   @override
   void initState() {
     super.initState();
-
     _logoController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
-
     _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
-
     _logoRotation = Tween<double>(begin: -math.pi * 2, end: 0.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.easeOutBack),
     );
-
     _logoController.forward();
-
     _textController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-
     _textOpacity = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _textController,
         curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
       ),
     );
-
     _textSlide = Tween<Offset>(begin: const Offset(0, 1.5), end: Offset.zero)
         .animate(
           CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic),
         );
-
     Future.delayed(const Duration(milliseconds: 800), () {
       _textController.forward();
     });
-
     _bgController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 6),
     )..repeat(reverse: true);
-
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
-
     _pulseScale = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-
     _particlesController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat();
-
     Future.delayed(const Duration(seconds: 5), _checkLogin);
   }
-
   Future<void> _checkLogin() async {
     final token = await UserTokenSaving.getToken();
     final userData = await UserTokenSaving.getUserData();
-
-
     if (token == null || userData == null) {
-
       _goTo('/profileChoice');
       return;
     }
-
     final userType = userData['userType'];
     final tipo = userData['tipo'];
     final isAdmField = userData['isAdm'];
-
     final isAdmByUserType = userType == 'adm';
     final isAdmByTipo = tipo == 'adm';
     final isAdmByField = isAdmField == true;
-
     if (isAdmByUserType || isAdmByTipo || isAdmByField) {
- 
-
       bool isTokenValid = false;
       try {
         isTokenValid = await ValidateTokenService.validateToken();
       } catch (e) {
-
         isTokenValid = false;
       }
-
       if (!isTokenValid) {
-
         await UserTokenSaving.clearAll();
         _goTo('/profileChoice');
         return;
       }
-
-  
-
       final restaurantId = await UserTokenSaving.getRestaurantId();
       final restaurantData =
           await UserTokenSaving.getRestaurantDataForCurrentUser();
-
-   
-
       if (restaurantData != null && restaurantData.isNotEmpty) {
-       
         _goTo('/admRestaurantHome');
         return;
       }
-
       if (restaurantId != null && restaurantId > 0) {
-       
         _goTo('/createAdmRestaurant');
         return;
       }
-
-     
       _goTo('/createAdmRestaurant');
       return;
     }
-
-   
-
     bool isTokenValid = false;
     try {
       isTokenValid = await ValidateTokenService.validateToken();
     } catch (e) {
-     
       isTokenValid = false;
     }
-
     if (!isTokenValid) {
-     
       await UserTokenSaving.clearAll();
       _goTo('/profileChoice');
       return;
     }
-
-  
     final hasCompletedRestrictions =
         await UserTokenSaving.hasCompletedRestrictions();
-
-   
-
     if (hasCompletedRestrictions) {
-      
       _goTo('/clientHome');
     } else {
-    
       _goTo('/restrictionsChoice');
     }
   }
-
   void _goTo(String route) {
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, route);
   }
-
   @override
   void dispose() {
     _logoController.dispose();
@@ -197,7 +138,6 @@ class _SplashScreenState extends State<SplashScreen>
     _particlesController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -206,7 +146,6 @@ class _SplashScreenState extends State<SplashScreen>
         animation: Listenable.merge([_bgController, _particlesController]),
         builder: (context, child) {
           final t = _bgController.value;
-
           final color1 = Color.lerp(
             const Color(0xFF9D00FF),
             const Color(0xFF00FFA3),
@@ -217,7 +156,6 @@ class _SplashScreenState extends State<SplashScreen>
             const Color(0xFF9D00FF),
             t,
           )!;
-
           return Scaffold(
             body: Stack(
               children: [
@@ -230,7 +168,6 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                 ),
-
                 ...List.generate(8, (index) {
                   final delay = index * 0.125;
                   final progress = (_particlesController.value + delay) % 1.0;
@@ -238,7 +175,6 @@ class _SplashScreenState extends State<SplashScreen>
                     (index % 4) * 0.25 + math.sin(progress * math.pi * 2) * 0.1,
                     progress,
                   );
-
                   return Positioned(
                     left: MediaQuery.of(context).size.width * offset.dx,
                     top: MediaQuery.of(context).size.height * offset.dy,
@@ -255,7 +191,6 @@ class _SplashScreenState extends State<SplashScreen>
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              // ignore: deprecated_member_use
                               color: Colors.white.withOpacity(0.5),
                               blurRadius: 8,
                               spreadRadius: 2,
@@ -284,7 +219,6 @@ class _SplashScreenState extends State<SplashScreen>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      // ignore: deprecated_member_use
                                       color: Colors.white.withOpacity(
                                         0.2 * (1 - _pulseController.value),
                                       ),
@@ -301,7 +235,6 @@ class _SplashScreenState extends State<SplashScreen>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      // ignore: deprecated_member_use
                                       color: Colors.white.withOpacity(
                                         0.3 *
                                             (1 - _pulseController.value * 0.7),
@@ -324,7 +257,6 @@ class _SplashScreenState extends State<SplashScreen>
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              // ignore: deprecated_member_use
                                               color: Colors.white.withOpacity(
                                                 0.3,
                                               ),
@@ -347,9 +279,7 @@ class _SplashScreenState extends State<SplashScreen>
                           );
                         },
                       ),
-
                       const SizedBox(height: 40),
-
                       SlideTransition(
                         position: _textSlide,
                         child: FadeTransition(
@@ -360,7 +290,6 @@ class _SplashScreenState extends State<SplashScreen>
                                 shaderCallback: (bounds) => LinearGradient(
                                   colors: [
                                     Colors.white,
-                                    // ignore: deprecated_member_use
                                     Colors.white.withOpacity(0.95),
                                   ],
                                 ).createShader(bounds),
@@ -389,7 +318,6 @@ class _SplashScreenState extends State<SplashScreen>
                                   fontWeight: FontWeight.w400,
                                   fontFamily: 'Ubuntu',
                                   letterSpacing: 1.2,
-                                  // ignore: deprecated_member_use
                                   color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
@@ -401,7 +329,6 @@ class _SplashScreenState extends State<SplashScreen>
                                   fontWeight: FontWeight.w400,
                                   fontFamily: 'Ubuntu',
                                   letterSpacing: 1.2,
-                                  // ignore: deprecated_member_use
                                   color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
@@ -419,4 +346,4 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
-}
+}

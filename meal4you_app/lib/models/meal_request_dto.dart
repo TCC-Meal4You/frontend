@@ -5,7 +5,6 @@ class MealRequestDTO {
   final String? descricao;
   final bool disponivel;
   final List<int> ingredientesIds;
-
   MealRequestDTO({
     required this.nome,
     required this.preco,
@@ -14,7 +13,6 @@ class MealRequestDTO {
     required this.disponivel,
     required this.ingredientesIds,
   });
-
   Map<String, dynamic> toJson() {
     return {
       'nome': nome,
@@ -25,4 +23,4 @@ class MealRequestDTO {
       'ingredientesIds': ingredientesIds,
     };
   }
-}
+}

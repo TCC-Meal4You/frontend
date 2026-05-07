@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 class ClientSettingsInfoLabel extends StatelessWidget {
   final String text;
-
   const ClientSettingsInfoLabel({super.key, required this.text});
-
   @override
   Widget build(BuildContext context) {
     return Text(
@@ -16,4 +13,4 @@ class ClientSettingsInfoLabel extends StatelessWidget {
       ),
     );
   }
-}
+}

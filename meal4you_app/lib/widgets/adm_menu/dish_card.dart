@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
-
 class DishCard extends StatefulWidget {
   final MealResponseDTO refeicao;
   final int index;
   final Function(MealResponseDTO) onEdit;
   final Future<bool> Function(int, VoidCallback) onDelete;
   final Function(int, bool) onToggleAvailability;
-
   const DishCard({
     super.key,
     required this.refeicao,
@@ -16,24 +14,19 @@ class DishCard extends StatefulWidget {
     required this.onDelete,
     required this.onToggleAvailability,
   });
-
   @override
   State<DishCard> createState() => _DishCardState();
 }
-
 class _DishCardState extends State<DishCard> {
   bool _isDeleting = false;
-
   Future<void> _handleDelete() async {
     if (_isDeleting) return;
-
     try {
       final success = await widget.onDelete(widget.refeicao.idRefeicao, () {
         if (mounted) {
           setState(() => _isDeleting = true);
         }
       });
-
       if (!success && mounted) {
         setState(() => _isDeleting = false);
       }
@@ -43,7 +36,6 @@ class _DishCardState extends State<DishCard> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -53,7 +45,6 @@ class _DishCardState extends State<DishCard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 15,
             offset: const Offset(0, 5),
@@ -239,4 +230,4 @@ class _DishCardState extends State<DishCard> {
       ),
     );
   }
-}
+}

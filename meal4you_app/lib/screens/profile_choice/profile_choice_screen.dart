@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
-
 class ProfileChoiceScreen extends StatefulWidget {
   const ProfileChoiceScreen({super.key});
-
   @override
   State<ProfileChoiceScreen> createState() => _ProfileChoiceScreenState();
 }
-
 class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
   int _currentIndex = 0;
-
   final List<List<Color>> _gradients = [
     [Color.fromARGB(255, 27, 28, 28), Color.fromARGB(255, 136, 0, 255)],
     [Color.fromARGB(255, 27, 28, 28), Color.fromARGB(223, 0, 203, 166)],
   ];
-
   final List<Color> _buttonColors = [
     Color.fromARGB(255, 157, 0, 255),
     Color.fromARGB(255, 4, 128, 73),
   ];
-
   final List<Map<String, String>> _texts = [
     {
       "title": "Cliente",
@@ -34,10 +28,8 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
       "image": "assets/images/adm.png",
     },
   ];
-
   void _onSwipe(DragEndDetails details) {
     if (details.primaryVelocity == null) return;
-
     if (details.primaryVelocity! < 0) {
       setState(() {
         _currentIndex = (_currentIndex + 1) % _gradients.length;
@@ -49,12 +41,10 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     double containerHeight = MediaQuery.of(context).size.height / 3;
     double imageHeight = 500;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -215,4 +205,4 @@ class _ProfileChoiceScreenState extends State<ProfileChoiceScreen> {
       ),
     );
   }
-}
+}

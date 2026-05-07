@@ -1,13 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
 enum RegisterUserType { client, adm }
-
 class RegisterRedirectText extends StatelessWidget {
   final RegisterUserType registerUserType;
-
   const RegisterRedirectText({super.key, required this.registerUserType});
-
   @override
   Widget build(BuildContext context) {
     return RichText(
@@ -38,4 +34,4 @@ class RegisterRedirectText extends StatelessWidget {
       ),
     );
   }
-}
+}

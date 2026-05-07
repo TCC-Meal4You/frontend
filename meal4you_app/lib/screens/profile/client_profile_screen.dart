@@ -10,7 +10,6 @@ import 'package:meal4you_app/widgets/profile/client_restrictions_modal/client_re
 
 class ClientProfileScreen extends StatefulWidget {
   const ClientProfileScreen({super.key});
-
   @override
   State<ClientProfileScreen> createState() => _ClientProfileScreenState();
 }
@@ -21,7 +20,6 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
   List<String> _restricoes = [];
   int _numFavoritos = 0;
   int _numAvaliacoes = 0;
-
   @override
   void initState() {
     super.initState();
@@ -31,7 +29,6 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
   Future<void> _loadUserName() async {
     try {
       final profileData = await SearchClientProfileService.buscarMeuPerfil();
-
       if (!mounted) return;
       setState(() {
         _nome = (profileData['nome'] ?? '').toString().trim();
@@ -68,16 +65,13 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
             .where((r) => r.isNotEmpty)
             .toList();
       }
-    } catch (e) {
-      debugPrint('Erro ao extrair restrições: $e');
-    }
+    } catch (e) {}
     return [];
   }
 
   @override
   Widget build(BuildContext context) {
     final clientLogoutHandler = ClientLogoutHandler();
-
     return PopScope(
       canPop: false,
       child: SafeArea(

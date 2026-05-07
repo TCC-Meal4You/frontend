@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-
 class ClientProfileRestrictionsCard extends StatelessWidget {
   final List<String> restricoes;
   final VoidCallback? onTap;
-
   const ClientProfileRestrictionsCard({
     super.key,
     required this.restricoes,
     this.onTap,
   });
-
   MaterialColor _getColorFromString(String text) {
     final hash = text.hashCode;
     final colors = [
@@ -30,7 +27,6 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
     ];
     return colors[hash.abs() % colors.length];
   }
-
   @override
   Widget build(BuildContext context) {
     final card = Container(
@@ -93,7 +89,6 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
                     color: cor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -102,7 +97,6 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      // ignore: deprecated_member_use
                       color: cor[700],
                     ),
                   ),
@@ -112,11 +106,9 @@ class ClientProfileRestrictionsCard extends StatelessWidget {
         ],
       ),
     );
-
     if (onTap != null) {
       return GestureDetector(onTap: onTap, child: card);
     }
-
     return card;
   }
-}
+}

@@ -8,37 +8,29 @@ import 'package:meal4you_app/widgets/or_divider/or_divider.dart';
 import 'package:meal4you_app/widgets/redirect_text/register_redirect_text.dart';
 import 'package:meal4you_app/widgets/social_button/social_login_and_register.dart';
 import 'package:meal4you_app/widgets/submit_button/submit_button.dart';
-
 class ClientLoginScreen extends StatefulWidget {
   const ClientLoginScreen({super.key});
-
   @override
   State<ClientLoginScreen> createState() => _ClientLoginScreenState();
 }
-
 class _ClientLoginScreenState extends State<ClientLoginScreen> {
   bool _isLoading = false;
-
   @override
   void initState() {
     super.initState();
     LoginControllers.emailController.clear();
     LoginControllers.senhaController.clear();
   }
-
   Future<void> _loginClient() async {
     final email = LoginControllers.emailController.text.trim();
     final senha = LoginControllers.senhaController.text.trim();
-
     if (email.isEmpty || senha.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Preencha email e senha")));
       return;
     }
-
     setState(() => _isLoading = true);
-
     try {
       await ClientLoginService.handleLogin(context, email, senha);
     } catch (e) {
@@ -49,7 +41,6 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -140,11 +131,9 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 15),
-
                           const SocialLoginAndRegister(isAdmin: false),
                           const SizedBox(height: 20),
                           const OrDivider(),
-
                           const SizedBox(height: 20),
                           CustomTextField(
                             controller: LoginControllers.emailController,
@@ -156,17 +145,13 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                             label: "Senha...",
                             obscure: true,
                           ),
-
                           const SizedBox(height: 25),
-
                           SubmitButton(
                             isLoading: _isLoading,
                             onPressed: _loginClient,
                             buttonText: "Logar",
                           ),
-
                           const SizedBox(height: 20),
-
                           const RegisterRedirectText(
                             registerUserType: RegisterUserType.client,
                           ),
@@ -185,4 +170,4 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
       ),
     );
   }
-}
+}

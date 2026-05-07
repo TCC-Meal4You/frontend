@@ -6,27 +6,20 @@ import 'package:meal4you_app/services/favorite/restaurant_favorite_service.dart'
 import 'package:meal4you_app/widgets/navigation/client_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/search/meal_card.dart';
 import 'package:meal4you_app/widgets/search/restaurant_card.dart';
-
 class ClientFavoritesScreen extends StatefulWidget {
   const ClientFavoritesScreen({super.key});
-
   @override
   State<ClientFavoritesScreen> createState() => _ClientFavoritesScreenState();
 }
-
 class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
   List<RestauranteResponseDTO> _restaurantes = [];
   List<MealResponseDTO> _refeicoes = [];
-
   bool _isLoadingRestaurants = true;
   bool _isLoadingMeals = true;
-
   final Set<int> _restaurantFavoriteLoading = {};
   final Set<int> _mealFavoriteLoading = {};
-
   @override
   void initState() {
     super.initState();
@@ -34,20 +27,16 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
     _loadFavoriteRestaurants();
     _loadFavoriteMeals();
   }
-
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
-
   Future<void> _loadFavoriteRestaurants() async {
     if (!mounted) return;
     setState(() => _isLoadingRestaurants = true);
-
     try {
       final restaurantes = await RestaurantFavoriteService.listarFavoritos();
-
       if (!mounted) return;
       setState(() {
         _restaurantes = restaurantes;
@@ -61,14 +50,11 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       );
     }
   }
-
   Future<void> _loadFavoriteMeals() async {
     if (!mounted) return;
     setState(() => _isLoadingMeals = true);
-
     try {
       final refeicoes = await MealFavoriteService.listarFavoritos();
-
       if (!mounted) return;
       setState(() {
         _refeicoes = refeicoes;
@@ -82,20 +68,16 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       );
     }
   }
-
   Future<void> _toggleRestaurantFavorite(int index) async {
     final restaurante = _restaurantes[index];
     final restauranteId = restaurante.idRestaurante;
-
     if (_restaurantFavoriteLoading.contains(restauranteId)) {
       return;
     }
-
     setState(() {
       _restaurantFavoriteLoading.add(restauranteId);
       _restaurantes.removeAt(index);
     });
-
     try {
       await RestaurantFavoriteService.alternarFavorito(restauranteId);
     } catch (e) {
@@ -113,20 +95,16 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       });
     }
   }
-
   Future<void> _toggleMealFavorite(int index) async {
     final refeicao = _refeicoes[index];
     final refeicaoId = refeicao.idRefeicao;
-
     if (_mealFavoriteLoading.contains(refeicaoId)) {
       return;
     }
-
     setState(() {
       _mealFavoriteLoading.add(refeicaoId);
       _refeicoes.removeAt(index);
     });
-
     try {
       await MealFavoriteService.alternarFavorito(refeicaoId);
     } catch (e) {
@@ -144,16 +122,13 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       });
     }
   }
-
   Widget _buildRestaurantsTab() {
     if (_isLoadingRestaurants) {
       return const Center(child: CircularProgressIndicator());
     }
-
     if (_restaurantes.isEmpty) {
       return const Center(child: Text('Nenhum restaurante favorito ainda'));
     }
-
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       itemCount: _restaurantes.length,
@@ -166,16 +141,13 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       },
     );
   }
-
   Widget _buildMealsTab() {
     if (_isLoadingMeals) {
       return const Center(child: CircularProgressIndicator());
     }
-
     if (_refeicoes.isEmpty) {
       return const Center(child: Text('Nenhum prato favorito ainda'));
     }
-
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       itemCount: _refeicoes.length,
@@ -188,7 +160,6 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -268,4 +239,4 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       ),
     );
   }
-}
+}

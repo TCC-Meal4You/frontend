@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 class AdmBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
-
   const AdmBottomNavigationBar({super.key, required this.currentIndex});
-
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
@@ -24,16 +21,14 @@ class AdmBottomNavigationBar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: (index) {
         if (index == currentIndex) return;
-
         final routeName = switch (index) {
           0 => '/admRestaurantHome',
           1 => '/admProfile',
           _ => null,
         };
-
         if (routeName == null) return;
         Navigator.pushReplacementNamed(context, routeName);
       },
     );
   }
-}
+}

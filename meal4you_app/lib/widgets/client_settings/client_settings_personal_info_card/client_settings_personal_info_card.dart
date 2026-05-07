@@ -3,7 +3,6 @@ import 'package:meal4you_app/widgets/client_settings/client_settings_base_card/c
 import 'package:meal4you_app/widgets/client_settings/client_settings_info_label/client_settings_info_label.dart';
 import 'package:meal4you_app/widgets/client_settings/client_settings_section_header/client_settings_section_header.dart';
 import 'package:meal4you_app/widgets/client_settings/client_settings_social_login_info_box/client_settings_social_login_info_box.dart';
-
 class ClientSettingsPersonalInfoCard extends StatelessWidget {
   final bool isLoading;
   final String nome;
@@ -20,7 +19,6 @@ class ClientSettingsPersonalInfoCard extends StatelessWidget {
   final VoidCallback onTogglePassword;
   final VoidCallback onTogglePasswordField;
   final VoidCallback onSaveChanges;
-
   const ClientSettingsPersonalInfoCard({
     super.key,
     required this.isLoading,
@@ -39,7 +37,6 @@ class ClientSettingsPersonalInfoCard extends StatelessWidget {
     required this.onTogglePasswordField,
     required this.onSaveChanges,
   });
-
   @override
   Widget build(BuildContext context) {
     return ClientSettingsBaseCard(
@@ -191,4 +188,4 @@ class ClientSettingsPersonalInfoCard extends StatelessWidget {
       ),
     );
   }
-}
+}

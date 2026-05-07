@@ -2,38 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/restriction_response_dto.dart';
 import 'package:meal4you_app/services/restriction/restriction_service.dart';
 import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
-
 class ClientRestrictionsModal extends StatefulWidget {
   final List<String> restricoesAtuais;
   final VoidCallback onRestrictionsSaved;
-
   const ClientRestrictionsModal({
     super.key,
     required this.restricoesAtuais,
     required this.onRestrictionsSaved,
   });
-
   @override
   State<ClientRestrictionsModal> createState() =>
       _ClientRestrictionsModalState();
 }
-
 class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
   List<RestrictionResponseDTO> _restricoesDisponiveis = [];
   Set<int> _restricoesSelecionadas = {};
   bool _isLoading = true;
   bool _isSaving = false;
-
   @override
   void initState() {
     super.initState();
     _carregarRestricoes();
   }
-
   Future<void> _carregarRestricoes() async {
     try {
       final restricoes = await RestrictionService.listarRestricoes();
-
       if (!mounted) return;
       setState(() {
         _restricoesDisponiveis = restricoes;
@@ -55,14 +48,12 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       );
     }
   }
-
   Future<void> _salvarRestricoes() async {
     setState(() => _isSaving = true);
     try {
       await UserRestrictionService.atualizarRestricoes(
         _restricoesSelecionadas.toList(),
       );
-
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -83,7 +74,6 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       );
     }
   }
-
   void _toggleRestricao(int idRestricao) {
     setState(() {
       if (_restricoesSelecionadas.contains(idRestricao)) {
@@ -93,7 +83,6 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       }
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -150,7 +139,6 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
                             final isSelected = _restricoesSelecionadas.contains(
                               restricao.idRestricao,
                             );
-
                             return CheckboxListTile(
                               title: Text(
                                 restricao.nome,
@@ -216,4 +204,4 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       ),
     );
   }
-}
+}
