@@ -1,8 +1,21 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/restaurante_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class RestaurantFavoriteService {
+  static final ValueNotifier<Map<int, bool>> favoritosNotifier = ValueNotifier(
+    <int, bool>{},
+  );
+
+  static void setFavoritoLocal(int restauranteId, bool isFavorito) {
+    favoritosNotifier.value = {
+      ...favoritosNotifier.value,
+      restauranteId: isFavorito,
+    };
+  }
+
   static const String baseUrl =
       'https://backend-production-b24f.up.railway.app/restaurantes';
   static Future<void> alternarFavorito(int restauranteId) async {
@@ -25,6 +38,7 @@ class RestaurantFavoriteService {
     }
     throw Exception('Erro ao alternar favorito (${response.statusCode})');
   }
+
   static Future<List<RestauranteResponseDTO>> listarFavoritos() async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -49,4 +63,13 @@ class RestaurantFavoriteService {
     }
     throw Exception('Erro ao listar favoritos (${response.statusCode})');
   }
-}
+
+  static Future<int> contarFavoritos() async {
+    try {
+      final favoritos = await listarFavoritos();
+      return favoritos.length;
+    } catch (e) {
+      return 0;
+    }
+  }
+}

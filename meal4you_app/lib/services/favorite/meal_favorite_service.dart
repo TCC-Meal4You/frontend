@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class MealFavoriteService {
   static const String baseUrl =
       'https://backend-production-b24f.up.railway.app/refeicoes';
@@ -27,6 +28,7 @@ class MealFavoriteService {
       'Erro ao alternar favorito da refeicao (${response.statusCode})',
     );
   }
+
   static Future<List<MealResponseDTO>> listarFavoritos() async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -53,4 +55,13 @@ class MealFavoriteService {
       'Erro ao listar refeicoes favoritas (${response.statusCode})',
     );
   }
-}
+
+  static Future<int> contarFavoritos() async {
+    try {
+      final favoritos = await listarFavoritos();
+      return favoritos.length;
+    } catch (e) {
+      return 0;
+    }
+  }
+}
