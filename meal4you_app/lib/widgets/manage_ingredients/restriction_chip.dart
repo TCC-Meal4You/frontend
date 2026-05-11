@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+
 class RestrictionChip extends StatelessWidget {
   final String restriction;
-  const RestrictionChip({super.key, required this.restriction});
+  final int seed;
+  const RestrictionChip({super.key, required this.restriction, this.seed = 0});
+
   MaterialColor _getColorFromString(String text) {
-    final hash = text.hashCode;
+    final normalized = text.trim().toLowerCase();
+    var hash = 2166136261;
+    for (final codeUnit in normalized.codeUnits) {
+      hash ^= codeUnit;
+      hash = (hash * 16777619) & 0x7fffffff;
+    }
+    hash = (hash ^ (seed * 31)) & 0x7fffffff;
     final colors = [
       Colors.red,
       Colors.pink,
@@ -20,8 +29,9 @@ class RestrictionChip extends StatelessWidget {
       Colors.brown,
       Colors.blueGrey,
     ];
-    return colors[hash.abs() % colors.length];
+    return colors[hash % colors.length];
   }
+
   @override
   Widget build(BuildContext context) {
     final cor = _getColorFromString(restriction);
@@ -41,4 +51,4 @@ class RestrictionChip extends StatelessWidget {
       ),
     );
   }
-}
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/ingredient_response_dto.dart';
 import 'package:meal4you_app/widgets/manage_ingredients/restriction_chip.dart';
+
 class IngredientCard extends StatefulWidget {
   final IngredientResponseDTO ingrediente;
   final Future<bool> Function(int, String, VoidCallback) onDelete;
@@ -12,6 +13,7 @@ class IngredientCard extends StatefulWidget {
   @override
   State<IngredientCard> createState() => _IngredientCardState();
 }
+
 class _IngredientCardState extends State<IngredientCard> {
   bool _isDeleting = false;
   Future<void> _handleDelete() async {
@@ -35,6 +37,7 @@ class _IngredientCardState extends State<IngredientCard> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -107,9 +110,13 @@ class _IngredientCardState extends State<IngredientCard> {
                 spacing: 8,
                 runSpacing: 8,
                 children: widget.ingrediente.restricoes
+                    .asMap()
+                    .entries
                     .map(
-                      (restriction) =>
-                          RestrictionChip(restriction: restriction),
+                      (entry) => RestrictionChip(
+                        restriction: entry.value,
+                        seed: entry.key,
+                      ),
                     )
                     .toList(),
               ),
@@ -119,4 +126,4 @@ class _IngredientCardState extends State<IngredientCard> {
       ),
     );
   }
-}
+}
