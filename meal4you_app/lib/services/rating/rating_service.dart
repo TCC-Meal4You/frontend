@@ -133,7 +133,7 @@ class RatingService {
   ) async {
     final maps = data
         .whereType<Map>()
-        .map((item) => Map<String, dynamic>.from(item as Map))
+        .map((item) => Map<String, dynamic>.from(item))
         .toList();
     // Build map list and schedule background name resolution for missing authors.
     final idsToResolve = <int>{};
