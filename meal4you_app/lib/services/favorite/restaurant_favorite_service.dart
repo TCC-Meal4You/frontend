@@ -8,6 +8,7 @@ class RestaurantFavoriteService {
   static final ValueNotifier<Map<int, bool>> favoritosNotifier = ValueNotifier(
     <int, bool>{},
   );
+  static final ValueNotifier<int> changeNotifier = ValueNotifier<int>(0);
 
   static void setFavoritoLocal(int restauranteId, bool isFavorito) {
     favoritosNotifier.value = {
@@ -28,6 +29,7 @@ class RestaurantFavoriteService {
       headers: {'Authorization': 'Bearer $token'},
     );
     if (response.statusCode == 200) {
+      notifyChanged();
       return;
     }
     if (response.statusCode == 401) {
@@ -71,5 +73,9 @@ class RestaurantFavoriteService {
     } catch (e) {
       return 0;
     }
+  }
+
+  static void notifyChanged() {
+    changeNotifier.value += 1;
   }
 }

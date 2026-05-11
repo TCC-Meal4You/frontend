@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/models/user_rating_request_dto.dart';
@@ -22,11 +23,16 @@ void _logTokenClaims(String token) {
     final decoded = _safeBase64Decode(payload);
     try {
       jsonDecode(decoded);
-    } catch (_) {}
-  } catch (e) {}
+    } catch (_) {
+      return;
+    }
+  } catch (_) {
+    return;
+  }
 }
 
 class RatingService {
+  static final ValueNotifier<int> changeNotifier = ValueNotifier<int>(0);
   static const String host = 'https://backend-production-b24f.up.railway.app';
   static List<Uri> _candidateUris(String pathWithLeadingSlash) {
     return [
@@ -54,6 +60,7 @@ class RatingService {
           body: requestBody,
         );
         if (response.statusCode >= 200 && response.statusCode < 300) {
+          notifyChanged();
           return UserRatingResponseDTO.fromJson(jsonDecode(response.body));
         }
         errors.add(
@@ -101,6 +108,7 @@ class RatingService {
         body: requestBody,
       );
       if (response.statusCode == 200) {
+        notifyChanged();
         return UserRatingResponseDTO.fromJson(jsonDecode(response.body));
       }
       errors.add(
@@ -117,6 +125,7 @@ class RatingService {
         continue;
       }
       if (response.statusCode == 400) {
+        notifyChanged();
         throw Exception('Nota inválida (0-5)');
       }
       if (response.statusCode == 401) {
@@ -632,4 +641,8 @@ class RatingService {
   }
 
   static void clearCachedData() {}
+
+  static void notifyChanged() {
+    changeNotifier.value += 1;
+  }
 }

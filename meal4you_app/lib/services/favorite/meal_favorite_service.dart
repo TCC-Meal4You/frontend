@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class MealFavoriteService {
+  static final ValueNotifier<int> changeNotifier = ValueNotifier<int>(0);
   static const String baseUrl =
       'https://backend-production-b24f.up.railway.app/refeicoes';
   static Future<void> alternarFavorito(int refeicaoId) async {
@@ -16,6 +18,7 @@ class MealFavoriteService {
       headers: {'Authorization': 'Bearer $token'},
     );
     if (response.statusCode == 200) {
+      notifyChanged();
       return;
     }
     if (response.statusCode == 401) {
@@ -63,5 +66,9 @@ class MealFavoriteService {
     } catch (e) {
       return 0;
     }
+  }
+
+  static void notifyChanged() {
+    changeNotifier.value += 1;
   }
 }

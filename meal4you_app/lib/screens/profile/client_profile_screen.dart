@@ -23,10 +23,48 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
   List<String> _restricoes = [];
   int _numFavoritos = 0;
   int _numAvaliacoes = 0;
+  bool _isCountsLoading = true;
+  bool _isRefreshingCounts = false;
+  bool _refreshCountsQueued = false;
   @override
   void initState() {
     super.initState();
+    RestaurantFavoriteService.changeNotifier.addListener(_onCountsChanged);
+    MealFavoriteService.changeNotifier.addListener(_onCountsChanged);
+    RatingService.changeNotifier.addListener(_onCountsChanged);
     _loadUserName();
+    _loadCounts();
+  }
+
+  @override
+  void dispose() {
+    RestaurantFavoriteService.changeNotifier.removeListener(_onCountsChanged);
+    MealFavoriteService.changeNotifier.removeListener(_onCountsChanged);
+    RatingService.changeNotifier.removeListener(_onCountsChanged);
+    super.dispose();
+  }
+
+  void _onCountsChanged() {
+    _refreshCounts();
+  }
+
+  Future<void> _refreshCounts() async {
+    if (!mounted) {
+      return;
+    }
+    if (_isRefreshingCounts) {
+      _refreshCountsQueued = true;
+      return;
+    }
+    _isRefreshingCounts = true;
+    try {
+      do {
+        _refreshCountsQueued = false;
+        await _loadCounts();
+      } while (_refreshCountsQueued && mounted);
+    } finally {
+      _isRefreshingCounts = false;
+    }
   }
 
   Future<void> _loadUserName() async {
@@ -36,11 +74,8 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
       setState(() {
         _nome = (profileData['nome'] ?? '').toString().trim();
         _restricoes = _extractRestrictions(profileData);
-        _numFavoritos = 0;
-        _numAvaliacoes = 0;
         _isLoading = false;
       });
-      await _loadCounts();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -57,17 +92,22 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
 
   Future<void> _loadCounts() async {
     try {
-      final countFavRestaurante =
-          await RestaurantFavoriteService.contarFavoritos();
-      final countFavRefeicao = await MealFavoriteService.contarFavoritos();
-      final countAvaliacoes = await RatingService.contarAvaliacoes();
+      final results = await Future.wait<int>([
+        RestaurantFavoriteService.contarFavoritos(),
+        MealFavoriteService.contarFavoritos(),
+        RatingService.contarAvaliacoes(),
+      ]);
       if (!mounted) return;
       setState(() {
-        _numFavoritos = countFavRestaurante + countFavRefeicao;
-        _numAvaliacoes = countAvaliacoes;
+        _numFavoritos = results[0] + results[1];
+        _numAvaliacoes = results[2];
+        _isCountsLoading = false;
       });
     } catch (_) {
-      await _loadCounts();
+      if (!mounted) return;
+      setState(() {
+        _isCountsLoading = false;
+      });
       return;
     }
   }
@@ -81,13 +121,14 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
     try {
       final restricoes = profileData['restricoes'];
       if (restricoes is List) {
-
         return restricoes
             .map((r) => r.toString().trim())
             .where((r) => r.isNotEmpty)
             .toList();
       }
-    } catch (e) {}
+    } catch (_) {
+      return [];
+    }
     return [];
   }
 
@@ -122,6 +163,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                         numRestricoes: _restricoes.length,
                         numFavoritos: _numFavoritos,
                         numAvaliacoes: _numAvaliacoes,
+                        isLoading: _isCountsLoading,
                       ),
                       const SizedBox(height: 24),
                       const Text(
