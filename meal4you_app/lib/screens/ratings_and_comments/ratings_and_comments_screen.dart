@@ -4,6 +4,7 @@ import 'package:meal4you_app/services/rating/rating_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_card.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_editor.dart';
+
 class RatingsAndCommentsScreen extends StatefulWidget {
   final int? restaurantId;
   const RatingsAndCommentsScreen({super.key, this.restaurantId});
@@ -11,6 +12,7 @@ class RatingsAndCommentsScreen extends StatefulWidget {
   State<RatingsAndCommentsScreen> createState() =>
       _RatingsAndCommentsScreenState();
 }
+
 class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
   List<UserRatingResponseDTO> _ratings = [];
   bool _isLoading = true;
@@ -26,6 +28,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
     _loadUserRole();
     _loadRatings();
   }
+
   Future<void> _loadUserRole() async {
     try {
       final userData = await UserTokenSaving.getUserData();
@@ -75,24 +78,29 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
       });
     }
   }
+
   Future<void> _loadRatings() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
     try {
       final ratings = await RatingService.verMinhasAvaliacoes();
+      if (!mounted) return;
       setState(() {
         _ratings = ratings;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString().replaceAll('Exception: ', '');
         _isLoading = false;
       });
     }
   }
+
   Future<bool> _confirmDeleteRating() async {
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -113,6 +121,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
     );
     return shouldDelete ?? false;
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -132,6 +141,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
                   color: Colors.white.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -296,4 +306,4 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
       ),
     );
   }
-}
+}

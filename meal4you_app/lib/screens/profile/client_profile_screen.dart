@@ -7,6 +7,9 @@ import 'package:meal4you_app/widgets/profile/client_profile_config_button/client
 import 'package:meal4you_app/widgets/profile/client_profile_restrictions_card/client_profile_restrictions_card.dart';
 import 'package:meal4you_app/widgets/profile/client_profile_stats_row/client_profile_stats_row.dart';
 import 'package:meal4you_app/widgets/profile/client_restrictions_modal/client_restrictions_modal.dart';
+import 'package:meal4you_app/services/favorite/restaurant_favorite_service.dart';
+import 'package:meal4you_app/services/favorite/meal_favorite_service.dart';
+import 'package:meal4you_app/services/rating/rating_service.dart';
 
 class ClientProfileScreen extends StatefulWidget {
   const ClientProfileScreen({super.key});
@@ -37,6 +40,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
         _numAvaliacoes = 0;
         _isLoading = false;
       });
+      await _loadCounts();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -51,6 +55,23 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
     }
   }
 
+  Future<void> _loadCounts() async {
+    try {
+      final countFavRestaurante =
+          await RestaurantFavoriteService.contarFavoritos();
+      final countFavRefeicao = await MealFavoriteService.contarFavoritos();
+      final countAvaliacoes = await RatingService.contarAvaliacoes();
+      if (!mounted) return;
+      setState(() {
+        _numFavoritos = countFavRestaurante + countFavRefeicao;
+        _numAvaliacoes = countAvaliacoes;
+      });
+    } catch (_) {
+      await _loadCounts();
+      return;
+    }
+  }
+
   String _getInitial() {
     if (_nome.isEmpty) return '...';
     return _nome[0].toUpperCase();
@@ -60,6 +81,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
     try {
       final restricoes = profileData['restricoes'];
       if (restricoes is List) {
+
         return restricoes
             .map((r) => r.toString().trim())
             .where((r) => r.isNotEmpty)

@@ -9,12 +9,14 @@ import 'package:meal4you_app/utils/constants/food_types.dart';
 import 'package:meal4you_app/widgets/navigation/client_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/search/restaurant_card.dart';
 import 'package:meal4you_app/widgets/search/meal_card.dart';
+
 class SearchRestaurantAndDishScreen extends StatefulWidget {
   const SearchRestaurantAndDishScreen({super.key});
   @override
   State<SearchRestaurantAndDishScreen> createState() =>
       _SearchRestaurantAndDishScreenState();
 }
+
 class _SearchRestaurantAndDishScreenState
     extends State<SearchRestaurantAndDishScreen>
     with SingleTickerProviderStateMixin {
@@ -49,6 +51,7 @@ class _SearchRestaurantAndDishScreenState
     }
     return total;
   }
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +61,25 @@ class _SearchRestaurantAndDishScreenState
       if (!mounted) return;
       _loadRestaurants(0);
     });
+    RestaurantFavoriteService.favoritosNotifier.addListener(
+      _onFavoritosChanged,
+    );
   }
+
+  void _onFavoritosChanged() {
+    final map = RestaurantFavoriteService.favoritosNotifier.value;
+    if (!mounted) return;
+    setState(() {
+      _restaurantes = _restaurantes.map((r) {
+        if (map.containsKey(r.idRestaurante) &&
+            r.favorito != map[r.idRestaurante]) {
+          return r.copyWith(favorito: map[r.idRestaurante]);
+        }
+        return r;
+      }).toList();
+    });
+  }
+
   void _onSearchChanged() {
     if (!mounted) return;
     setState(() {});
@@ -66,10 +87,12 @@ class _SearchRestaurantAndDishScreenState
       _loadMeals(0);
     }
   }
+
   bool _matchesSelectedFoodType(String type) {
     if (_selectedFoodTypes.isEmpty) return true;
     return _selectedFoodTypes.contains(type.trim());
   }
+
   bool _matchesSelectedPriceRange(double price) {
     final range = _normalizedPriceRange(_selectedPriceRange);
     if (range == null) return true;
@@ -81,6 +104,7 @@ class _SearchRestaurantAndDishScreenState
     }
     return price <= range.end;
   }
+
   RangeValues? _normalizedPriceRange(RangeValues? source) {
     if (source == null) return null;
     final start = source.start
@@ -92,6 +116,7 @@ class _SearchRestaurantAndDishScreenState
     }
     return RangeValues(start, end);
   }
+
   List<RestauranteResponseDTO> _filteredRestaurants() {
     return _restaurantes.where((restaurant) {
       final nome = restaurant.nome.toLowerCase();
@@ -106,6 +131,7 @@ class _SearchRestaurantAndDishScreenState
       return matchesQuery && matchesType;
     }).toList();
   }
+
   List<MealResponseDTO> _filteredMeals() {
     return _refeicoes.where((meal) {
       final nome = meal.nome.toLowerCase();
@@ -123,6 +149,7 @@ class _SearchRestaurantAndDishScreenState
       return matchesQuery && matchesType && matchesPrice;
     }).toList();
   }
+
   String _currency(double value) => 'R\$ ${value.toStringAsFixed(2)}';
   void _openFiltersSheet() {
     final allTypes = _availableFoodTypes;
@@ -290,6 +317,7 @@ class _SearchRestaurantAndDishScreenState
       },
     );
   }
+
   Future<void> _loadRestaurants(int pageNumber) async {
     if (!mounted) return;
     if (_loadingRestaurants) {
@@ -315,6 +343,7 @@ class _SearchRestaurantAndDishScreenState
       );
     }
   }
+
   Future<void> _loadMeals(int pageNumber) async {
     if (!mounted) return;
     if (_loadingMeals) {
@@ -338,6 +367,7 @@ class _SearchRestaurantAndDishScreenState
       ).showSnackBar(SnackBar(content: Text('Erro ao carregar refeições: $e')));
     }
   }
+
   Future<void> _toggleRestaurantFavoriteById(int restaurantId) async {
     final index = _restaurantes.indexWhere(
       (restaurant) => restaurant.idRestaurante == restaurantId,
@@ -371,6 +401,7 @@ class _SearchRestaurantAndDishScreenState
       });
     }
   }
+
   Future<void> _toggleMealFavoriteById(int mealId) async {
     final index = _refeicoes.indexWhere((meal) => meal.idRefeicao == mealId);
     if (index == -1) return;
@@ -400,13 +431,18 @@ class _SearchRestaurantAndDishScreenState
       });
     }
   }
+
   @override
   void dispose() {
     _tabController.dispose();
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    RestaurantFavoriteService.favoritosNotifier.removeListener(
+      _onFavoritosChanged,
+    );
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -538,6 +574,7 @@ class _SearchRestaurantAndDishScreenState
       ),
     );
   }
+
   Widget _buildRestaurantsTab() {
     final restaurantes = _filteredRestaurants();
     if (_restaurantes.isEmpty && _loadingRestaurants) {
@@ -586,6 +623,7 @@ class _SearchRestaurantAndDishScreenState
       ],
     );
   }
+
   Widget _buildMealsTab() {
     final refeicoes = _filteredMeals();
     if (_refeicoes.isEmpty && _loadingMeals) {
@@ -633,6 +671,7 @@ class _SearchRestaurantAndDishScreenState
       ],
     );
   }
+
   Widget _buildPaginationControls({
     required int currentPage,
     required int totalPages,
@@ -682,4 +721,4 @@ class _SearchRestaurantAndDishScreenState
       ),
     );
   }
-}
+}

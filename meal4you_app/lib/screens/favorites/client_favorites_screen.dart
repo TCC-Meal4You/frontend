@@ -6,11 +6,13 @@ import 'package:meal4you_app/services/favorite/restaurant_favorite_service.dart'
 import 'package:meal4you_app/widgets/navigation/client_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/search/meal_card.dart';
 import 'package:meal4you_app/widgets/search/restaurant_card.dart';
+
 class ClientFavoritesScreen extends StatefulWidget {
   const ClientFavoritesScreen({super.key});
   @override
   State<ClientFavoritesScreen> createState() => _ClientFavoritesScreenState();
 }
+
 class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
@@ -26,12 +28,34 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
     _tabController = TabController(length: 2, vsync: this);
     _loadFavoriteRestaurants();
     _loadFavoriteMeals();
+    RestaurantFavoriteService.favoritosNotifier.addListener(
+      _onFavoritosChanged,
+    );
   }
+
+  void _onFavoritosChanged() {
+    final map = RestaurantFavoriteService.favoritosNotifier.value;
+    if (!mounted) return;
+    setState(() {
+      _restaurantes = _restaurantes.map((r) {
+        if (map.containsKey(r.idRestaurante) &&
+            r.favorito != map[r.idRestaurante]) {
+          return r.copyWith(favorito: map[r.idRestaurante]);
+        }
+        return r;
+      }).toList();
+    });
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
+    RestaurantFavoriteService.favoritosNotifier.removeListener(
+      _onFavoritosChanged,
+    );
     super.dispose();
   }
+
   Future<void> _loadFavoriteRestaurants() async {
     if (!mounted) return;
     setState(() => _isLoadingRestaurants = true);
@@ -50,6 +74,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       );
     }
   }
+
   Future<void> _loadFavoriteMeals() async {
     if (!mounted) return;
     setState(() => _isLoadingMeals = true);
@@ -68,6 +93,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       );
     }
   }
+
   Future<void> _toggleRestaurantFavorite(int index) async {
     final restaurante = _restaurantes[index];
     final restauranteId = restaurante.idRestaurante;
@@ -95,6 +121,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       });
     }
   }
+
   Future<void> _toggleMealFavorite(int index) async {
     final refeicao = _refeicoes[index];
     final refeicaoId = refeicao.idRefeicao;
@@ -122,6 +149,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       });
     }
   }
+
   Widget _buildRestaurantsTab() {
     if (_isLoadingRestaurants) {
       return const Center(child: CircularProgressIndicator());
@@ -141,6 +169,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       },
     );
   }
+
   Widget _buildMealsTab() {
     if (_isLoadingMeals) {
       return const Center(child: CircularProgressIndicator());
@@ -160,6 +189,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -239,4 +269,4 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
       ),
     );
   }
-}
+}
