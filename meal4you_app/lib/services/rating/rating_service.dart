@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/models/user_rating_request_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/models/meal_rating_request_dto.dart';
+import 'package:meal4you_app/models/meal_rating_response_dto.dart';
 
 String _safeBase64Decode(String input) {
   var normalized = input.replaceAll('-', '+').replaceAll('_', '/');
@@ -340,6 +342,293 @@ class RatingService {
     throw Exception(
       'Erro ao excluir avaliação; tentativas: ${errors.join(' | ')}',
     );
+  }
+
+  static Future<MealRatingResponseDTO> avaliarRefeicao(
+    MealRatingRequestDTO dto,
+  ) async {
+    final token = await UserTokenSaving.getToken();
+    if (token == null) throw Exception('Token não encontrado');
+    final requestBody = jsonEncode(dto.toJson());
+    final candidates = _candidateUris('/refeicoes/avaliar');
+    List<String> errors = [];
+    for (final uri in candidates) {
+      try {
+        final response = await http.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: requestBody,
+        );
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          return MealRatingResponseDTO.fromJson(jsonDecode(response.body));
+        }
+        errors.add(
+          '${uri.toString()} => ${response.statusCode}: ${response.body}',
+        );
+        if (response.statusCode == 404 || response.statusCode == 405) {
+          continue;
+        }
+        if (response.statusCode == 400) throw Exception('Nota inválida (0-5)');
+        if (response.statusCode == 401) {
+          throw Exception('Usuário não autenticado');
+        }
+        if (response.statusCode == 409) {
+          throw Exception('Você já avaliou esta refeição');
+        }
+      } catch (e) {
+        errors.add('${uri.toString()} => EXCEPTION: $e');
+        continue;
+      }
+    }
+    throw Exception(
+      'Erro ao criar avaliação de refeição; tentativas: ${errors.join(' | ')}',
+    );
+  }
+
+  static Future<MealRatingResponseDTO> atualizarAvaliacaoRefeicao(
+    MealRatingRequestDTO dto,
+  ) async {
+    final token = await UserTokenSaving.getToken();
+    if (token == null) throw Exception('Token não encontrado');
+    final requestBody = jsonEncode(dto.toJson());
+    final candidates = _candidateUris('/refeicoes/atualizar-avaliacao');
+    List<String> errors = [];
+    int redirectCount = 0;
+    for (final uri in candidates) {
+      final response = await http.put(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: requestBody,
+      );
+      if (response.statusCode == 200) {
+        return MealRatingResponseDTO.fromJson(jsonDecode(response.body));
+      }
+      errors.add(
+        '${uri.toString()} => ${response.statusCode}: ${response.body}',
+      );
+      if (response.statusCode == 301 ||
+          response.statusCode == 302 ||
+          response.statusCode == 307 ||
+          response.statusCode == 308) {
+        redirectCount++;
+        continue;
+      }
+      if (response.statusCode == 404 || response.statusCode == 405) {
+        continue;
+      }
+      if (response.statusCode == 400) {
+        throw Exception('Nota inválida (0-5)');
+      }
+      if (response.statusCode == 401) {
+        _logTokenClaims(token);
+        await UserTokenSaving.clearToken();
+        throw Exception('Usuário não autenticado');
+      }
+      if (response.statusCode == 404) {
+        throw Exception('Refeição ou avaliação não encontrados');
+      }
+      throw Exception(
+        'Erro ao atualizar avaliação de refeição (${response.statusCode}): ${response.body}',
+      );
+    }
+    if (redirectCount == candidates.length && redirectCount > 0) {
+      await UserTokenSaving.clearToken();
+      throw Exception(
+        'Sessão expirada. Faça login novamente para atualizar a avaliação.',
+      );
+    }
+    throw Exception(
+      'Erro ao atualizar avaliação de refeição; tentativas: ${errors.join(' | ')}',
+    );
+  }
+
+  static Future<List<MealRatingResponseDTO>>
+  verMinhasAvaliacoesDRefeicao() async {
+    final token = await UserTokenSaving.getToken();
+    if (token == null) {
+      throw Exception('Token não encontrado');
+    }
+    final candidates = [
+      ..._candidateUris('/refeicoes/minhas-avaliacoes'),
+      ..._candidateUris('/refeicoes/avaliacoes'),
+    ];
+    List<String> errors = [];
+    for (final uri in candidates) {
+      http.Response? response;
+      try {
+        response = await http.get(
+          uri,
+          headers: {'Authorization': 'Bearer $token'},
+        );
+      } catch (e) {
+        final msg = e.toString();
+        if (msg.contains('Redirect loop') || msg.contains('redirect loop')) {
+          errors.add('${uri.toString()} => REDIRECT LOOP: $e');
+          continue;
+        }
+        errors.add('${uri.toString()} => EXCEPTION: $e');
+        continue;
+      }
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data
+            .map((json) => MealRatingResponseDTO.fromJson(json))
+            .toList();
+      }
+      errors.add(
+        '${uri.toString()} => ${response.statusCode}: ${response.body}',
+      );
+      if (response.statusCode == 301 ||
+          response.statusCode == 302 ||
+          response.statusCode == 307 ||
+          response.statusCode == 308) {
+        continue;
+      }
+      if (response.statusCode == 404 || response.statusCode == 405) {
+        continue;
+      }
+      if (response.statusCode == 401) {
+        _logTokenClaims(token);
+        await UserTokenSaving.clearToken();
+        throw Exception('Usuário não autenticado');
+      }
+      throw Exception(
+        'Erro ao buscar avaliações de refeição (${response.statusCode})',
+      );
+    }
+    throw Exception(
+      'Erro ao buscar avaliações de refeição; tentativas: ${errors.join(' | ')}',
+    );
+  }
+
+  static Future<List<MealRatingResponseDTO>> listarAvaliacoesPorRefeicao(
+    int idRefeicao,
+  ) async {
+    final token = await UserTokenSaving.getToken();
+    final candidates = [
+      Uri.parse('$host/usuarios/refeicoes/avaliacoes?idRefeicao=$idRefeicao'),
+      Uri.parse('$host/refeicoes/$idRefeicao/avaliacoes'),
+      Uri.parse('$host/usuarios/refeicoes/$idRefeicao/avaliacoes'),
+      Uri.parse('$host/refeicoes/avaliacoes?idRefeicao=$idRefeicao'),
+    ];
+    List<String> errors = [];
+    for (final uri in candidates) {
+      http.Response? response;
+      try {
+        if (token != null) {
+          response = await http.get(
+            uri,
+            headers: {'Authorization': 'Bearer $token'},
+          );
+        } else {
+          response = await http.get(uri);
+        }
+      } catch (e) {
+        errors.add('${uri.toString()} => EXCEPTION: $e');
+        continue;
+      }
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data
+            .map((json) => MealRatingResponseDTO.fromJson(json))
+            .toList();
+      }
+      errors.add(
+        '${uri.toString()} => ${response.statusCode}: ${response.body}',
+      );
+      if (response.statusCode == 301 ||
+          response.statusCode == 302 ||
+          response.statusCode == 307 ||
+          response.statusCode == 308) {
+        continue;
+      }
+      if (response.statusCode == 404 || response.statusCode == 405) {
+        continue;
+      }
+      if (response.statusCode == 401) {
+        throw Exception('Usuário não autenticado');
+      }
+      continue;
+    }
+    throw Exception(
+      'Erro ao buscar avaliações de refeição; tentativas: ${errors.join(' | ')}',
+    );
+  }
+
+  static Future<void> excluirAvaliacaoRefeicao({
+    int? idAvaliacao,
+    int? idRefeicao,
+  }) async {
+    final token = await UserTokenSaving.getToken();
+    if (token == null) throw Exception('Token não encontrado');
+    final queryParams = <String>[];
+    if (idAvaliacao != null && idAvaliacao > 0) {
+      queryParams.add('idAvaliacao=$idAvaliacao');
+    }
+    if (idRefeicao != null && idRefeicao > 0) {
+      queryParams.add('idRefeicao=$idRefeicao');
+    }
+    if (queryParams.isEmpty) {
+      throw Exception('Identificador da avaliação não informado');
+    }
+    final query = queryParams.join('&');
+    final candidates = _candidateUris('/refeicoes/excluir-avaliacao?$query');
+    List<String> errors = [];
+    int redirectCount = 0;
+    for (final uri in candidates) {
+      final response = await http.delete(
+        uri,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) return;
+      errors.add(
+        '${uri.toString()} => ${response.statusCode}: ${response.body}',
+      );
+      if (response.statusCode == 301 ||
+          response.statusCode == 302 ||
+          response.statusCode == 307 ||
+          response.statusCode == 308) {
+        redirectCount++;
+        continue;
+      }
+      if (response.statusCode == 404 || response.statusCode == 405) {
+        continue;
+      }
+      if (response.statusCode == 400) {
+        throw Exception('Avaliação não encontrada');
+      }
+      if (response.statusCode == 401) {
+        throw Exception('Usuário não autenticado');
+      }
+      throw Exception(
+        'Erro ao excluir avaliação de refeição (${response.statusCode}): ${response.body}',
+      );
+    }
+    if (redirectCount == candidates.length && redirectCount > 0) {
+      await UserTokenSaving.clearToken();
+      throw Exception(
+        'Sessão expirada ou conta removida. Faça login novamente para deletar a avaliação.',
+      );
+    }
+    throw Exception(
+      'Erro ao excluir avaliação de refeição; tentativas: ${errors.join(' | ')}',
+    );
+  }
+
+  static Future<int> contarAvaliacoes() async {
+    try {
+      final avaliacoesRestaurante = await verMinhasAvaliacoes();
+      final avaliacoesRefeicao = await verMinhasAvaliacoesDRefeicao();
+      return avaliacoesRestaurante.length + avaliacoesRefeicao.length;
+    } catch (e) {
+      return 0;
+    }
   }
 
   static void clearCachedData() {}
