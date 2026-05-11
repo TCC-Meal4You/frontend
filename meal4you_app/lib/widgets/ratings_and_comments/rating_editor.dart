@@ -2,21 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_rating_request_dto.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
+
 class RatingEditor extends StatefulWidget {
   final int restaurantId;
   final String restaurantName;
   final UserRatingResponseDTO? existing;
   final void Function(UserRatingResponseDTO)? onSaved;
+  final int? currentUserId;
+  final String? currentUserEmail;
+  final String? currentUserName;
   const RatingEditor({
     super.key,
     required this.restaurantId,
     required this.restaurantName,
     this.existing,
     this.onSaved,
+    this.currentUserId,
+    this.currentUserEmail,
+    this.currentUserName,
   });
   @override
   State<RatingEditor> createState() => _RatingEditorState();
 }
+
 class _RatingEditorState extends State<RatingEditor> {
   double _rating = 5;
   final TextEditingController _commentController = TextEditingController();
@@ -29,45 +37,74 @@ class _RatingEditorState extends State<RatingEditor> {
       _commentController.text = widget.existing!.comment ?? '';
     }
   }
+
   @override
   void dispose() {
     _commentController.dispose();
     super.dispose();
   }
+
   Future<void> _submit() async {
     setState(() => _loading = true);
+    // Construir DTO de requisição
+    final dto = UsuarioAvaliaRequestDTO(
+      idRestaurante: widget.restaurantId,
+      nota: _rating,
+      comentario: _commentController.text.isEmpty
+          ? null
+          : _commentController.text.trim(),
+    );
+
+    // Cria um objeto provisório para atualização otimista da UI
     try {
-      final dto = UsuarioAvaliaRequestDTO(
-        idRestaurante: widget.restaurantId,
-        nota: _rating,
-        comentario: _commentController.text.isEmpty
+      final provisional = UserRatingResponseDTO(
+        ratingId: widget.existing?.ratingId ?? 0,
+        userId: widget.existing?.userId ?? widget.currentUserId,
+        restaurantId: widget.restaurantId,
+        restaurantName: widget.restaurantName,
+        userName: widget.existing?.userName.isNotEmpty == true
+            ? widget.existing!.userName
+            : (widget.currentUserName ?? 'Você'),
+        userEmail: widget.existing?.userEmail ?? widget.currentUserEmail,
+        rating: _rating,
+        comment: _commentController.text.isEmpty
             ? null
             : _commentController.text.trim(),
+        ratingDate: DateTime.now(),
       );
-      UserRatingResponseDTO response;
-      if (widget.existing == null) {
-        response = await RatingService.avaliarRestaurante(dto);
-      } else {
-        response = await RatingService.atualizarAvaliacao(dto);
-      }
-      if (widget.onSaved != null) widget.onSaved!(response);
+      if (widget.onSaved != null) widget.onSaved!(provisional);
       if (mounted) Navigator.of(context).pop();
-    } catch (e) {
-      if (!mounted) return;
-      final msg = e.toString().replaceAll('Exception: ', '');
-      String userMessage = msg;
-      if (msg.contains('No static resource') ||
-          msg.contains('Request method')) {
-        userMessage =
-            'Erro no servidor: endpoint de avaliações indisponível ou método HTTP não suportado. Verifique o backend.';
+      // Executa requisição real em background
+      UserRatingResponseDTO response;
+      try {
+        if (widget.existing == null) {
+          response = await RatingService.avaliarRestaurante(dto);
+        } else {
+          response = await RatingService.atualizarAvaliacao(dto);
+        }
+        // atualiza UI com resposta definitiva
+        if (widget.onSaved != null) widget.onSaved!(response);
+      } catch (e) {
+        // Em caso de erro, notificar para que listeners possam atualizar/refresh
+        if (mounted) {
+          final msg = e.toString().replaceAll('Exception: ', '');
+          String userMessage = msg;
+          if (msg.contains('No static resource') ||
+              msg.contains('Request method')) {
+            userMessage =
+                'Erro no servidor: endpoint de avaliações indisponível ou método HTTP não suportado. Verifique o backend.';
+          }
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(userMessage)));
+        }
+        RatingService.notifyChanged();
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(userMessage)));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
+
   Widget _buildStar(int index) {
     final selected = index < _rating;
     return GestureDetector(
@@ -79,10 +116,12 @@ class _RatingEditorState extends State<RatingEditor> {
       ),
     );
   }
+
   String _getRatingLabel() {
     final labels = ['Muito ruim', 'Ruim', 'Regular', 'Muito bom', 'Excelente'];
     return labels[_rating.toInt() - 1];
   }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -258,4 +297,4 @@ class _RatingEditorState extends State<RatingEditor> {
       ),
     );
   }
-}
+}

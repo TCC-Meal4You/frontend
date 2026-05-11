@@ -196,6 +196,86 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     }
   }
 
+  void _applySavedRating(UserRatingResponseDTO saved) {
+    final index = _ratings.indexWhere((rating) {
+      if (saved.ratingId > 0 && rating.ratingId == saved.ratingId) {
+        return true;
+      }
+      if (_currentUserId != null && rating.userId == _currentUserId) {
+        return true;
+      }
+      if (_currentUserEmail != null &&
+          rating.userEmail != null &&
+          rating.userEmail!.trim().isNotEmpty &&
+          rating.userEmail!.trim().toLowerCase() ==
+              _currentUserEmail!.trim().toLowerCase()) {
+        return true;
+      }
+      return false;
+    });
+
+    final updatedRatings = List<UserRatingResponseDTO>.from(_ratings);
+    if (index >= 0) {
+      updatedRatings[index] = saved;
+    } else {
+      updatedRatings.insert(0, saved);
+    }
+
+    setState(() {
+      _ratings = updatedRatings;
+      _ratingsLoaded = true;
+      _ratingsFuture = Future.value(
+        List<UserRatingResponseDTO>.from(updatedRatings),
+      );
+    });
+  }
+
+  void _removeLocalRating(UserRatingResponseDTO target) {
+    final updatedRatings = _ratings.where((rating) {
+      if (target.ratingId > 0 && rating.ratingId == target.ratingId) {
+        return false;
+      }
+      if (_currentUserId != null && rating.userId == _currentUserId) {
+        return false;
+      }
+      if (_currentUserEmail != null &&
+          rating.userEmail != null &&
+          rating.userEmail!.trim().isNotEmpty &&
+          rating.userEmail!.trim().toLowerCase() ==
+              _currentUserEmail!.trim().toLowerCase()) {
+        return false;
+      }
+      return true;
+    }).toList();
+
+    setState(() {
+      _ratings = updatedRatings;
+      _ratingsLoaded = true;
+      _ratingsFuture = Future.value(
+        List<UserRatingResponseDTO>.from(updatedRatings),
+      );
+    });
+  }
+
+  UserRatingResponseDTO? _currentUserRating() {
+    for (final rating in _ratings) {
+      final matchesId =
+          _currentUserId != null &&
+          rating.userId != null &&
+          rating.userId == _currentUserId;
+      final matchesEmail =
+          _currentUserEmail != null &&
+          rating.userEmail != null &&
+          rating.userEmail!.trim().isNotEmpty &&
+          rating.userEmail!.trim().toLowerCase() ==
+              _currentUserEmail!.trim().toLowerCase();
+      if (matchesId || matchesEmail) {
+        return rating;
+      }
+    }
+    return null;
+  }
+
   Future<void> _openEditor({UserRatingResponseDTO? existing}) async {
     await showDialog(
       context: context,
@@ -205,9 +285,15 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
         existing: existing,
         onSaved: (saved) {
           if (mounted) {
-            _refreshRatings();
+            _applySavedRating(saved);
+            if (saved.ratingId > 0) {
+              _refreshRatings();
+            }
           }
         },
+        currentUserId: _currentUserId,
+        currentUserEmail: _currentUserEmail,
+        currentUserName: _currentUserName,
       ),
     );
   }
@@ -315,23 +401,19 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                               widget.restaurant.nome,
                                           existing: r,
                                           onSaved: (saved) async {
-                                            final latest =
-                                                await _fetchRatings();
                                             if (!mounted ||
                                                 !sheetContext.mounted) {
                                               return;
                                             }
-                                            setState(() {
-                                              _ratings = latest;
-                                              _ratingsLoaded = true;
-                                            });
-                                            _ratingsFuture = Future.value(
-                                              List<UserRatingResponseDTO>.from(
-                                                latest,
-                                              ),
-                                            );
+                                            _applySavedRating(saved);
                                             setModalState(() {});
+                                            if (saved.ratingId > 0) {
+                                              _refreshRatings();
+                                            }
                                           },
+                                          currentUserId: _currentUserId,
+                                          currentUserEmail: _currentUserEmail,
+                                          currentUserName: _currentUserName,
                                         ),
                                       );
                                     }
@@ -341,39 +423,47 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                       final confirmed =
                                           await _confirmDeleteRating();
                                       if (!confirmed) return;
+                                      // Remoção otimista: atualiza UI imediatamente
+                                      final backup = r;
+                                      _removeLocalRating(r);
+                                      setModalState(() {});
+                                      // Executa remoção no backend em background
                                       try {
                                         await RatingService.excluirAvaliacao(
-                                          idAvaliacao: r.ratingId,
-                                          idRestaurante: r.restaurantId,
+                                          idAvaliacao: backup.ratingId,
+                                          idRestaurante: backup.restaurantId,
                                         );
-                                        final latest = await _fetchRatings();
-                                        if (!mounted || !sheetContext.mounted) {
-                                          return;
-                                        }
-                                        setState(() {
-                                          _ratings = latest;
-                                          _ratingsLoaded = true;
-                                        });
-                                        _ratingsFuture = Future.value(
-                                          List<UserRatingResponseDTO>.from(
-                                            latest,
-                                          ),
-                                        );
-                                        setModalState(() {});
+                                        _refreshRatings();
                                       } catch (e) {
-                                        if (!sheetContext.mounted) return;
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              e.toString().replaceAll(
-                                                'Exception: ',
-                                                '',
+                                        // Em caso de erro, re-insere o item e mostra mensagem
+                                        if (mounted && sheetContext.mounted) {
+                                          final restored =
+                                              List<UserRatingResponseDTO>.from(
+                                                _ratings,
+                                              );
+                                          restored.insert(0, backup);
+                                          setState(() {
+                                            _ratings = restored;
+                                            _ratingsFuture = Future.value(
+                                              List<UserRatingResponseDTO>.from(
+                                                restored,
+                                              ),
+                                            );
+                                          });
+                                          setModalState(() {});
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                e.toString().replaceAll(
+                                                  'Exception: ',
+                                                  '',
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        );
+                                          );
+                                        }
                                       }
                                     }
                                   : null,
@@ -408,7 +498,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: TextButton.icon(
               onPressed: () async {
-                final existing = _ratings.isNotEmpty ? _ratings.first : null;
+                final existing = _currentUserRating();
                 await _openEditor(existing: existing);
               },
               icon: const Icon(

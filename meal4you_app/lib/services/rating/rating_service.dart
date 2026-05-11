@@ -31,14 +31,162 @@ void _logTokenClaims(String token) {
   }
 }
 
+String? _extractTextValue(dynamic source, List<String> keys) {
+  if (source == null) return null;
+  if (source is Map) {
+    for (final key in keys) {
+      final value = source[key];
+      if (value == null) continue;
+      if (value is String) {
+        final trimmed = value.trim();
+        if (trimmed.isNotEmpty) return trimmed;
+      } else if (value is Map || value is List) {
+        final nested = _extractTextValue(value, keys);
+        if (nested != null && nested.isNotEmpty) return nested;
+      } else {
+        final text = value.toString().trim();
+        if (text.isNotEmpty && text != 'null') return text;
+      }
+    }
+    for (final value in source.values) {
+      final nested = _extractTextValue(value, keys);
+      if (nested != null && nested.isNotEmpty) return nested;
+    }
+  }
+  if (source is List) {
+    for (final value in source) {
+      final nested = _extractTextValue(value, keys);
+      if (nested != null && nested.isNotEmpty) return nested;
+    }
+  }
+  return null;
+}
+
 class RatingService {
   static final ValueNotifier<int> changeNotifier = ValueNotifier<int>(0);
+  static final Map<int, String> _userNameCache = <int, String>{};
+  static final Set<int> _resolvingUserIds = <int>{};
   static const String host = 'https://backend-production-b24f.up.railway.app';
   static List<Uri> _candidateUris(String pathWithLeadingSlash) {
     return [
       Uri.parse('$host/usuarios$pathWithLeadingSlash'),
       Uri.parse('$host$pathWithLeadingSlash'),
     ];
+  }
+
+  static Future<String?> _resolveUserNameById(int userId) async {
+    final cached = _userNameCache[userId];
+    if (cached != null && cached.trim().isNotEmpty) {
+      return cached;
+    }
+    final token = await UserTokenSaving.getToken();
+    final candidates = [
+      Uri.parse('$host/usuarios/$userId'),
+      Uri.parse('$host/usuarios/perfil/$userId'),
+      Uri.parse('$host/usuarios?idUsuario=$userId'),
+      Uri.parse('$host/usuarios?id=$userId'),
+      Uri.parse('$host/clientes/$userId'),
+    ];
+    for (final uri in candidates) {
+      try {
+        final response = await http.get(
+          uri,
+          headers: token == null
+              ? const <String, String>{}
+              : {'Authorization': 'Bearer $token'},
+        );
+        if (response.statusCode != 200) {
+          continue;
+        }
+        final decoded = jsonDecode(response.body);
+        final resolvedName = _extractTextValue(decoded, [
+          'nomeUsuario',
+          'nomeCliente',
+          'nomeAutor',
+          'usuarioNome',
+          'userName',
+          'nome',
+          'clienteNome',
+          'autorNome',
+          'avaliadorNome',
+          'nomeCompleto',
+          'nome_completo',
+          'fullName',
+          'full_name',
+          'primeiroNome',
+          'firstName',
+          'usuario_nome',
+        ]);
+        if (resolvedName != null && resolvedName.trim().isNotEmpty) {
+          _userNameCache[userId] = resolvedName.trim();
+          return resolvedName.trim();
+        }
+      } catch (_) {
+        continue;
+      }
+    }
+    return null;
+  }
+
+  static Future<List<Map<String, dynamic>>> _normalizeRatingsPayload(
+    List<dynamic> data,
+  ) async {
+    final maps = data
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .toList();
+    // Build map list and schedule background name resolution for missing authors.
+    final idsToResolve = <int>{};
+    for (final item in maps) {
+      final currentName = _extractTextValue(item, [
+        'nomeUsuario',
+        'nomeCliente',
+        'nomeAutor',
+        'usuarioNome',
+        'userName',
+        'nome',
+        'clienteNome',
+        'autorNome',
+        'avaliadorNome',
+        'nomeCompleto',
+        'nome_completo',
+        'fullName',
+        'full_name',
+        'primeiroNome',
+        'firstName',
+        'usuario_nome',
+      ]);
+      if (currentName != null && currentName.trim().isNotEmpty) {
+        continue;
+      }
+      final rawUserId = item['idUsuario'] ?? item['id_usuario'];
+      final userId = int.tryParse(rawUserId.toString());
+      if (userId != null) {
+        // If we already have a cached name, fill it immediately.
+        final cached = _userNameCache[userId];
+        if (cached != null && cached.trim().isNotEmpty) {
+          item['nomeUsuario'] = cached;
+          continue;
+        }
+        if (!_resolvingUserIds.contains(userId)) idsToResolve.add(userId);
+      }
+    }
+
+    // Schedule background resolution for each id (non-blocking).
+    for (final id in idsToResolve) {
+      _resolvingUserIds.add(id);
+      _resolveUserNameById(id)
+          .then((resolved) {
+            if (resolved != null && resolved.trim().isNotEmpty) {
+              _userNameCache[id] = resolved.trim();
+              notifyChanged();
+            }
+          })
+          .catchError((_) {})
+          .whenComplete(() => _resolvingUserIds.remove(id));
+    }
+
+    return maps;
   }
 
   static Future<UserRatingResponseDTO> avaliarRestaurante(
@@ -179,7 +327,8 @@ class RatingService {
       }
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data
+        final normalized = await _normalizeRatingsPayload(data);
+        return normalized
             .map((json) => UserRatingResponseDTO.fromJson(json))
             .toList();
       }
@@ -259,7 +408,8 @@ class RatingService {
           final publicResp = await http.get(uri);
           if (publicResp.statusCode == 200) {
             final List<dynamic> data = jsonDecode(publicResp.body);
-            return data
+            final normalized = await _normalizeRatingsPayload(data);
+            return normalized
                 .map((json) => UserRatingResponseDTO.fromJson(json))
                 .toList();
           }
@@ -486,7 +636,8 @@ class RatingService {
       }
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data
+        final normalized = await _normalizeRatingsPayload(data);
+        return normalized
             .map((json) => MealRatingResponseDTO.fromJson(json))
             .toList();
       }

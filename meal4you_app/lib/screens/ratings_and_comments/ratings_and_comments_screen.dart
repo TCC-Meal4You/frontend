@@ -19,14 +19,20 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
   String? _errorMessage;
   bool _isAdmUser = false;
   bool _loadingUserRole = true;
+  int? _resolvedRestaurantId;
   String? _currentUserName;
   String? _currentUserEmail;
   int? _currentUserId;
   @override
   void initState() {
     super.initState();
-    _loadUserRole();
-    _loadRatings();
+    _initializeScreen();
+  }
+
+  Future<void> _initializeScreen() async {
+    await _loadUserRole();
+    _resolvedRestaurantId = await _resolveRestaurantId();
+    await _loadRatings();
   }
 
   Future<void> _loadUserRole() async {
@@ -79,6 +85,25 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
     }
   }
 
+  Future<int?> _resolveRestaurantId() async {
+    if (widget.restaurantId != null) {
+      return widget.restaurantId;
+    }
+    final restaurantData =
+        await UserTokenSaving.getRestaurantDataForCurrentUser();
+    if (restaurantData == null) {
+      return null;
+    }
+    final rawId =
+        restaurantData['idRestaurante'] ??
+        restaurantData['id'] ??
+        restaurantData['id_restaurante'];
+    if (rawId == null) {
+      return null;
+    }
+    return int.tryParse(rawId.toString());
+  }
+
   Future<void> _loadRatings() async {
     if (!mounted) return;
     setState(() {
@@ -86,7 +111,18 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
       _errorMessage = null;
     });
     try {
-      final ratings = await RatingService.verMinhasAvaliacoes();
+      final useRestaurantRatings = _isAdmUser || widget.restaurantId != null;
+      final targetRestaurantId = _resolvedRestaurantId;
+      if (useRestaurantRatings && targetRestaurantId == null) {
+        throw Exception(
+          'Nenhum restaurante vinculado foi encontrado para listar as avaliações.',
+        );
+      }
+      final ratings = useRestaurantRatings
+          ? await RatingService.listarAvaliacoesPorRestaurante(
+              targetRestaurantId!,
+            )
+          : await RatingService.verMinhasAvaliacoes();
       if (!mounted) return;
       setState(() {
         _ratings = ratings;
