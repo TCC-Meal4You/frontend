@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/widgets/search/restriction_chip.dart';
+
 class MealCard extends StatelessWidget {
   final MealResponseDTO meal;
   final VoidCallback? onTap;
@@ -122,4 +123,4 @@ class MealCard extends StatelessWidget {
       ),
     );
   }
-}
+}
