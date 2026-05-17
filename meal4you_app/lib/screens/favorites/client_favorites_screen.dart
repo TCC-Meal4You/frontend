@@ -134,6 +134,7 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
     });
     try {
       await MealFavoriteService.alternarFavorito(refeicaoId);
+      MealFavoriteService.setFavoritoLocal(refeicaoId, !refeicao.favorito);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -185,6 +186,8 @@ class _ClientFavoritesScreenState extends State<ClientFavoritesScreen>
         return MealCard(
           meal: meal,
           onFavorite: () => _toggleMealFavorite(index),
+          onTap: () =>
+              Navigator.pushNamed(context, '/mealDetail', arguments: meal),
         );
       },
     );
