@@ -416,6 +416,7 @@ class _SearchRestaurantAndDishScreenState
     });
     try {
       await MealFavoriteService.alternarFavorito(refeicaoId);
+      MealFavoriteService.setFavoritoLocal(refeicaoId, !refeicao.favorito);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -658,6 +659,11 @@ class _SearchRestaurantAndDishScreenState
               return MealCard(
                 meal: meal,
                 onFavorite: () => _toggleMealFavoriteById(meal.idRefeicao),
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  '/mealDetail',
+                  arguments: meal,
+                ),
               );
             },
           ),
