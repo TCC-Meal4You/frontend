@@ -30,6 +30,9 @@ import 'package:meal4you_app/screens/confirm_password_code/confirm_password_code
 import 'package:meal4you_app/screens/verify_email_change/verify_email_change_screen.dart';
 import 'package:meal4you_app/screens/restaurant_detail/restaurant_detail_screen.dart';
 import 'package:meal4you_app/models/restaurante_response_dto.dart';
+import 'package:meal4you_app/screens/meal_detail/meal_detail_screen.dart';
+import 'package:meal4you_app/models/meal_response_dto.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -51,6 +54,7 @@ void main() async {
     ),
   );
 }
+
 class Meal4You extends StatelessWidget {
   const Meal4You({super.key});
   @override
@@ -157,6 +161,11 @@ class Meal4You extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => RestaurantDetailScreen(restaurant: args),
             );
+          case '/mealDetail':
+            final mealArg = settings.arguments as MealResponseDTO;
+            return MaterialPageRoute(
+              builder: (_) => MealDetailScreen(meal: mealArg),
+            );
           default:
             return MaterialPageRoute(
               builder: (_) => const Scaffold(
@@ -167,4 +176,4 @@ class Meal4You extends StatelessWidget {
       },
     );
   }
-}
+}
