@@ -1,3 +1,15 @@
+bool _looksLikeAnonymousUserLabel(String value) {
+  final normalized = value.trim().toLowerCase();
+  if (normalized.isEmpty) return true;
+  if (normalized == 'usuário' || normalized == 'usuario') return true;
+  if (normalized.startsWith('usuário #') ||
+      normalized.startsWith('usuario #')) {
+    return true;
+  }
+  if (normalized.startsWith('user #')) return true;
+  return false;
+}
+
 class MealRatingResponseDTO {
   final int ratingId;
   final int? userId;
@@ -32,13 +44,19 @@ class MealRatingResponseDTO {
           if (value == null) continue;
           if (value is String) {
             final trimmed = value.trim();
-            if (trimmed.isNotEmpty) return trimmed;
+            if (trimmed.isNotEmpty && !_looksLikeAnonymousUserLabel(trimmed)) {
+              return trimmed;
+            }
           } else if (value is Map || value is List) {
             final nested = readStringFrom(value, keys);
             if (nested != null && nested.isNotEmpty) return nested;
           } else {
             final text = value.toString().trim();
-            if (text.isNotEmpty && text != 'null') return text;
+            if (text.isNotEmpty &&
+                text != 'null' &&
+                !_looksLikeAnonymousUserLabel(text)) {
+              return text;
+            }
           }
         }
         for (final value in source.values) {
@@ -105,6 +123,7 @@ class MealRatingResponseDTO {
       'updatedAt',
       'data',
     ]);
+
     bool detectHasTime(dynamic value) {
       if (value == null) return false;
       if (value is int) return true;
@@ -115,32 +134,33 @@ class MealRatingResponseDTO {
 
     final parsedDate = parseRatingDate(rawDateValue);
     final hasTimeFlag = detectHasTime(rawDateValue);
+    final userName =
+        readStringFrom(json, [
+          'nomeUsuario',
+          'nomeCliente',
+          'nomeAutor',
+          'usuarioNome',
+          'userName',
+          'nome',
+          'clienteNome',
+          'autorNome',
+          'avaliadorNome',
+          'nomeCompleto',
+          'nome_completo',
+          'fullName',
+          'full_name',
+          'primeiroNome',
+          'firstName',
+          'usuario_nome',
+        ]) ??
+        '';
 
     return MealRatingResponseDTO(
       ratingId: json['idAvaliacao'] ?? 0,
       userId: json['idUsuario'] ?? json['id_usuario'],
       mealId: json['idRefeicao'] ?? json['id_refeicao'],
       mealName: json['nomeRefeicao'] ?? json['mealName'],
-      userName:
-          readStringFrom(json, [
-            'nomeUsuario',
-            'nomeCliente',
-            'nomeAutor',
-            'usuarioNome',
-            'userName',
-            'nome',
-            'clienteNome',
-            'autorNome',
-            'avaliadorNome',
-            'nomeCompleto',
-            'nome_completo',
-            'fullName',
-            'full_name',
-            'primeiroNome',
-            'firstName',
-            'usuario_nome',
-          ]) ??
-          '',
+      userName: userName,
       userEmail: readStringFrom(json, [
         'email',
         'emailUsuario',

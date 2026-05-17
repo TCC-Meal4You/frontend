@@ -52,6 +52,7 @@ class UserRatingResponseDTO {
       }
       return null;
     }
+
     dynamic findValueFrom(dynamic source, List<String> keys) {
       if (source == null) return null;
       if (source is Map) {
@@ -73,6 +74,7 @@ class UserRatingResponseDTO {
       }
       return null;
     }
+
     DateTime parseRatingDate(dynamic value) {
       if (value == null) return DateTime.now();
       if (value is int) {
@@ -152,6 +154,7 @@ class UserRatingResponseDTO {
       }
       return DateTime.now();
     }
+
     final rawDateValue = findValueFrom(json, [
       'dataAvaliacao',
       'createdAt',
@@ -170,6 +173,7 @@ class UserRatingResponseDTO {
       if (s.contains('T') || s.contains(':')) return true;
       return false;
     }
+
     final parsedDate = parseRatingDate(rawDateValue);
     final hasTimeFlag = detectHasTime(rawDateValue);
     return UserRatingResponseDTO(
@@ -213,4 +217,4 @@ class UserRatingResponseDTO {
       hasTime: hasTimeFlag,
     );
   }
-}
+}
