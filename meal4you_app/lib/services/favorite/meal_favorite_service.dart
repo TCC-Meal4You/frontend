@@ -5,7 +5,18 @@ import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class MealFavoriteService {
+  static final ValueNotifier<Map<int, bool>> favoritosNotifier = ValueNotifier(
+    <int, bool>{},
+  );
   static final ValueNotifier<int> changeNotifier = ValueNotifier<int>(0);
+
+  static void setFavoritoLocal(int refeicaoId, bool isFavorito) {
+    favoritosNotifier.value = {
+      ...favoritosNotifier.value,
+      refeicaoId: isFavorito,
+    };
+  }
+
   static const String baseUrl =
       'https://backend-production-b24f.up.railway.app/refeicoes';
   static Future<void> alternarFavorito(int refeicaoId) async {
