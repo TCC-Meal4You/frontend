@@ -68,6 +68,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     });
     try {
       await MealFavoriteService.alternarFavorito(id);
+      MealFavoriteService.setFavoritoLocal(id, !meal.favorito);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -742,6 +743,11 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                     meal: meal,
                                     onFavorite: () =>
                                         _toggleMealFavorite(meal.idRefeicao),
+                                    onTap: () => Navigator.pushNamed(
+                                      context,
+                                      '/mealDetail',
+                                      arguments: meal,
+                                    ),
                                   ),
                                 );
                               },
