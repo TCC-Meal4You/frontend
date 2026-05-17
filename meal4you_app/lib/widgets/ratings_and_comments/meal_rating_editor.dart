@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:meal4you_app/models/meal_rating_request_dto.dart';
 import 'package:meal4you_app/models/meal_rating_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
@@ -8,12 +9,18 @@ class MealRatingEditor extends StatefulWidget {
   final String mealName;
   final MealRatingResponseDTO? existing;
   final void Function(MealRatingResponseDTO)? onSaved;
+  final int? currentUserId;
+  final String? currentUserEmail;
+  final String? currentUserName;
   const MealRatingEditor({
     super.key,
     required this.mealId,
     required this.mealName,
     this.existing,
     this.onSaved,
+    this.currentUserId,
+    this.currentUserEmail,
+    this.currentUserName,
   });
   @override
   State<MealRatingEditor> createState() => _MealRatingEditorState();
@@ -41,6 +48,15 @@ class _MealRatingEditorState extends State<MealRatingEditor> {
 
   Future<void> _submit() async {
     setState(() => _loading = true);
+    print('[MealRatingEditor] iniciando submit para refeição ${widget.mealId}');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enviando avaliação...'),
+          duration: Duration(minutes: 1),
+        ),
+      );
+    }
     try {
       final dto = MealRatingRequestDTO(
         idRefeicao: widget.mealId,
@@ -49,16 +65,54 @@ class _MealRatingEditorState extends State<MealRatingEditor> {
             ? null
             : _commentController.text.trim(),
       );
+      final provisional = MealRatingResponseDTO(
+        ratingId: widget.existing?.ratingId ?? 0,
+        userId: widget.existing?.userId ?? widget.currentUserId,
+        mealId: widget.mealId,
+        mealName: widget.mealName,
+        userName: widget.existing?.userName.isNotEmpty == true
+            ? widget.existing!.userName
+            : (widget.currentUserName ?? 'Você'),
+        userEmail: widget.existing?.userEmail ?? widget.currentUserEmail,
+        rating: _rating,
+        comment: _commentController.text.isEmpty
+            ? null
+            : _commentController.text.trim(),
+        ratingDate: DateTime.now(),
+      );
+
+      if (widget.onSaved != null) widget.onSaved!(provisional);
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        Navigator.of(context).pop();
+      }
+
       MealRatingResponseDTO response;
       if (widget.existing == null) {
+        print('[MealRatingEditor] chamando RatingService.avaliarRefeicao');
         response = await RatingService.avaliarRefeicao(dto);
       } else {
+        print(
+          '[MealRatingEditor] chamando RatingService.atualizarAvaliacaoRefeicao',
+        );
         response = await RatingService.atualizarAvaliacaoRefeicao(dto);
       }
       if (widget.onSaved != null) widget.onSaved!(response);
-      if (mounted) Navigator.of(context).pop();
-    } catch (e) {
+    } on TimeoutException {
+      print('[MealRatingEditor] Timeout ao enviar avaliação');
       if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'A requisição demorou demais. Verifique sua conexão e tente novamente.',
+          ),
+        ),
+      );
+    } catch (e) {
+      print('[MealRatingEditor] erro ao enviar avaliação: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       final msg = e.toString().replaceAll('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {

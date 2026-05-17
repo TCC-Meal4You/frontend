@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/stars_rating.dart';
 import 'package:meal4you_app/utils/formatter/date_formatter.dart';
+
 String _avatarLabel(
   UserRatingResponseDTO rating, {
   String? currentUserName,
   String? currentUserEmail,
   int? currentUserId,
+  String? overrideName,
 }) {
+  // Se um nome foi carregado externamente, use-o primeiro
+  if (overrideName != null && overrideName.trim().isNotEmpty) {
+    return overrideName.trim();
+  }
   final name = rating.userName.trim();
   if (name.isNotEmpty) return name;
   final email = rating.userEmail?.trim() ?? '';
@@ -33,12 +39,18 @@ String _avatarLabel(
   }
   return 'Usuário';
 }
+
 String _avatarInitialFromRating(
   UserRatingResponseDTO rating, {
   String? currentUserName,
   String? currentUserEmail,
   int? currentUserId,
+  String? overrideName,
 }) {
+  // Se um nome foi carregado externamente, use-o primeiro
+  if (overrideName != null && overrideName.trim().isNotEmpty) {
+    return overrideName.trim().characters.first.toUpperCase();
+  }
   final name = rating.userName.trim();
   if (name.isNotEmpty) return name.characters.first.toUpperCase();
   final email = rating.userEmail?.trim() ?? '';
@@ -65,6 +77,7 @@ String _avatarInitialFromRating(
   }
   return 'U';
 }
+
 class RatingCard extends StatelessWidget {
   final UserRatingResponseDTO rating;
   final VoidCallback? onEdit;
@@ -73,6 +86,7 @@ class RatingCard extends StatelessWidget {
   final String? currentUserName;
   final String? currentUserEmail;
   final int? currentUserId;
+  final String? overrideName;
   const RatingCard({
     super.key,
     required this.rating,
@@ -82,6 +96,7 @@ class RatingCard extends StatelessWidget {
     this.currentUserName,
     this.currentUserEmail,
     this.currentUserId,
+    this.overrideName,
   });
   @override
   Widget build(BuildContext context) {
@@ -113,6 +128,7 @@ class RatingCard extends StatelessWidget {
                     currentUserName: currentUserName,
                     currentUserEmail: currentUserEmail,
                     currentUserId: currentUserId,
+                    overrideName: overrideName,
                   ),
                   style: const TextStyle(
                     color: Colors.white,
@@ -131,6 +147,7 @@ class RatingCard extends StatelessWidget {
                         currentUserName: currentUserName,
                         currentUserEmail: currentUserEmail,
                         currentUserId: currentUserId,
+                        overrideName: overrideName,
                       ),
                       style: const TextStyle(
                         fontSize: 16,
@@ -185,4 +202,4 @@ class RatingCard extends StatelessWidget {
       ),
     );
   }
-}
+}
