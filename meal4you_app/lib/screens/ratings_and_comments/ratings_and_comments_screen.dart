@@ -4,6 +4,8 @@ import 'package:meal4you_app/models/meal_rating_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/user/user_data_service.dart';
+import 'package:meal4you_app/services/search_meal/search_meal_service.dart';
+import 'package:meal4you_app/services/meal/meal_service.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_card.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_editor.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/meal_rating_card.dart';
@@ -21,6 +23,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
   List<UserRatingResponseDTO> _ratings = [];
   List<MealRatingResponseDTO> _mealRatings = [];
   bool _isLoading = true;
+  bool _loadingMealRatings = false;
   String? _errorMessage;
   bool _isAdmUser = false;
   bool _loadingUserRole = true;
@@ -114,6 +117,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
+      _loadingMealRatings = false;
       _errorMessage = null;
     });
     try {
@@ -125,17 +129,21 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
         );
       }
       if (useRestaurantRatings) {
-        final ratings = await RatingService.listarAvaliacoesPorRestaurante(
-          targetRestaurantId!,
-        );
+        final restaurantRatings =
+            await RatingService.listarAvaliacoesPorRestaurante(
+              targetRestaurantId!,
+            );
+
         if (!mounted) return;
         setState(() {
-          _ratings = ratings;
+          _ratings = restaurantRatings;
           _mealRatings = [];
           _isLoading = false;
+          _loadingMealRatings = true;
         });
-        // Carregar nomes dos usuários em background
+
         _loadUserNamesForRatings();
+        _loadMealRatingsForRestaurant(targetRestaurantId);
       } else {
         // Personal ratings: fetch both restaurant and meal ratings in parallel
         final results = await Future.wait<dynamic>([
@@ -147,6 +155,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
           _ratings = results[0] as List<UserRatingResponseDTO>;
           _mealRatings = results[1] as List<MealRatingResponseDTO>;
           _isLoading = false;
+          _loadingMealRatings = false;
         });
       }
     } catch (e) {
@@ -154,7 +163,116 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
       setState(() {
         _errorMessage = e.toString().replaceAll('Exception: ', '');
         _isLoading = false;
+        _loadingMealRatings = false;
       });
+    }
+  }
+
+  Future<void> _loadMealRatingsForRestaurant(int idRestaurante) async {
+    try {
+      final ratings = await _listarAvaliacoesDeRefeicoesDoRestaurante(
+        idRestaurante,
+      );
+      if (!mounted) return;
+      setState(() {
+        _mealRatings = ratings;
+        _loadingMealRatings = false;
+      });
+    } catch (e) {
+      debugPrint(
+        '[RatingsScreen] error loading meal ratings for restaurant $idRestaurante: $e',
+      );
+      if (!mounted) return;
+      setState(() {
+        _mealRatings = [];
+        _loadingMealRatings = false;
+      });
+    }
+  }
+
+  Future<List<MealRatingResponseDTO>> _listarAvaliacoesDeRefeicoesDoRestaurante(
+    int idRestaurante,
+  ) async {
+    try {
+      final byRestaurant =
+          await RatingService.listarAvaliacoesDeRefeicoesPorRestaurante(
+            idRestaurante: idRestaurante,
+            idsRefeicoes: const {},
+          );
+
+      if (byRestaurant.isNotEmpty) {
+        return byRestaurant;
+      }
+
+      final mealIds = <int>{};
+
+      try {
+        final minhasRefeicoes = await MealService.listarMinhasRefeicoes();
+        for (final meal in minhasRefeicoes) {
+          if (meal.idRefeicao != 0) {
+            mealIds.add(meal.idRefeicao);
+          }
+        }
+      } catch (e) {
+        debugPrint('[RatingsScreen] listarMinhasRefeicoes falhou: $e');
+      }
+
+      if (mealIds.isEmpty) {
+        try {
+          final pag = await SearchMealService.listarRefeicoesPorRestaurante(
+            idRestaurante,
+          );
+          for (final meal in pag.refeicoes) {
+            if (meal.idRefeicao != 0) {
+              mealIds.add(meal.idRefeicao);
+            }
+          }
+        } catch (e) {
+          debugPrint(
+            '[RatingsScreen] listarRefeicoesPorRestaurante falhou: $e',
+          );
+        }
+      }
+
+      debugPrint(
+        '[RatingsScreen] found ${mealIds.length} meals for restaurant $idRestaurante: $mealIds',
+      );
+
+      final results = await Future.wait(
+        mealIds.map((mealId) async {
+          debugPrint('[RatingsScreen] fetching ratings for meal $mealId');
+          try {
+            final ratings = await RatingService.listarAvaliacoesPorRefeicao(
+              mealId,
+            );
+            debugPrint(
+              '[RatingsScreen] meal $mealId => ${ratings.length} ratings',
+            );
+            return ratings;
+          } catch (err) {
+            debugPrint(
+              '[RatingsScreen] failed to fetch ratings for meal $mealId: $err',
+            );
+            return <MealRatingResponseDTO>[];
+          }
+        }),
+      );
+
+      final unique = <String, MealRatingResponseDTO>{};
+      for (final ratings in results) {
+        for (final rating in ratings) {
+          final key =
+              '${rating.ratingId}-${rating.mealId}-${rating.userId}-${rating.comment}';
+          unique[key] = rating;
+        }
+      }
+
+      return unique.values.toList();
+    } catch (e) {
+      debugPrint(
+        '[RatingsScreen] error listing meals for restaurant $idRestaurante: $e',
+      );
+      return [];
     }
   }
 
@@ -335,7 +453,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                 ),
               )
             : (_isAdmUser || widget.restaurantId != null)
-            ? (_ratings.isEmpty
+            ? (_ratings.isEmpty && _mealRatings.isEmpty && !_loadingMealRatings
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -359,74 +477,184 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                   : RefreshIndicator(
                       onRefresh: _loadRatings,
                       color: const Color(0xFF0FE687),
-                      child: ListView.builder(
+                      child: ListView(
                         padding: const EdgeInsets.all(16),
-                        itemCount: _ratings.length,
-                        itemBuilder: (context, index) {
-                          final rating = _ratings[index];
-                          return RatingCard(
-                            rating: rating,
-                            showActions: !_loadingUserRole && !_isAdmUser,
-                            currentUserName: _currentUserName,
-                            currentUserEmail: _currentUserEmail,
-                            currentUserId: _currentUserId,
-                            overrideName: _isAdmUser
-                                ? _userNames[rating.userId]
-                                : null,
-                            onEdit: _loadingUserRole || _isAdmUser
-                                ? null
-                                : () async {
-                                    await showDialog(
-                                      context: context,
-                                      builder: (_) => RatingEditor(
-                                        restaurantId: rating.restaurantId ?? 0,
-                                        restaurantName:
-                                            rating.restaurantName ??
-                                            'Restaurante',
-                                        existing: rating,
-                                        onSaved: (saved) => _loadRatings(),
-                                      ),
-                                    );
-                                  },
-                            onDelete: _loadingUserRole || _isAdmUser
-                                ? null
-                                : () async {
-                                    if (rating.restaurantId == null) return;
-                                    final confirmed =
-                                        await _confirmDeleteRating();
-                                    if (!confirmed) return;
-                                    try {
-                                      await RatingService.excluirAvaliacao(
-                                        idAvaliacao: rating.ratingId,
-                                        idRestaurante: rating.restaurantId,
-                                      );
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Avaliação excluída com sucesso',
+                        children: [
+                          const Text(
+                            'Avaliações de Restaurantes',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (_ratings.isEmpty)
+                            Center(
+                              child: Text(
+                                'Nenhuma avaliação de restaurante',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            )
+                          else
+                            ..._ratings.map(
+                              (rating) => RatingCard(
+                                rating: rating,
+                                showActions: !_loadingUserRole && !_isAdmUser,
+                                currentUserName: _currentUserName,
+                                currentUserEmail: _currentUserEmail,
+                                currentUserId: _currentUserId,
+                                onEdit: _loadingUserRole || _isAdmUser
+                                    ? null
+                                    : () async {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (_) => RatingEditor(
+                                            restaurantId:
+                                                rating.restaurantId ?? 0,
+                                            restaurantName:
+                                                rating.restaurantName ??
+                                                'Restaurante',
+                                            existing: rating,
+                                            onSaved: (saved) => _loadRatings(),
                                           ),
-                                        ),
-                                      );
-                                      _loadRatings();
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            e.toString().replaceAll(
-                                              'Exception: ',
-                                              '',
+                                        );
+                                      },
+                                onDelete: _loadingUserRole || _isAdmUser
+                                    ? null
+                                    : () async {
+                                        if (rating.restaurantId == null) return;
+                                        final confirmed =
+                                            await _confirmDeleteRating();
+                                        if (!confirmed) return;
+                                        try {
+                                          await RatingService.excluirAvaliacao(
+                                            idAvaliacao: rating.ratingId,
+                                            idRestaurante: rating.restaurantId,
+                                          );
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Avaliação excluída com sucesso',
+                                              ),
                                             ),
+                                          );
+                                          _loadRatings();
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                e.toString().replaceAll(
+                                                  'Exception: ',
+                                                  '',
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                              ),
+                            ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Avaliações de Refeições',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (_loadingMealRatings)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                          else if (_mealRatings.isEmpty)
+                            Center(
+                              child: Text(
+                                'Nenhuma avaliação de refeição',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            )
+                          else
+                            ..._mealRatings.map(
+                              (rating) => MealRatingCard(
+                                rating: rating,
+                                currentUserName: _currentUserName,
+                                currentUserEmail: _currentUserEmail,
+                                currentUserId: _currentUserId,
+                                showActions:
+                                    !_loadingUserRole &&
+                                    _isMealRatingOwner(rating),
+                                preferCurrentUserNameIfEmpty:
+                                    _isMealRatingOwner(rating),
+                                onEdit:
+                                    !_loadingUserRole &&
+                                        _isMealRatingOwner(rating)
+                                    ? () async {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (_) => MealRatingEditor(
+                                            mealId: rating.mealId ?? 0,
+                                            mealName:
+                                                rating.mealName ?? 'Refeição',
+                                            existing: rating,
+                                            currentUserId: _currentUserId,
+                                            currentUserEmail: _currentUserEmail,
+                                            currentUserName: _currentUserName,
+                                            onSaved: (saved) => _loadRatings(),
                                           ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                          );
-                        },
+                                        );
+                                      }
+                                    : null,
+                                onDelete:
+                                    !_loadingUserRole &&
+                                        _isMealRatingOwner(rating)
+                                    ? () async {
+                                        final confirmed =
+                                            await _confirmDeleteRating();
+                                        if (!confirmed) return;
+                                        try {
+                                          await RatingService.excluirAvaliacaoRefeicao(
+                                            idAvaliacao: rating.ratingId,
+                                            idRefeicao: rating.mealId,
+                                          );
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Avaliação excluída com sucesso',
+                                              ),
+                                            ),
+                                          );
+                                          _loadRatings();
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                e.toString().replaceAll(
+                                                  'Exception: ',
+                                                  '',
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    : null,
+                              ),
+                            ),
+                        ],
                       ),
                     ))
             : RefreshIndicator(
@@ -517,7 +745,14 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    if (_mealRatings.isEmpty)
+                    if (_loadingMealRatings)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    else if (_mealRatings.isEmpty)
                       Center(
                         child: Text(
                           'Nenhuma avaliação de refeição',
