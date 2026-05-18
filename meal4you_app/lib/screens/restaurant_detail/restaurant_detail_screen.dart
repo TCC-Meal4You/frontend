@@ -730,28 +730,22 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                             ),
                           )
                         else
-                          SizedBox(
-                            height: _meals.length * 160,
-                            child: ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _meals.length,
-                              itemBuilder: (context, index) {
-                                final meal = _meals[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
-                                  child: MealCard(
-                                    meal: meal,
-                                    onFavorite: () =>
-                                        _toggleMealFavorite(meal.idRefeicao),
-                                    onTap: () => Navigator.pushNamed(
-                                      context,
-                                      '/mealDetail',
-                                      arguments: meal,
-                                    ),
+                          Column(
+                            children: _meals.map((meal) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: MealCard(
+                                  meal: meal,
+                                  onFavorite: () =>
+                                      _toggleMealFavorite(meal.idRefeicao),
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    '/mealDetail',
+                                    arguments: meal,
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            }).toList(),
                           ),
                       ],
                     ),
