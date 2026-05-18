@@ -36,6 +36,18 @@ class MealRatingResponseDTO {
   });
 
   factory MealRatingResponseDTO.fromJson(Map<String, dynamic> json) {
+    int? parseInt(dynamic value) {
+      if (value == null) return null;
+      if (value is int) return value;
+      return int.tryParse(value.toString());
+    }
+
+    double parseDouble(dynamic value) {
+      if (value == null) return 0;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString().replaceAll(',', '.')) ?? 0;
+    }
+
     String? readStringFrom(dynamic source, List<String> keys) {
       if (source == null) return null;
       if (source is Map) {
@@ -154,12 +166,48 @@ class MealRatingResponseDTO {
           'usuario_nome',
         ]) ??
         '';
+    final rawMealId = findValueFrom(json, [
+      'idRefeicao',
+      'id_refeicao',
+      'refeicaoId',
+      'mealId',
+      'idMeal',
+    ]);
+    final rawUserId = findValueFrom(json, [
+      'idUsuario',
+      'id_usuario',
+      'usuarioId',
+      'userId',
+      'clienteId',
+      'idCliente',
+    ]);
+    final rawRatingId = findValueFrom(json, [
+      'idAvaliacao',
+      'id_avaliacao',
+      'avaliacaoId',
+      'ratingId',
+      'id',
+    ]);
+    final rawMealName = readStringFrom(json, [
+      'nomeRefeicao',
+      'refeicaoNome',
+      'mealName',
+      'nomePrato',
+      'pratoNome',
+    ]);
+    final rawRating = findValueFrom(json, [
+      'nota',
+      'rating',
+      'avaliacao',
+      'estrelas',
+      'score',
+    ]);
 
     return MealRatingResponseDTO(
-      ratingId: json['idAvaliacao'] ?? 0,
-      userId: json['idUsuario'] ?? json['id_usuario'],
-      mealId: json['idRefeicao'] ?? json['id_refeicao'],
-      mealName: json['nomeRefeicao'] ?? json['mealName'],
+      ratingId: parseInt(rawRatingId) ?? 0,
+      userId: parseInt(rawUserId),
+      mealId: parseInt(rawMealId),
+      mealName: rawMealName,
       userName: userName,
       userEmail: readStringFrom(json, [
         'email',
@@ -171,8 +219,13 @@ class MealRatingResponseDTO {
         'userEmail',
         'mail',
       ]),
-      rating: (json['nota'] ?? 0).toDouble(),
-      comment: json['comentario'],
+      rating: parseDouble(rawRating),
+      comment: findValueFrom(json, [
+        'comentario',
+        'comment',
+        'descricao',
+        'observacao',
+      ])?.toString(),
       ratingDate: parsedDate,
       hasTime: hasTimeFlag,
     );
