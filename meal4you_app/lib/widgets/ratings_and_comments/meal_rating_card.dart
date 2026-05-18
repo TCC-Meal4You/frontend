@@ -7,8 +7,9 @@ bool _looksLikeAnonymousUserLabel(String value) {
   final normalized = value.trim().toLowerCase();
   if (normalized.isEmpty) return true;
   if (normalized == 'usuário' || normalized == 'usuario') return true;
-  if (normalized.startsWith('usuário #') || normalized.startsWith('usuario #'))
+  if (normalized.startsWith('usuário #') || normalized.startsWith('usuario #')) {
     return true;
+  }
   if (normalized.startsWith('user #')) return true;
   return false;
 }
@@ -31,20 +32,23 @@ String _avatarLabelFromMealRating(
   if (currentUserEmail != null &&
       email.isNotEmpty &&
       email == currentUserEmail) {
-    if (currentUserName != null && currentUserName.trim().isNotEmpty)
+    if (currentUserName != null && currentUserName.trim().isNotEmpty) {
       return currentUserName;
+    }
   }
   if (currentUserId != null &&
       rating.userId != null &&
       rating.userId == currentUserId) {
-    if (currentUserName != null && currentUserName.trim().isNotEmpty)
+    if (currentUserName != null && currentUserName.trim().isNotEmpty) {
       return currentUserName;
+    }
   }
   if (email.isNotEmpty) return email;
   final userId = rating.userId;
   if (userId != null && userId > 0) return 'Usuário #$userId';
-  if (currentUserName != null && currentUserName.trim().isNotEmpty)
+  if (currentUserName != null && currentUserName.trim().isNotEmpty) {
     return currentUserName;
+  }
   return 'Usuário';
 }
 
@@ -56,8 +60,9 @@ String _avatarInitialFromMealRating(
   bool preferCurrentUserNameIfEmpty = false,
 }) {
   final name = rating.userName.trim();
-  if (name.isNotEmpty && !_looksLikeAnonymousUserLabel(name))
+  if (name.isNotEmpty && !_looksLikeAnonymousUserLabel(name)) {
     return name.characters.first.toUpperCase();
+  }
   if (preferCurrentUserNameIfEmpty &&
       currentUserName != null &&
       currentUserName.trim().isNotEmpty) {
@@ -67,21 +72,24 @@ String _avatarInitialFromMealRating(
   if (currentUserEmail != null &&
       email.isNotEmpty &&
       email == currentUserEmail) {
-    if (currentUserName != null && currentUserName.trim().isNotEmpty)
+    if (currentUserName != null && currentUserName.trim().isNotEmpty) {
       return currentUserName.trim().characters.first.toUpperCase();
+    }
   }
   if (currentUserId != null &&
       rating.userId != null &&
       rating.userId == currentUserId) {
-    if (currentUserName != null && currentUserName.trim().isNotEmpty)
+    if (currentUserName != null && currentUserName.trim().isNotEmpty) {
       return currentUserName.trim().characters.first.toUpperCase();
+    }
   }
   if (email.isNotEmpty) {
     final local = email.split('@').first;
     if (local.isNotEmpty) return local.characters.first.toUpperCase();
   }
-  if (currentUserName != null && currentUserName.trim().isNotEmpty)
+  if (currentUserName != null && currentUserName.trim().isNotEmpty) {
     return currentUserName.trim().characters.first.toUpperCase();
+  }
   return 'U';
 }
 
