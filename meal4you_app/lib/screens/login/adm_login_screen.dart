@@ -50,7 +50,6 @@ class _AdmLoginScreenState extends State<AdmLoginScreen> {
           ),
         );
       }
-    } catch (e) {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
