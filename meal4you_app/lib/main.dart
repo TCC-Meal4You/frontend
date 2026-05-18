@@ -169,7 +169,9 @@ class Meal4You extends StatelessWidget {
           default:
             return MaterialPageRoute(
               builder: (_) => const Scaffold(
-                body: Center(child: Text('Rota não encontrada')),
+                body: SafeArea(
+                  child: Center(child: Text('Rota não encontrada')),
+                ),
               ),
             );
         }

@@ -4,6 +4,7 @@ import 'package:meal4you_app/services/update_email/update_client_email_service.d
 import 'package:meal4you_app/services/update_email/update_email_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/utils/formatter/paste_code_formatter.dart';
+
 class VerifyEmailChangeScreen extends StatefulWidget {
   final String novoEmail;
   final bool isAdm;
@@ -16,6 +17,7 @@ class VerifyEmailChangeScreen extends StatefulWidget {
   State<VerifyEmailChangeScreen> createState() =>
       _VerifyEmailChangeScreenState();
 }
+
 class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
   final _codeControllers = List.generate(6, (_) => TextEditingController());
   final _focusNodes = List.generate(6, (_) => FocusNode());
@@ -30,6 +32,7 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
     }
     super.dispose();
   }
+
   String get _code =>
       _codeControllers.map((controller) => controller.text).join();
   void _handlePastedCode(String fullCode) {
@@ -38,6 +41,7 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
     }
     FocusScope.of(context).unfocus();
   }
+
   Future<void> _showConfirmationDialog() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -67,6 +71,7 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
       await _confirmEmailChange();
     }
   }
+
   Future<void> _confirmEmailChange() async {
     if (_code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -117,136 +122,141 @@ class _VerifyEmailChangeScreenState extends State<VerifyEmailChangeScreen> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.mark_email_read_outlined,
-                size: 80,
-                color: Color.fromARGB(255, 157, 0, 255),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Código de Verificação',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Enviamos um código de 6 dígitos para',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.novoEmail,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.mark_email_read_outlined,
+                  size: 80,
                   color: Color.fromARGB(255, 157, 0, 255),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  6,
-                  (index) => Container(
-                    width: 45,
-                    height: 55,
-                    margin: const EdgeInsets.symmetric(horizontal: 5),
-                    child: TextField(
-                      controller: _codeControllers[index],
-                      focusNode: _focusNodes[index],
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      maxLength: 1,
-                      inputFormatters: [
-                        PasteCodeFormatter(onCodeComplete: _handlePastedCode),
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                        height: 1.1,
-                      ),
-                      decoration: InputDecoration(
-                        counterText: '',
-                        contentPadding: const EdgeInsets.symmetric(vertical: 6),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Colors.grey),
+                const SizedBox(height: 24),
+                const Text(
+                  'Código de Verificação',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Enviamos um código de 6 dígitos para',
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  widget.novoEmail,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color.fromARGB(255, 157, 0, 255),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    6,
+                    (index) => Container(
+                      width: 45,
+                      height: 55,
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      child: TextField(
+                        controller: _codeControllers[index],
+                        focusNode: _focusNodes[index],
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        maxLength: 1,
+                        inputFormatters: [
+                          PasteCodeFormatter(onCodeComplete: _handlePastedCode),
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                          height: 1.1,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF7B3AED),
-                            width: 2,
+                        decoration: InputDecoration(
+                          counterText: '',
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF7B3AED),
+                              width: 2,
+                            ),
                           ),
                         ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty && index < 5) {
+                            _focusNodes[index + 1].requestFocus();
+                          } else if (value.isEmpty && index > 0) {
+                            _focusNodes[index - 1].requestFocus();
+                          }
+                        },
                       ),
-                      onChanged: (value) {
-                        if (value.isNotEmpty && index < 5) {
-                          _focusNodes[index + 1].requestFocus();
-                        } else if (value.isEmpty && index > 0) {
-                          _focusNodes[index - 1].requestFocus();
-                        }
-                      },
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _showConfirmationDialog,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 157, 0, 255),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _showConfirmationDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 157, 0, 255),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Confirmar Alteração de Email',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Confirmar Alteração de Email',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(color: Colors.black, fontSize: 16),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-}
+}

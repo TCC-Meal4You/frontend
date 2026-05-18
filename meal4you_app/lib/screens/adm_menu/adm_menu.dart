@@ -8,11 +8,13 @@ import 'package:meal4you_app/widgets/adm_menu/stats_row.dart';
 import 'package:meal4you_app/widgets/adm_menu/dish_card.dart';
 import 'package:meal4you_app/widgets/adm_menu/empty_state.dart';
 import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
+
 class AdmMenuScreen extends StatefulWidget {
   const AdmMenuScreen({super.key});
   @override
   State<AdmMenuScreen> createState() => _AdmMenuScreenState();
 }
+
 class _AdmMenuScreenState extends State<AdmMenuScreen> {
   List<MealResponseDTO> refeicoes = [];
   bool isLoading = true;
@@ -21,6 +23,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     super.initState();
     _carregarRefeicoes();
   }
+
   Future<void> _carregarRefeicoes() async {
     setState(() => isLoading = true);
     try {
@@ -49,6 +52,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       }
     }
   }
+
   int get _totalRefeicoes => refeicoes.length;
   int get _refeicoesDisponiveis => refeicoes.where((r) => r.disponivel).length;
   int get _refeicoesIndisponiveis =>
@@ -182,6 +186,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       ),
     );
   }
+
   Future<void> _atualizarDisponibilidade(int id, bool disponivel) async {
     try {
       await MealService.atualizarDisponibilidade(id, disponivel);
@@ -219,6 +224,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       }
     }
   }
+
   Future<bool> _confirmarDeletar(int id, VoidCallback onDeleteStart) async {
     final confirmado = await showDialog<bool>(
       context: context,
@@ -270,6 +276,7 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
     }
     return false;
   }
+
   Future<void> _mostrarModalAdicionarRefeicao() async {
     final nomeController = TextEditingController();
     final precoController = TextEditingController();
@@ -302,458 +309,463 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          height: MediaQuery.of(context).size.height * 0.85,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 157, 0, 255),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
+      builder: (context) => SafeArea(
+        child: StatefulBuilder(
+          builder: (context, setModalState) => Container(
+            height: MediaQuery.of(context).size.height * 0.85,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 157, 0, 255),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: const [
+                          Icon(Icons.restaurant, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Adicionar Novo Prato',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.restaurant, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'Adicionar Novo Prato',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (mensagemErro != null) ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            border: Border.all(
-                              color: Colors.red.withOpacity(0.3),
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 20,
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (mensagemErro != null) ...[
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              border: Border.all(
+                                color: Colors.red.withOpacity(0.3),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  mensagemErro!,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    mensagemErro!,
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      const Text(
-                        'Preencha as informações do novo prato e selecione os ingredientes',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Nome do Prato *',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: nomeController,
-                        decoration: InputDecoration(
-                          hintText: 'Ex: Salada Caesar',
-                          helperText: 'Mínimo de 3 caracteres',
-                          helperStyle: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Preço *',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: precoController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Ex: 25,50',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          prefixText: 'R\$ ',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Tipo do Prato *',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: tipoSelecionado,
-                        hint: const Text('Selecione o tipo do prato'),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'Entrada',
-                            child: Text('Entrada'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Prato Principal',
-                            child: Text('Prato Principal'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Sobremesa',
-                            child: Text('Sobremesa'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Bebida',
-                            child: Text('Bebida'),
+                              ],
+                            ),
                           ),
                         ],
-                        onChanged: (value) {
-                          setModalState(() => tipoSelecionado = value);
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Descrição',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: descricaoController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          hintText: 'Descrição do prato (opcional)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
+                        const Text(
+                          'Preencha as informações do novo prato e selecione os ingredientes',
+                          style: TextStyle(color: Colors.grey),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Disponível para pedidos',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          Switch(
-                            value: disponivel,
-                            onChanged: (value) {
-                              setModalState(() => disponivel = value);
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Ingredientes',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Nome do Prato *',
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (!isLoadingIngredientes && ingredientes.isNotEmpty)
+                        const SizedBox(height: 8),
                         TextField(
-                          controller: buscaIngredientesController,
+                          controller: nomeController,
                           decoration: InputDecoration(
-                            hintText: 'Pesquisar ingrediente...',
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: filtroIngredientes.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      setModalState(() {
-                                        buscaIngredientesController.clear();
-                                        filtroIngredientes = '';
-                                      });
-                                    },
-                                  )
-                                : null,
+                            hintText: 'Ex: Salada Caesar',
+                            helperText: 'Mínimo de 3 caracteres',
+                            helperStyle: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                             filled: true,
                             fillColor: Colors.grey.shade50,
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Preço *',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: precoController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Ex: 25,50',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            prefixText: 'R\$ ',
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Tipo do Prato *',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          initialValue: tipoSelecionado,
+                          hint: const Text('Selecione o tipo do prato'),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'Entrada',
+                              child: Text('Entrada'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Prato Principal',
+                              child: Text('Prato Principal'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Sobremesa',
+                              child: Text('Sobremesa'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Bebida',
+                              child: Text('Bebida'),
+                            ),
+                          ],
                           onChanged: (value) {
-                            setModalState(() {
-                              filtroIngredientes = value;
-                            });
+                            setModalState(() => tipoSelecionado = value);
                           },
                         ),
-                      const SizedBox(height: 8),
-                      if (isLoadingIngredientes)
-                        const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      else if (ingredientes.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            border: Border.all(color: Colors.blue.shade200),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: const [
-                              Icon(Icons.info_outline, color: Colors.blue),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Nenhum ingrediente cadastrado. Adicione ingredientes na tela de gerenciar ingredientes.',
-                                  style: TextStyle(color: Colors.blue),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        Column(
-                          children: ingredientes
-                              .where(
-                                (ingrediente) =>
-                                    filtroIngredientes.isEmpty ||
-                                    ingrediente.nome.toLowerCase().contains(
-                                      filtroIngredientes.toLowerCase(),
-                                    ),
-                              )
-                              .map((ingrediente) {
-                                final isSelected = ingredientesSelecionados
-                                    .contains(ingrediente.idIngrediente);
-                                return CheckboxListTile(
-                                  title: Text(ingrediente.nome),
-                                  subtitle: ingrediente.restricoes.isNotEmpty
-                                      ? Wrap(
-                                          spacing: 4,
-                                          runSpacing: 4,
-                                          children: ingrediente.restricoes
-                                              .map(
-                                                (r) => Chip(
-                                                  label: Text(r),
-                                                  labelStyle: const TextStyle(
-                                                    fontSize: 10,
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 4,
-                                                      ),
-                                                  materialTapTargetSize:
-                                                      MaterialTapTargetSize
-                                                          .shrinkWrap,
-                                                ),
-                                              )
-                                              .toList(),
-                                        )
-                                      : null,
-                                  value: isSelected,
-                                  activeColor: const Color.fromARGB(
-                                    255,
-                                    157,
-                                    0,
-                                    255,
-                                  ),
-                                  onChanged: (bool? value) {
-                                    setModalState(() {
-                                      if (value == true) {
-                                        ingredientesSelecionados.add(
-                                          ingrediente.idIngrediente,
-                                        );
-                                      } else {
-                                        ingredientesSelecionados.remove(
-                                          ingrediente.idIngrediente,
-                                        );
-                                      }
-                                    });
-                                  },
-                                  contentPadding: EdgeInsets.zero,
-                                );
-                              })
-                              .toList(),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Descrição',
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade300,
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isSaving
-                        ? null
-                        : () async {
-                            final navigator = Navigator.of(context);
-                            if (nomeController.text.isEmpty ||
-                                precoController.text.isEmpty ||
-                                tipoSelecionado == null) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'Preencha todos os campos obrigatórios';
-                              });
-                              return;
-                            }
-                            if (nomeController.text.length < 3) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'O nome do prato deve ter no mínimo 3 caracteres';
-                              });
-                              return;
-                            }
-                            if (ingredientesSelecionados.isEmpty) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'Selecione pelo menos 1 ingrediente';
-                              });
-                              return;
-                            }
-                            setModalState(() {
-                              mensagemErro = null;
-                              isSaving = true;
-                            });
-                            try {
-                              final preco = double.tryParse(
-                                precoController.text.replaceAll(',', '.'),
-                              );
-                              if (preco == null) {
-                                throw Exception('Preço inválido');
-                              }
-                              final dto = MealRequestDTO(
-                                nome: nomeController.text,
-                                preco: preco,
-                                tipo: tipoSelecionado!,
-                                descricao:
-                                    descricaoController.text.trim().isEmpty
-                                    ? ''
-                                    : descricaoController.text.trim(),
-                                disponivel: disponivel,
-                                ingredientesIds: ingredientesSelecionados,
-                              );
-                              await MealService.cadastrarRefeicao(dto);
-                              if (mounted) {
-                                await _carregarRefeicoes();
-                                navigator.pop();
-                                ScaffoldMessenger.of(this.context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Prato cadastrado com sucesso!',
-                                    ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              setModalState(() {
-                                mensagemErro = 'Erro ao cadastrar: $e';
-                                isSaving = false;
-                              });
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 157, 0, 255),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: isSaving
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: descricaoController,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            hintText: 'Descrição do prato (opcional)',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Disponível para pedidos',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            Switch(
+                              value: disponivel,
+                              onChanged: (value) {
+                                setModalState(() => disponivel = value);
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Ingredientes',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (!isLoadingIngredientes && ingredientes.isNotEmpty)
+                          TextField(
+                            controller: buscaIngredientesController,
+                            decoration: InputDecoration(
+                              hintText: 'Pesquisar ingrediente...',
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: filtroIngredientes.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        setModalState(() {
+                                          buscaIngredientesController.clear();
+                                          filtroIngredientes = '';
+                                        });
+                                      },
+                                    )
+                                  : null,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                            ),
+                            onChanged: (value) {
+                              setModalState(() {
+                                filtroIngredientes = value;
+                              });
+                            },
+                          ),
+                        const SizedBox(height: 8),
+                        if (isLoadingIngredientes)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: CircularProgressIndicator(),
                             ),
                           )
-                        : const Text(
-                            'Adicionar Prato',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                        else if (ingredientes.isEmpty)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              border: Border.all(color: Colors.blue.shade200),
+                              borderRadius: BorderRadius.circular(8),
                             ),
+                            child: Row(
+                              children: const [
+                                Icon(Icons.info_outline, color: Colors.blue),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Nenhum ingrediente cadastrado. Adicione ingredientes na tela de gerenciar ingredientes.',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          Column(
+                            children: ingredientes
+                                .where(
+                                  (ingrediente) =>
+                                      filtroIngredientes.isEmpty ||
+                                      ingrediente.nome.toLowerCase().contains(
+                                        filtroIngredientes.toLowerCase(),
+                                      ),
+                                )
+                                .map((ingrediente) {
+                                  final isSelected = ingredientesSelecionados
+                                      .contains(ingrediente.idIngrediente);
+                                  return CheckboxListTile(
+                                    title: Text(ingrediente.nome),
+                                    subtitle: ingrediente.restricoes.isNotEmpty
+                                        ? Wrap(
+                                            spacing: 4,
+                                            runSpacing: 4,
+                                            children: ingrediente.restricoes
+                                                .map(
+                                                  (r) => Chip(
+                                                    label: Text(r),
+                                                    labelStyle: const TextStyle(
+                                                      fontSize: 10,
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4,
+                                                        ),
+                                                    materialTapTargetSize:
+                                                        MaterialTapTargetSize
+                                                            .shrinkWrap,
+                                                  ),
+                                                )
+                                                .toList(),
+                                          )
+                                        : null,
+                                    value: isSelected,
+                                    activeColor: const Color.fromARGB(
+                                      255,
+                                      157,
+                                      0,
+                                      255,
+                                    ),
+                                    onChanged: (bool? value) {
+                                      setModalState(() {
+                                        if (value == true) {
+                                          ingredientesSelecionados.add(
+                                            ingrediente.idIngrediente,
+                                          );
+                                        } else {
+                                          ingredientesSelecionados.remove(
+                                            ingrediente.idIngrediente,
+                                          );
+                                        }
+                                      });
+                                    },
+                                    contentPadding: EdgeInsets.zero,
+                                  );
+                                })
+                                .toList(),
                           ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade300,
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isSaving
+                          ? null
+                          : () async {
+                              final navigator = Navigator.of(context);
+                              if (nomeController.text.isEmpty ||
+                                  precoController.text.isEmpty ||
+                                  tipoSelecionado == null) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'Preencha todos os campos obrigatórios';
+                                });
+                                return;
+                              }
+                              if (nomeController.text.length < 3) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'O nome do prato deve ter no mínimo 3 caracteres';
+                                });
+                                return;
+                              }
+                              if (ingredientesSelecionados.isEmpty) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'Selecione pelo menos 1 ingrediente';
+                                });
+                                return;
+                              }
+                              setModalState(() {
+                                mensagemErro = null;
+                                isSaving = true;
+                              });
+                              try {
+                                final preco = double.tryParse(
+                                  precoController.text.replaceAll(',', '.'),
+                                );
+                                if (preco == null) {
+                                  throw Exception('Preço inválido');
+                                }
+                                final dto = MealRequestDTO(
+                                  nome: nomeController.text,
+                                  preco: preco,
+                                  tipo: tipoSelecionado!,
+                                  descricao:
+                                      descricaoController.text.trim().isEmpty
+                                      ? ''
+                                      : descricaoController.text.trim(),
+                                  disponivel: disponivel,
+                                  ingredientesIds: ingredientesSelecionados,
+                                );
+                                await MealService.cadastrarRefeicao(dto);
+                                if (mounted) {
+                                  await _carregarRefeicoes();
+                                  navigator.pop();
+                                  ScaffoldMessenger.of(
+                                    this.context,
+                                  ).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Prato cadastrado com sucesso!',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                setModalState(() {
+                                  mensagemErro = 'Erro ao cadastrar: $e';
+                                  isSaving = false;
+                                });
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 157, 0, 255),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: isSaving
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : const Text(
+                              'Adicionar Prato',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
   Future<void> _mostrarModalEditarRefeicao(MealResponseDTO refeicao) async {
     final nomeController = TextEditingController(text: refeicao.nome);
     final precoController = TextEditingController(
@@ -791,478 +803,483 @@ class _AdmMenuScreenState extends State<AdmMenuScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          height: MediaQuery.of(context).size.height * 0.85,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 157, 0, 255),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
+      builder: (context) => SafeArea(
+        child: StatefulBuilder(
+          builder: (context, setModalState) => Container(
+            height: MediaQuery.of(context).size.height * 0.85,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 157, 0, 255),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.edit, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'Editar Prato',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (mensagemErro != null) ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            border: Border.all(
-                              color: Colors.red.withOpacity(0.3),
+                      Row(
+                        children: const [
+                          Icon(Icons.edit, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Editar Prato',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  mensagemErro!,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      const Text(
-                        'Preencha as informações do prato e selecione os ingredientes',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Nome do Prato *',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: nomeController,
-                        decoration: InputDecoration(
-                          hintText: 'Ex: Salada Caesar',
-                          helperText: 'Mínimo de 3 caracteres',
-                          helperStyle: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Preço *',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: precoController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Ex: 25,50',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          prefixText: 'R\$ ',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Tipo do Prato *',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: tipoSelecionado,
-                        hint: const Text('Selecione o tipo do prato'),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'Entrada',
-                            child: Text('Entrada'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Prato Principal',
-                            child: Text('Prato Principal'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Sobremesa',
-                            child: Text('Sobremesa'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Bebida',
-                            child: Text('Bebida'),
                           ),
                         ],
-                        onChanged: (value) {
-                          setModalState(() => tipoSelecionado = value);
-                        },
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Descrição',
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: descricaoController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          hintText: 'Descrição do prato (opcional)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (mensagemErro != null) ...[
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              border: Border.all(
+                                color: Colors.red.withOpacity(0.3),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    mensagemErro!,
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
+                        ],
+                        const Text(
+                          'Preencha as informações do prato e selecione os ingredientes',
+                          style: TextStyle(color: Colors.grey),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Ingredientes',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Nome do Prato *',
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (!isLoadingIngredientes && ingredientes.isNotEmpty)
+                        const SizedBox(height: 8),
                         TextField(
-                          controller: buscaIngredientesController,
+                          controller: nomeController,
                           decoration: InputDecoration(
-                            hintText: 'Pesquisar ingrediente...',
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: filtroIngredientes.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      setModalState(() {
-                                        buscaIngredientesController.clear();
-                                        filtroIngredientes = '';
-                                      });
-                                    },
-                                  )
-                                : null,
+                            hintText: 'Ex: Salada Caesar',
+                            helperText: 'Mínimo de 3 caracteres',
+                            helperStyle: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                             filled: true,
                             fillColor: Colors.grey.shade50,
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Preço *',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: precoController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Ex: 25,50',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            prefixText: 'R\$ ',
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Tipo do Prato *',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          initialValue: tipoSelecionado,
+                          hint: const Text('Selecione o tipo do prato'),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'Entrada',
+                              child: Text('Entrada'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Prato Principal',
+                              child: Text('Prato Principal'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Sobremesa',
+                              child: Text('Sobremesa'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Bebida',
+                              child: Text('Bebida'),
+                            ),
+                          ],
                           onChanged: (value) {
-                            setModalState(() {
-                              filtroIngredientes = value;
-                            });
+                            setModalState(() => tipoSelecionado = value);
                           },
                         ),
-                      const SizedBox(height: 8),
-                      if (isLoadingIngredientes)
-                        const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      else if (ingredientes.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            border: Border.all(color: Colors.blue.shade200),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: const [
-                              Icon(Icons.info_outline, color: Colors.blue),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Nenhum ingrediente cadastrado. Adicione ingredientes na tela de gerenciar ingredientes.',
-                                  style: TextStyle(color: Colors.blue),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        Column(
-                          children: ingredientes
-                              .where(
-                                (ingrediente) =>
-                                    filtroIngredientes.isEmpty ||
-                                    ingrediente.nome.toLowerCase().contains(
-                                      filtroIngredientes.toLowerCase(),
-                                    ),
-                              )
-                              .map((ingrediente) {
-                                final isSelected = ingredientesSelecionados
-                                    .contains(ingrediente.idIngrediente);
-                                return CheckboxListTile(
-                                  title: Text(ingrediente.nome),
-                                  subtitle: ingrediente.restricoes.isNotEmpty
-                                      ? Wrap(
-                                          spacing: 4,
-                                          runSpacing: 4,
-                                          children: ingrediente.restricoes
-                                              .map(
-                                                (r) => Chip(
-                                                  label: Text(r),
-                                                  labelStyle: const TextStyle(
-                                                    fontSize: 10,
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 4,
-                                                      ),
-                                                  materialTapTargetSize:
-                                                      MaterialTapTargetSize
-                                                          .shrinkWrap,
-                                                ),
-                                              )
-                                              .toList(),
-                                        )
-                                      : null,
-                                  value: isSelected,
-                                  activeColor: const Color.fromARGB(
-                                    255,
-                                    157,
-                                    0,
-                                    255,
-                                  ),
-                                  onChanged: (bool? value) {
-                                    setModalState(() {
-                                      if (value == true) {
-                                        ingredientesSelecionados.add(
-                                          ingrediente.idIngrediente,
-                                        );
-                                      } else {
-                                        ingredientesSelecionados.remove(
-                                          ingrediente.idIngrediente,
-                                        );
-                                      }
-                                    });
-                                  },
-                                  contentPadding: EdgeInsets.zero,
-                                );
-                              })
-                              .toList(),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Descrição',
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade300,
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isSaving
-                        ? null
-                        : () async {
-                            final navigator = Navigator.of(context);
-                            if (nomeController.text.isEmpty ||
-                                precoController.text.isEmpty ||
-                                tipoSelecionado == null) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'Preencha todos os campos obrigatórios';
-                              });
-                              return;
-                            }
-                            if (nomeController.text.length < 3) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'O nome do prato deve ter no mínimo 3 caracteres';
-                              });
-                              return;
-                            }
-                            if (ingredientesSelecionados.isEmpty) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'Selecione pelo menos 1 ingrediente';
-                              });
-                              return;
-                            }
-                            final precoAtual = double.tryParse(
-                              precoController.text.replaceAll(',', '.'),
-                            );
-                            final ingredientesOriginais = refeicao.ingredientes
-                                .map((i) => i.idIngrediente)
-                                .toSet();
-                            final ingredientesNovos = ingredientesSelecionados
-                                .toSet();
-                            final descricaoAtual =
-                                descricaoController.text.trim().isEmpty
-                                ? ''
-                                : descricaoController.text.trim();
-                            final descricaoOriginal =
-                                (refeicao.descricao == null ||
-                                    refeicao.descricao!.trim().isEmpty)
-                                ? ''
-                                : refeicao.descricao!.trim();
-                            final semAlteracoes =
-                                nomeController.text == refeicao.nome &&
-                                precoAtual == refeicao.preco &&
-                                tipoSelecionado == refeicao.tipo &&
-                                descricaoAtual == descricaoOriginal &&
-                                ingredientesOriginais
-                                    .difference(ingredientesNovos)
-                                    .isEmpty &&
-                                ingredientesNovos
-                                    .difference(ingredientesOriginais)
-                                    .isEmpty;
-                            if (semAlteracoes) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'Nenhuma alteração foi detectada';
-                              });
-                              return;
-                            }
-                            setModalState(() {
-                              mensagemErro = null;
-                              isSaving = true;
-                            });
-                            try {
-                              final preco = double.tryParse(
-                                precoController.text.replaceAll(',', '.'),
-                              );
-                              if (preco == null) {
-                                throw Exception('Preço inválido');
-                              }
-                              final dto = MealRequestDTO(
-                                nome: nomeController.text,
-                                preco: preco,
-                                tipo: tipoSelecionado!,
-                                descricao:
-                                    descricaoController.text.trim().isEmpty
-                                    ? ''
-                                    : descricaoController.text.trim(),
-                                disponivel: refeicao.disponivel,
-                                ingredientesIds: ingredientesSelecionados,
-                              );
-                              await MealService.atualizarRefeicao(
-                                refeicao.idRefeicao,
-                                dto,
-                              );
-                              if (mounted) {
-                                await _carregarRefeicoes();
-                                navigator.pop();
-                                ScaffoldMessenger.of(this.context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Prato atualizado com sucesso!',
-                                    ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              setModalState(() {
-                                mensagemErro = 'Erro ao atualizar: $e';
-                                isSaving = false;
-                              });
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 157, 0, 255),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: isSaving
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: descricaoController,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            hintText: 'Descrição do prato (opcional)',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Ingredientes',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (!isLoadingIngredientes && ingredientes.isNotEmpty)
+                          TextField(
+                            controller: buscaIngredientesController,
+                            decoration: InputDecoration(
+                              hintText: 'Pesquisar ingrediente...',
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: filtroIngredientes.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        setModalState(() {
+                                          buscaIngredientesController.clear();
+                                          filtroIngredientes = '';
+                                        });
+                                      },
+                                    )
+                                  : null,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                            ),
+                            onChanged: (value) {
+                              setModalState(() {
+                                filtroIngredientes = value;
+                              });
+                            },
+                          ),
+                        const SizedBox(height: 8),
+                        if (isLoadingIngredientes)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: CircularProgressIndicator(),
                             ),
                           )
-                        : const Text(
-                            'Salvar Alterações',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                        else if (ingredientes.isEmpty)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              border: Border.all(color: Colors.blue.shade200),
+                              borderRadius: BorderRadius.circular(8),
                             ),
+                            child: Row(
+                              children: const [
+                                Icon(Icons.info_outline, color: Colors.blue),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Nenhum ingrediente cadastrado. Adicione ingredientes na tela de gerenciar ingredientes.',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          Column(
+                            children: ingredientes
+                                .where(
+                                  (ingrediente) =>
+                                      filtroIngredientes.isEmpty ||
+                                      ingrediente.nome.toLowerCase().contains(
+                                        filtroIngredientes.toLowerCase(),
+                                      ),
+                                )
+                                .map((ingrediente) {
+                                  final isSelected = ingredientesSelecionados
+                                      .contains(ingrediente.idIngrediente);
+                                  return CheckboxListTile(
+                                    title: Text(ingrediente.nome),
+                                    subtitle: ingrediente.restricoes.isNotEmpty
+                                        ? Wrap(
+                                            spacing: 4,
+                                            runSpacing: 4,
+                                            children: ingrediente.restricoes
+                                                .map(
+                                                  (r) => Chip(
+                                                    label: Text(r),
+                                                    labelStyle: const TextStyle(
+                                                      fontSize: 10,
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4,
+                                                        ),
+                                                    materialTapTargetSize:
+                                                        MaterialTapTargetSize
+                                                            .shrinkWrap,
+                                                  ),
+                                                )
+                                                .toList(),
+                                          )
+                                        : null,
+                                    value: isSelected,
+                                    activeColor: const Color.fromARGB(
+                                      255,
+                                      157,
+                                      0,
+                                      255,
+                                    ),
+                                    onChanged: (bool? value) {
+                                      setModalState(() {
+                                        if (value == true) {
+                                          ingredientesSelecionados.add(
+                                            ingrediente.idIngrediente,
+                                          );
+                                        } else {
+                                          ingredientesSelecionados.remove(
+                                            ingrediente.idIngrediente,
+                                          );
+                                        }
+                                      });
+                                    },
+                                    contentPadding: EdgeInsets.zero,
+                                  );
+                                })
+                                .toList(),
                           ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade300,
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isSaving
+                          ? null
+                          : () async {
+                              final navigator = Navigator.of(context);
+                              if (nomeController.text.isEmpty ||
+                                  precoController.text.isEmpty ||
+                                  tipoSelecionado == null) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'Preencha todos os campos obrigatórios';
+                                });
+                                return;
+                              }
+                              if (nomeController.text.length < 3) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'O nome do prato deve ter no mínimo 3 caracteres';
+                                });
+                                return;
+                              }
+                              if (ingredientesSelecionados.isEmpty) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'Selecione pelo menos 1 ingrediente';
+                                });
+                                return;
+                              }
+                              final precoAtual = double.tryParse(
+                                precoController.text.replaceAll(',', '.'),
+                              );
+                              final ingredientesOriginais = refeicao
+                                  .ingredientes
+                                  .map((i) => i.idIngrediente)
+                                  .toSet();
+                              final ingredientesNovos = ingredientesSelecionados
+                                  .toSet();
+                              final descricaoAtual =
+                                  descricaoController.text.trim().isEmpty
+                                  ? ''
+                                  : descricaoController.text.trim();
+                              final descricaoOriginal =
+                                  (refeicao.descricao == null ||
+                                      refeicao.descricao!.trim().isEmpty)
+                                  ? ''
+                                  : refeicao.descricao!.trim();
+                              final semAlteracoes =
+                                  nomeController.text == refeicao.nome &&
+                                  precoAtual == refeicao.preco &&
+                                  tipoSelecionado == refeicao.tipo &&
+                                  descricaoAtual == descricaoOriginal &&
+                                  ingredientesOriginais
+                                      .difference(ingredientesNovos)
+                                      .isEmpty &&
+                                  ingredientesNovos
+                                      .difference(ingredientesOriginais)
+                                      .isEmpty;
+                              if (semAlteracoes) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'Nenhuma alteração foi detectada';
+                                });
+                                return;
+                              }
+                              setModalState(() {
+                                mensagemErro = null;
+                                isSaving = true;
+                              });
+                              try {
+                                final preco = double.tryParse(
+                                  precoController.text.replaceAll(',', '.'),
+                                );
+                                if (preco == null) {
+                                  throw Exception('Preço inválido');
+                                }
+                                final dto = MealRequestDTO(
+                                  nome: nomeController.text,
+                                  preco: preco,
+                                  tipo: tipoSelecionado!,
+                                  descricao:
+                                      descricaoController.text.trim().isEmpty
+                                      ? ''
+                                      : descricaoController.text.trim(),
+                                  disponivel: refeicao.disponivel,
+                                  ingredientesIds: ingredientesSelecionados,
+                                );
+                                await MealService.atualizarRefeicao(
+                                  refeicao.idRefeicao,
+                                  dto,
+                                );
+                                if (mounted) {
+                                  await _carregarRefeicoes();
+                                  navigator.pop();
+                                  ScaffoldMessenger.of(
+                                    this.context,
+                                  ).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Prato atualizado com sucesso!',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                setModalState(() {
+                                  mensagemErro = 'Erro ao atualizar: $e';
+                                  isSaving = false;
+                                });
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 157, 0, 255),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: isSaving
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : const Text(
+                              'Salvar Alterações',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-}
+}

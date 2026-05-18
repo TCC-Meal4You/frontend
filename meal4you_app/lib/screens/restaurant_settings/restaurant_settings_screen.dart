@@ -149,8 +149,9 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         duration: const Duration(milliseconds: 300),
         vsync: Navigator.of(context),
       ),
-      builder: (context) =>
-          FoodTypeSelectorScreen(restaurantId: provider.id ?? 0),
+      builder: (context) => SafeArea(
+        child: FoodTypeSelectorScreen(restaurantId: provider.id ?? 0),
+      ),
     );
     setState(() {});
   }

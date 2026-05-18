@@ -7,12 +7,14 @@ import 'package:meal4you_app/services/restriction/restriction_service.dart';
 import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/manage_ingredients/ingredient_card.dart';
 import 'package:meal4you_app/widgets/manage_ingredients/ingredient_empty_state.dart';
+
 class ManageIngredientsScreen extends StatefulWidget {
   const ManageIngredientsScreen({super.key});
   @override
   State<ManageIngredientsScreen> createState() =>
       _ManageIngredientsScreenState();
 }
+
 class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
   List<IngredientResponseDTO> ingredientes = [];
   bool isLoading = true;
@@ -21,6 +23,7 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
     super.initState();
     _carregarIngredientes();
   }
+
   Future<void> _carregarIngredientes() async {
     setState(() => isLoading = true);
     try {
@@ -47,6 +50,7 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
       }
     }
   }
+
   Future<bool> _confirmarDeletar(
     int id,
     String nome,
@@ -102,6 +106,7 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
     }
     return false;
   }
+
   void _mostrarModalAdicionarIngrediente() async {
     final nomeController = TextEditingController();
     List<RestrictionResponseDTO> restricoes = [];
@@ -128,268 +133,276 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          height: MediaQuery.of(context).size.height * 0.85,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0FE687),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.restaurant, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'Adicionar Ingrediente',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+      builder: (context) => SafeArea(
+        child: StatefulBuilder(
+          builder: (context, setModalState) => Container(
+            height: MediaQuery.of(context).size.height * 0.85,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF0FE687),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (mensagemErro != null) ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            border: Border.all(
-                              color: Colors.red.withOpacity(0.3),
+                      Row(
+                        children: const [
+                          Icon(Icons.restaurant, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Adicionar Ingrediente',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  mensagemErro!,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      const Text(
-                        'Nome do Ingrediente *',
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: nomeController,
-                        decoration: InputDecoration(
-                          hintText: 'Ex: Tomate',
-                          helperText: 'Mínimo de 3 caracteres',
-                          helperStyle: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Restrições Alimentares (opcional)',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (isLoadingRestricoes)
-                        const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      else if (restricoes.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            border: Border.all(color: Colors.blue.shade200),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: const [
-                              Icon(Icons.info_outline, color: Colors.blue),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Nenhuma restrição alimentar cadastrada no sistema ainda. O ingrediente será cadastrado sem restrições.',
-                                  style: TextStyle(color: Colors.blue),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        Column(
-                          children: restricoes.map((restricao) {
-                            final isSelected = restricoesSelecionadas.contains(
-                              restricao.idRestricao,
-                            );
-                            return CheckboxListTile(
-                              title: Text(restricao.nome),
-                              value: isSelected,
-                              activeColor: const Color(0xFF0FE687),
-                              onChanged: (bool? value) {
-                                setModalState(() {
-                                  if (value == true) {
-                                    restricoesSelecionadas.add(
-                                      restricao.idRestricao,
-                                    );
-                                  } else {
-                                    restricoesSelecionadas.remove(
-                                      restricao.idRestricao,
-                                    );
-                                  }
-                                });
-                              },
-                              contentPadding: EdgeInsets.zero,
-                            );
-                          }).toList(),
-                        ),
                     ],
                   ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade300,
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isSaving
-                        ? null
-                        : () async {
-                            final navigator = Navigator.of(context);
-                            if (nomeController.text.isEmpty) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'Por favor, informe o nome do ingrediente';
-                              });
-                              return;
-                            }
-                            if (nomeController.text.length < 3) {
-                              setModalState(() {
-                                mensagemErro =
-                                    'O nome do ingrediente deve ter no mínimo 3 caracteres';
-                              });
-                              return;
-                            }
-                            setModalState(() {
-                              mensagemErro = null;
-                              isSaving = true;
-                            });
-                            try {
-                              final dto = IngredientRequestDTO(
-                                nome: nomeController.text,
-                                restricoesIds: restricoesSelecionadas,
-                              );
-                              await IngredientService.cadastrarIngrediente(dto);
-                              if (mounted) {
-                                await _carregarIngredientes();
-                                navigator.pop();
-                                ScaffoldMessenger.of(this.context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Ingrediente cadastrado com sucesso!',
-                                    ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              setModalState(() {
-                                mensagemErro = 'Erro ao cadastrar: $e';
-                                isSaving = false;
-                              });
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0FE687),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: isSaving
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (mensagemErro != null) ...[
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              border: Border.all(
+                                color: Colors.red.withOpacity(0.3),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          )
-                        : const Text(
-                            'Adicionar Ingrediente',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    mensagemErro!,
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                        ],
+                        const Text(
+                          'Nome do Ingrediente *',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: nomeController,
+                          decoration: InputDecoration(
+                            hintText: 'Ex: Tomate',
+                            helperText: 'Mínimo de 3 caracteres',
+                            helperStyle: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Restrições Alimentares (opcional)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (isLoadingRestricoes)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        else if (restricoes.isEmpty)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              border: Border.all(color: Colors.blue.shade200),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: const [
+                                Icon(Icons.info_outline, color: Colors.blue),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Nenhuma restrição alimentar cadastrada no sistema ainda. O ingrediente será cadastrado sem restrições.',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          Column(
+                            children: restricoes.map((restricao) {
+                              final isSelected = restricoesSelecionadas
+                                  .contains(restricao.idRestricao);
+                              return CheckboxListTile(
+                                title: Text(restricao.nome),
+                                value: isSelected,
+                                activeColor: const Color(0xFF0FE687),
+                                onChanged: (bool? value) {
+                                  setModalState(() {
+                                    if (value == true) {
+                                      restricoesSelecionadas.add(
+                                        restricao.idRestricao,
+                                      );
+                                    } else {
+                                      restricoesSelecionadas.remove(
+                                        restricao.idRestricao,
+                                      );
+                                    }
+                                  });
+                                },
+                                contentPadding: EdgeInsets.zero,
+                              );
+                            }).toList(),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade300,
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isSaving
+                          ? null
+                          : () async {
+                              final navigator = Navigator.of(context);
+                              if (nomeController.text.isEmpty) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'Por favor, informe o nome do ingrediente';
+                                });
+                                return;
+                              }
+                              if (nomeController.text.length < 3) {
+                                setModalState(() {
+                                  mensagemErro =
+                                      'O nome do ingrediente deve ter no mínimo 3 caracteres';
+                                });
+                                return;
+                              }
+                              setModalState(() {
+                                mensagemErro = null;
+                                isSaving = true;
+                              });
+                              try {
+                                final dto = IngredientRequestDTO(
+                                  nome: nomeController.text,
+                                  restricoesIds: restricoesSelecionadas,
+                                );
+                                await IngredientService.cadastrarIngrediente(
+                                  dto,
+                                );
+                                if (mounted) {
+                                  await _carregarIngredientes();
+                                  navigator.pop();
+                                  ScaffoldMessenger.of(
+                                    this.context,
+                                  ).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Ingrediente cadastrado com sucesso!',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                setModalState(() {
+                                  mensagemErro = 'Erro ao cadastrar: $e';
+                                  isSaving = false;
+                                });
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0FE687),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: isSaving
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'Adicionar Ingrediente',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -540,4 +553,4 @@ class _ManageIngredientsScreenState extends State<ManageIngredientsScreen> {
       ),
     );
   }
-}
+}
