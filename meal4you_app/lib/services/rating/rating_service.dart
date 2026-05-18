@@ -52,8 +52,9 @@ class RatingService {
         errors.add('${uri.toString()} => ${resp.statusCode}: ${resp.body}');
         if (resp.statusCode == 400) throw Exception('Nota inválida (0-5)');
         if (resp.statusCode == 401) throw Exception('Usuário não autenticado');
-        if (resp.statusCode == 409)
+        if (resp.statusCode == 409) {
           throw Exception('Você já avaliou este restaurante');
+        }
       } on TimeoutException catch (e) {
         errors.add('${uri.toString()} => TIMEOUT: $e');
         continue;
@@ -186,12 +187,15 @@ class RatingService {
     final token = await UserTokenSaving.getToken();
     if (token == null) throw Exception('Token não encontrado');
     final queryParams = <String>[];
-    if (idAvaliacao != null && idAvaliacao > 0)
+    if (idAvaliacao != null && idAvaliacao > 0) {
       queryParams.add('idAvaliacao=$idAvaliacao');
-    if (idRestaurante != null && idRestaurante > 0)
+    }
+    if (idRestaurante != null && idRestaurante > 0) {
       queryParams.add('idRestaurante=$idRestaurante');
-    if (queryParams.isEmpty)
+    }
+    if (queryParams.isEmpty) {
       throw Exception('Identificador da avaliação não informado');
+    }
     final query = queryParams.join('&');
     final candidates = _candidateUris('/restaurantes/excluir-avaliacao?$query');
     final errors = <String>[];
@@ -239,16 +243,18 @@ class RatingService {
               body: body,
             )
             .timeout(_requestTimeout);
-        if (kDebugMode)
+        if (kDebugMode) {
           print('[RatingService] POST $uri => ${resp.statusCode}');
+        }
         if (resp.statusCode >= 200 && resp.statusCode < 300) {
           return MealRatingResponseDTO.fromJson(jsonDecode(resp.body));
         }
         errors.add('${uri.toString()} => ${resp.statusCode}: ${resp.body}');
         if (resp.statusCode == 400) throw Exception('Nota inválida (0-5)');
         if (resp.statusCode == 401) throw Exception('Usuário não autenticado');
-        if (resp.statusCode == 409)
+        if (resp.statusCode == 409) {
           throw Exception('Você já avaliou esta refeição');
+        }
       } on TimeoutException catch (e) {
         errors.add('${uri.toString()} => TIMEOUT: $e');
         continue;
@@ -272,8 +278,9 @@ class RatingService {
     final errors = <String>[];
     for (final uri in candidates) {
       try {
-        if (kDebugMode)
+        if (kDebugMode) {
           print('[RatingService] PUT $uri (atualizarAvaliacaoRefeicao)');
+        }
         final resp = await http
             .put(
               uri,
@@ -311,23 +318,32 @@ class RatingService {
   verMinhasAvaliacoesDRefeicao() async {
     final token = await UserTokenSaving.getToken();
     if (token == null) throw Exception('Token não encontrado');
+
     final candidates = [
       ..._candidateUris('/refeicoes/minhas-avaliacoes'),
       ..._candidateUris('/refeicoes/avaliacoes'),
     ];
+
     final errors = <String>[];
+
     for (final uri in candidates) {
       try {
-        if (kDebugMode)
+        if (kDebugMode) {
           print('[RatingService] GET $uri (verMinhasAvaliacoesDRefeicao)');
+        }
+
         final resp = await http
             .get(uri, headers: {'Authorization': 'Bearer $token'})
             .timeout(_requestTimeout);
-        if (kDebugMode) print('[RatingService] GET $uri => ${resp.statusCode}');
-        if (resp.statusCode == 200) {
-          final data = jsonDecode(resp.body) as List<dynamic>;
-          return data.map((j) => MealRatingResponseDTO.fromJson(j)).toList();
+
+        if (kDebugMode) {
+          print('[RatingService] GET $uri => ${resp.statusCode}');
         }
+
+        if (resp.statusCode == 200) {
+          return _parseMealRatings(jsonDecode(resp.body));
+        }
+
         errors.add('${uri.toString()} => ${resp.statusCode}: ${resp.body}');
       } on TimeoutException catch (e) {
         errors.add('${uri.toString()} => TIMEOUT: $e');
@@ -337,22 +353,119 @@ class RatingService {
         continue;
       }
     }
+
     throw Exception(
       'Erro ao buscar avaliações de refeição; tentativas: ${errors.join(' | ')}',
     );
+  }
+
+  static Future<List<MealRatingResponseDTO>>
+  listarAvaliacoesDeRefeicoesPorRestaurante({
+    required int idRestaurante,
+    required Set<int> idsRefeicoes,
+  }) async {
+    final token = await UserTokenSaving.getToken();
+    final candidates = [
+      Uri.parse(
+        '$host/usuarios/restaurantes/$idRestaurante/refeicoes/avaliacoes',
+      ),
+      Uri.parse('$host/restaurantes/$idRestaurante/refeicoes/avaliacoes'),
+      Uri.parse(
+        '$host/usuarios/refeicoes/avaliacoes?idRestaurante=$idRestaurante',
+      ),
+      Uri.parse('$host/refeicoes/avaliacoes?idRestaurante=$idRestaurante'),
+      Uri.parse(
+        '$host/usuarios/refeicoes/avaliacoes?restauranteId=$idRestaurante',
+      ),
+      Uri.parse('$host/refeicoes/avaliacoes?restauranteId=$idRestaurante'),
+      Uri.parse(
+        '$host/usuarios/refeicoes/avaliacoes?id_restaurante=$idRestaurante',
+      ),
+      Uri.parse('$host/refeicoes/avaliacoes?id_restaurante=$idRestaurante'),
+      Uri.parse(
+        '$host/usuarios/restaurantes/avaliacoes-refeicoes?idRestaurante=$idRestaurante',
+      ),
+      Uri.parse(
+        '$host/restaurantes/avaliacoes-refeicoes?idRestaurante=$idRestaurante',
+      ),
+    ];
+
+    final errors = <String>[];
+    List<MealRatingResponseDTO>? emptySuccessfulResponse;
+
+    for (final uri in candidates) {
+      try {
+        if (kDebugMode) {
+          print('[RatingService] GET $uri (avaliações refeições restaurante)');
+        }
+
+        final resp = token != null
+            ? await http
+                  .get(uri, headers: {'Authorization': 'Bearer $token'})
+                  .timeout(_requestTimeout)
+            : await http.get(uri).timeout(_requestTimeout);
+
+        if (kDebugMode) {
+          print('[RatingService] GET $uri => ${resp.statusCode}');
+        }
+
+        if (resp.statusCode == 200) {
+          final ratings = _filtrarAvaliacoesDoRestaurante(
+            _parseMealRatings(jsonDecode(resp.body)),
+            idsRefeicoes,
+          );
+
+          if (ratings.isNotEmpty) {
+            return ratings;
+          }
+
+          emptySuccessfulResponse ??= ratings;
+          errors.add('${uri.toString()} => 200: lista vazia');
+          continue;
+        }
+
+        errors.add('${uri.toString()} => ${resp.statusCode}: ${resp.body}');
+      } on TimeoutException catch (e) {
+        errors.add('${uri.toString()} => TIMEOUT: $e');
+        continue;
+      } catch (e) {
+        errors.add('${uri.toString()} => EXCEPTION: $e');
+        continue;
+      }
+    }
+
+    if (emptySuccessfulResponse != null) {
+      return emptySuccessfulResponse;
+    }
+
+    if (kDebugMode) {
+      print(
+        '[RatingService] nenhum endpoint de avaliações de refeições do restaurante funcionou: ${errors.join(' | ')}',
+      );
+    }
+
+    return [];
   }
 
   static Future<List<MealRatingResponseDTO>> listarAvaliacoesPorRefeicao(
     int idRefeicao,
   ) async {
     final token = await UserTokenSaving.getToken();
+
     final candidates = [
       Uri.parse('$host/usuarios/refeicoes/avaliacoes?idRefeicao=$idRefeicao'),
+      Uri.parse('$host/usuarios/refeicoes/avaliacoes?id_refeicao=$idRefeicao'),
+      Uri.parse('$host/usuarios/refeicoes/avaliacoes?refeicaoId=$idRefeicao'),
+      Uri.parse('$host/refeicoes/avaliacoes?idRefeicao=$idRefeicao'),
+      Uri.parse('$host/refeicoes/avaliacoes?id_refeicao=$idRefeicao'),
+      Uri.parse('$host/refeicoes/avaliacoes?refeicaoId=$idRefeicao'),
       Uri.parse('$host/refeicoes/$idRefeicao/avaliacoes'),
       Uri.parse('$host/usuarios/refeicoes/$idRefeicao/avaliacoes'),
-      Uri.parse('$host/refeicoes/avaliacoes?idRefeicao=$idRefeicao'),
     ];
+
     final errors = <String>[];
+    List<MealRatingResponseDTO>? emptySuccessfulResponse;
+
     for (final uri in candidates) {
       try {
         final resp = token != null
@@ -360,10 +473,24 @@ class RatingService {
                   .get(uri, headers: {'Authorization': 'Bearer $token'})
                   .timeout(_requestTimeout)
             : await http.get(uri).timeout(_requestTimeout);
+
         if (resp.statusCode == 200) {
-          final data = jsonDecode(resp.body) as List<dynamic>;
-          return data.map((j) => MealRatingResponseDTO.fromJson(j)).toList();
+          final ratings = _parseMealRatings(jsonDecode(resp.body))
+              .where((rating) {
+                final mealId = rating.mealId;
+                return mealId == null || mealId == idRefeicao;
+              })
+              .toList();
+
+          if (ratings.isNotEmpty) {
+            return ratings;
+          }
+
+          emptySuccessfulResponse ??= ratings;
+          errors.add('${uri.toString()} => 200: lista vazia');
+          continue;
         }
+
         errors.add('${uri.toString()} => ${resp.statusCode}: ${resp.body}');
       } on TimeoutException catch (e) {
         errors.add('${uri.toString()} => TIMEOUT: $e');
@@ -373,9 +500,72 @@ class RatingService {
         continue;
       }
     }
+
+    if (emptySuccessfulResponse != null) {
+      return emptySuccessfulResponse;
+    }
+
     throw Exception(
       'Erro ao buscar avaliações de refeição; tentativas: ${errors.join(' | ')}',
     );
+  }
+
+  static List<MealRatingResponseDTO> _parseMealRatings(dynamic decoded) {
+    if (decoded is List) {
+      return decoded
+          .whereType<Map>()
+          .map(
+            (item) => MealRatingResponseDTO.fromJson(
+              Map<String, dynamic>.from(item),
+            ),
+          )
+          .toList();
+    }
+
+    if (decoded is Map) {
+      final map = Map<String, dynamic>.from(decoded);
+      final possibleLists = [
+        map['avaliacoes'],
+        map['avaliacoesRefeicao'],
+        map['mealRatings'],
+        map['ratings'],
+        map['dados'],
+        map['data'],
+        map['content'],
+      ];
+
+      for (final value in possibleLists) {
+        if (value is List) {
+          return _parseMealRatings(value);
+        }
+      }
+
+      final looksLikeSingleRating =
+          map.containsKey('nota') ||
+          map.containsKey('rating') ||
+          map.containsKey('idAvaliacao') ||
+          map.containsKey('comentario');
+
+      if (looksLikeSingleRating) {
+        return [MealRatingResponseDTO.fromJson(map)];
+      }
+    }
+
+    return [];
+  }
+
+  static List<MealRatingResponseDTO> _filtrarAvaliacoesDoRestaurante(
+    List<MealRatingResponseDTO> ratings,
+    Set<int> idsRefeicoes,
+  ) {
+    if (idsRefeicoes.isEmpty) {
+      return ratings;
+    }
+
+    return ratings.where((rating) {
+      final mealId = rating.mealId;
+      return mealId == null || idsRefeicoes.contains(mealId);
+    }).toList();
   }
 
   static Future<void> excluirAvaliacaoRefeicao({
@@ -385,27 +575,33 @@ class RatingService {
     final token = await UserTokenSaving.getToken();
     if (token == null) throw Exception('Token não encontrado');
     final queryParams = <String>[];
-    if (idAvaliacao != null && idAvaliacao > 0)
+    if (idAvaliacao != null && idAvaliacao > 0) {
       queryParams.add('idAvaliacao=$idAvaliacao');
-    if (idRefeicao != null && idRefeicao > 0)
+    }
+    if (idRefeicao != null && idRefeicao > 0) {
       queryParams.add('idRefeicao=$idRefeicao');
-    if (queryParams.isEmpty)
+    }
+    if (queryParams.isEmpty) {
       throw Exception('Identificador da avaliação não informado');
+    }
     final query = queryParams.join('&');
     final candidates = _candidateUris('/refeicoes/excluir-avaliacao?$query');
     final errors = <String>[];
     for (final uri in candidates) {
       try {
-        if (kDebugMode)
+        if (kDebugMode) {
           print('[RatingService] DELETE $uri (excluirAvaliacaoRefeicao)');
+        }
         final resp = await http
             .delete(uri, headers: {'Authorization': 'Bearer $token'})
             .timeout(_requestTimeout);
-        if (kDebugMode)
+        if (kDebugMode) {
           print('[RatingService] DELETE $uri => ${resp.statusCode}');
+        }
         if (resp.statusCode == 200) {
-          if (kDebugMode)
+          if (kDebugMode) {
             print('[RatingService] Avaliação excluída com sucesso');
+          }
           return;
         }
         errors.add('${uri.toString()} => ${resp.statusCode}: ${resp.body}');
