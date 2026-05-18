@@ -79,7 +79,6 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
           : 'E-mail não encontrado';
       senha = (savedPassword ?? '').trim();
       isSocialLogin = _detectSocialLogin(userData, senha);
-    } catch (e) {
     } finally {
       if (!mounted) return;
       setState(() {
