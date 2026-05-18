@@ -15,7 +15,6 @@ class RestaurantCard extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final compatibilidade = _calcularCompatibilidade();
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap:
@@ -62,29 +61,6 @@ class RestaurantCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (compatibilidade != null)
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        compatibilidade,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
                 Positioned(
                   top: 12,
                   right: 12,
@@ -204,10 +180,6 @@ class RestaurantCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String? _calcularCompatibilidade() {
-    return null;
   }
 
   List<Widget> _buildRestrictionChips() {

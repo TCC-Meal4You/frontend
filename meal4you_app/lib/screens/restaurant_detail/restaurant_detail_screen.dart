@@ -609,14 +609,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '0% compatível',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
                         const SizedBox(height: 12),
                         Row(
                           children: [
