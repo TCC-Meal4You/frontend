@@ -145,7 +145,6 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
         _loadUserNamesForRatings();
         _loadMealRatingsForRestaurant(targetRestaurantId);
       } else {
-        // Personal ratings: fetch both restaurant and meal ratings in parallel
         final results = await Future.wait<dynamic>([
           RatingService.verMinhasAvaliacoes(),
           RatingService.verMinhasAvaliacoesDRefeicao(),
@@ -412,7 +411,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                         restaurantId: widget.restaurantId!,
                         restaurantName:
                             existing?.restaurantName ?? 'Restaurante',
-                        existing: existing, // may be null
+                        existing: existing,
                         onSaved: (saved) => _loadRatings(),
                       ),
                     );
@@ -481,7 +480,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                         padding: const EdgeInsets.all(16),
                         children: [
                           const Text(
-                            'Avaliações de Restaurantes',
+                            'Avaliações de Restaurante',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
