@@ -55,4 +55,4 @@ class UserRestrictionService {
       throw Exception('Erro ao atualizar restrições (${response.statusCode})');
     }
   }
-}
+}
