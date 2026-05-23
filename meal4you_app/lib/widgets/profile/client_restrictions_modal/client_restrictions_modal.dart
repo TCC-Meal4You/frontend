@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/restriction_response_dto.dart';
 import 'package:meal4you_app/services/restriction/restriction_service.dart';
 import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
+
 class ClientRestrictionsModal extends StatefulWidget {
   final List<String> restricoesAtuais;
   final VoidCallback onRestrictionsSaved;
@@ -14,6 +15,7 @@ class ClientRestrictionsModal extends StatefulWidget {
   State<ClientRestrictionsModal> createState() =>
       _ClientRestrictionsModalState();
 }
+
 class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
   List<RestrictionResponseDTO> _restricoesDisponiveis = [];
   Set<int> _restricoesSelecionadas = {};
@@ -24,6 +26,7 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
     super.initState();
     _carregarRestricoes();
   }
+
   Future<void> _carregarRestricoes() async {
     try {
       final restricoes = await RestrictionService.listarRestricoes();
@@ -42,12 +45,13 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao carregar restricoes: $e'),
+          content: Text('Erro ao carregar restrições: $e'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
+
   Future<void> _salvarRestricoes() async {
     setState(() => _isSaving = true);
     try {
@@ -57,7 +61,7 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Restricoes atualizadas com sucesso!'),
+          content: Text('Restrições atualizadas com sucesso!'),
           backgroundColor: Colors.green,
         ),
       );
@@ -68,12 +72,13 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao atualizar restricoes: $e'),
+          content: Text('Erro ao atualizar restrições: $e'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
+
   void _toggleRestricao(int idRestricao) {
     setState(() {
       if (_restricoesSelecionadas.contains(idRestricao)) {
@@ -83,6 +88,7 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -92,14 +98,13 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         builder: (context, scrollController) {
-          return Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
+          return Material(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -109,7 +114,7 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Restricoes Alimentares',
+                        'Restrições Alimentares',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -129,34 +134,41 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
                       ? const Center(child: CircularProgressIndicator())
                       : _restricoesDisponiveis.isEmpty
                       ? const Center(
-                          child: Text('Nenhuma restricao disponivel'),
+                          child: Text('Nenhuma restrição disponivel'),
                         )
-                      : ListView.builder(
-                          controller: scrollController,
-                          itemCount: _restricoesDisponiveis.length,
-                          itemBuilder: (context, index) {
-                            final restricao = _restricoesDisponiveis[index];
-                            final isSelected = _restricoesSelecionadas.contains(
-                              restricao.idRestricao,
-                            );
-                            return CheckboxListTile(
-                              title: Text(
-                                restricao.nome,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                      : ListTileTheme(
+                          data: const ListTileThemeData(
+                            tileColor: Colors.white,
+                            selectedTileColor: Color(0x0F9D00FF),
+                          ),
+                          child: ListView.builder(
+                            controller: scrollController,
+                            itemCount: _restricoesDisponiveis.length,
+                            itemBuilder: (context, index) {
+                              final restricao = _restricoesDisponiveis[index];
+                              final isSelected = _restricoesSelecionadas
+                                  .contains(restricao.idRestricao);
+                              return CheckboxListTile(
+                                title: Text(
+                                  restricao.nome,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                              value: isSelected,
-                              activeColor: const Color(0xFF9D00FF),
-                              onChanged: (_) {
-                                _toggleRestricao(restricao.idRestricao);
-                              },
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                            );
-                          },
+                                value: isSelected,
+                                activeColor: const Color(0xFF9D00FF),
+                                checkColor: Colors.white,
+                                tileColor: Colors.white,
+                                onChanged: (_) {
+                                  _toggleRestricao(restricao.idRestricao);
+                                },
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                 ),
                 SafeArea(
@@ -204,4 +216,4 @@ class _ClientRestrictionsModalState extends State<ClientRestrictionsModal> {
       ),
     );
   }
-}
+}
