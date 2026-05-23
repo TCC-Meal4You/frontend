@@ -19,6 +19,7 @@ plugins {
 android {
     namespace = "com.example.meal4you"
     compileSdk = 36
+    ndkVersion = "27.1.12297006"
 
     defaultConfig {
         applicationId = "com.example.meal4you"
