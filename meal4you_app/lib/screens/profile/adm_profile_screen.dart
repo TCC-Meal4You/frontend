@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/controllers/textfield/register_controllers.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
@@ -10,11 +9,13 @@ import 'package:meal4you_app/services/update_profile/update_adm_profile_service.
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
 import 'package:provider/provider.dart';
+
 class AdmProfileScreen extends StatefulWidget {
   const AdmProfileScreen({super.key});
   @override
   State<AdmProfileScreen> createState() => _AdmProfileScreenState();
 }
+
 class _AdmProfileScreenState extends State<AdmProfileScreen> {
   String _email = '';
   String _nome = '';
@@ -32,17 +33,20 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
     super.initState();
     _loadUserData();
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _refreshRestaurantStatus();
   }
+
   @override
   void dispose() {
     _nomeController.dispose();
     _senhaController.dispose();
     super.dispose();
   }
+
   Future<void> _refreshRestaurantStatus() async {
     final restaurantData =
         await UserTokenSaving.getRestaurantDataForCurrentUser();
@@ -52,6 +56,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       });
     }
   }
+
   Future<void> _loadUserData() async {
     try {
       final profileData = await SearchAdmProfileService.buscarMeuPerfil();
@@ -98,6 +103,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       }
     }
   }
+
   void _toggleEditMode() {
     setState(() {
       _isEditing = !_isEditing;
@@ -107,6 +113,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       }
     });
   }
+
   void _cancelEdit() {
     setState(() {
       _isEditing = false;
@@ -115,6 +122,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       _obscureSenha = true;
     });
   }
+
   Future<void> _saveChanges() async {
     if (_isSaving) return;
     final novoNome = _nomeController.text.trim();
@@ -204,6 +212,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       }
     }
   }
+
   Future<bool?> _showPasswordChangeWarningDialog() async {
     return await showDialog<bool>(
       context: context,
@@ -230,6 +239,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       ),
     );
   }
+
   Future<void> _showEmailChangeDialog() async {
     final emailController = TextEditingController();
     String? errorMessage;
@@ -316,6 +326,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       await _requestEmailChange(novoEmail);
     }
   }
+
   Future<void> _requestEmailChange(String novoEmail) async {
     showDialog(
       context: context,
@@ -343,6 +354,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       );
     }
   }
+
   Future<void> _showDeleteAccountDialog() async {
     final emailController = TextEditingController();
     String? errorMessage;
@@ -430,6 +442,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       await _showFinalDeleteWarning(emailConfirmado);
     }
   }
+
   Future<void> _showFinalDeleteWarning(String email) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -460,6 +473,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       await _deleteAccount(email);
     }
   }
+
   Future<void> _deleteAccount(String email) async {
     showDialog(
       context: context,
@@ -502,6 +516,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final admLogoutHandler = AdmLogoutHandler();
@@ -560,10 +575,7 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
                           IconButton(
                             onPressed: () =>
                                 admLogoutHandler.showLogoutDialog(context),
-                            icon: const FaIcon(
-                              FontAwesomeIcons.rightFromBracket,
-                              color: Colors.white,
-                            ),
+                            icon: const Icon(Icons.logout, color: Colors.white),
                           ),
                         ],
                       ),
@@ -1184,4 +1196,4 @@ class _AdmProfileScreenState extends State<AdmProfileScreen> {
       ),
     );
   }
-}
+}

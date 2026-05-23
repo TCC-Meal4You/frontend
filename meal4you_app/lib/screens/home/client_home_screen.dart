@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/client_logout_handler.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/models/restaurante_response_dto.dart';
@@ -598,8 +597,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             IconButton(
                               onPressed: () => _clientlogoutHandler
                                   .showLogoutDialog(context),
-                              icon: const FaIcon(
-                                FontAwesomeIcons.rightFromBracket,
+                              icon: const Icon(
+                                Icons.logout,
                                 color: Colors.white,
                               ),
                             ),

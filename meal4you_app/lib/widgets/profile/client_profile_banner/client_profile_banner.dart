@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 class ClientProfileBanner extends StatelessWidget {
   final bool isLoading;
   final String initial;
@@ -58,10 +58,7 @@ class ClientProfileBanner extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: onLogout,
-                  icon: const FaIcon(
-                    FontAwesomeIcons.rightFromBracket,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.logout, color: Colors.white),
                   tooltip: 'Sair',
                 ),
               ],
@@ -118,4 +115,4 @@ class ClientProfileBanner extends StatelessWidget {
       ),
     );
   }
-}
+}

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/navigation/adm_bottom_navigation_bar.dart';
 import 'package:meal4you_app/widgets/restaurant_management_buttons/restaurant_management_buttons.dart';
 import 'package:provider/provider.dart';
+
 class AdmRestaurantHomeScreen extends StatefulWidget {
   const AdmRestaurantHomeScreen({super.key});
   @override
   State<AdmRestaurantHomeScreen> createState() =>
       _AdmRestaurantHomeScreenState();
 }
+
 class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
   @override
   void initState() {
@@ -20,6 +21,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
       _loadRestaurantData();
     });
   }
+
   Future<void> _loadRestaurantData() async {
     if (!mounted) return;
     final email = await UserTokenSaving.getUserEmail();
@@ -48,6 +50,7 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final admLogoutHandler = AdmLogoutHandler();
@@ -123,8 +126,8 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
                             IconButton(
                               onPressed: () =>
                                   admLogoutHandler.showLogoutDialog(context),
-                              icon: const FaIcon(
-                                FontAwesomeIcons.rightFromBracket,
+                              icon: const Icon(
+                                Icons.logout,
                                 color: Colors.white,
                               ),
                             ),
@@ -285,4 +288,4 @@ class _AdmRestaurantHomeScreenState extends State<AdmRestaurantHomeScreen> {
       ),
     );
   }
-}
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 class ClientSettingsHeader extends StatelessWidget {
   final String initial;
   final VoidCallback onLogout;
@@ -55,10 +55,7 @@ class ClientSettingsHeader extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: onLogout,
-                  icon: const FaIcon(
-                    FontAwesomeIcons.rightFromBracket,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.logout, color: Colors.white),
                 ),
               ],
             ),
@@ -105,4 +102,4 @@ class ClientSettingsHeader extends StatelessWidget {
       ),
     );
   }
-}
+}

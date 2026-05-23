@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meal4you_app/controllers/logout_handlers/adm_logout_handler.dart';
 import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
@@ -217,10 +216,7 @@ class _CreateAdmRestaurantScreenState extends State<CreateAdmRestaurantScreen> {
                           IconButton(
                             onPressed: () =>
                                 admLogoutHandler.showLogoutDialog(context),
-                            icon: const FaIcon(
-                              FontAwesomeIcons.rightFromBracket,
-                              color: Colors.white,
-                            ),
+                            icon: const Icon(Icons.logout, color: Colors.white),
                           ),
                         ],
                       ),
