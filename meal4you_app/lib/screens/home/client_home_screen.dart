@@ -6,6 +6,7 @@ import 'package:meal4you_app/screens/meal_detail/meal_detail_screen.dart';
 import 'package:meal4you_app/screens/restaurant_detail/restaurant_detail_screen.dart';
 import 'package:meal4you_app/screens/search_restaurant_and_dish/search_restaurant_and_dish_screen.dart';
 import 'package:meal4you_app/services/recommendation/knn_recommendation_service.dart';
+import 'package:meal4you_app/services/rating/rating_service.dart';
 import 'package:meal4you_app/services/search_meal/search_meal_service.dart';
 import 'package:meal4you_app/services/search_restaurant/search_restaurant_service.dart';
 import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
@@ -25,6 +26,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   String? _erroRecomendacoes;
   List<RestauranteResponseDTO> _restaurantesRecomendados = [];
   List<MealResponseDTO> _refeicoesRecomendadas = [];
+  bool _readyForRecommendations = false;
+  int _avaliacoesCount = 0;
+  final int _minRatingsThreshold = 3;
 
   @override
   void initState() {
@@ -58,8 +62,23 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       _loadingRecomendacoes = true;
       _erroRecomendacoes = null;
     });
-
     try {
+      _avaliacoesCount = await RatingService.contarAvaliacoes();
+      _readyForRecommendations =
+          await KnnRecommendationService.isUserReadyForRecommendations(
+            minRatings: _minRatingsThreshold,
+          );
+
+      if (!_readyForRecommendations) {
+        if (!mounted) return;
+        setState(() {
+          _restaurantesRecomendados = [];
+          _refeicoesRecomendadas = [];
+          _loadingRecomendacoes = false;
+        });
+        return;
+      }
+
       final results = await Future.wait<List<int>>([
         KnnRecommendationService.obterRecomendacoesRestaurantes(),
         KnnRecommendationService.obterRecomendacoesRefeicoes(),
@@ -81,6 +100,65 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         _loadingRecomendacoes = false;
       });
     }
+  }
+
+  Widget _buildRecommendationsHint() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF8E7),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE7D8B5)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Quer recomendações personalizadas?',
+              style: TextStyle(
+                fontFamily: 'Ubuntu',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Avalie refeições e restaurantes para que o app te conheça melhor. '
+              'Você tem ${_avaliacoesCount} de ${_minRatingsThreshold} avaliações necessárias.',
+              style: const TextStyle(
+                fontFamily: 'Ubuntu',
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 157, 0, 255),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const SearchRestaurantAndDishScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Explorar agora'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<List<RestauranteResponseDTO>> _buscarRestaurantesPorIds(
@@ -648,10 +726,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 ),
                 _buildPreferenciasCard(),
                 _buildHeaderSection('Restaurantes Recomendados'),
-                _buildHorizontalList<RestauranteResponseDTO>(
-                  _restaurantesRecomendados,
-                  _buildRestaurantItem,
-                ),
+                if (!_loadingRecomendacoes && !_readyForRecommendations)
+                  _buildRecommendationsHint()
+                else
+                  _buildHorizontalList<RestauranteResponseDTO>(
+                    _restaurantesRecomendados,
+                    _buildRestaurantItem,
+                  ),
                 _buildHeaderSection('Refeições Recomendadas'),
                 _buildHorizontalList<MealResponseDTO>(
                   _refeicoesRecomendadas,
