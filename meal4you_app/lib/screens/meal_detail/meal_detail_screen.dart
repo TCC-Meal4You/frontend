@@ -6,6 +6,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/meal_rating_editor.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/meal_rating_card.dart';
 import 'package:meal4you_app/models/meal_rating_response_dto.dart';
+import 'package:meal4you_app/screens/map/map_route_screen.dart';
 
 class MealDetailScreen extends StatefulWidget {
   final MealResponseDTO meal;
@@ -364,6 +365,38 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       const SizedBox(height: 16),
                       Container(height: 1, color: Colors.grey[200]),
                       const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                final rid = widget.meal.idRestaurante;
+                                if (rid != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => MapRouteScreen(
+                                        restaurantId: rid,
+                                        restaurantName: null,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Endereço do restaurante não disponível.',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.map),
+                              label: const Text('Como Chegar'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
