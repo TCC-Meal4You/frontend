@@ -1,8 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class DeleteAdmAccountService {
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app';
+      'https://backend-production-1e17.up.railway.app';
   static Future<void> deletarMinhaConta(String email) async {
     final token = await UserTokenSaving.getToken();
     if (token == null || token.isEmpty) {
@@ -28,4 +29,4 @@ class DeleteAdmAccountService {
       throw Exception('Erro ao deletar conta: ${response.body}');
     }
   }
-}
+}

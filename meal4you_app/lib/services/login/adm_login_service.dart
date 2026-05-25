@@ -5,9 +5,10 @@ import 'package:meal4you_app/providers/restaurant/restaurant_provider.dart';
 import 'package:meal4you_app/services/search_restaurant_data/search_restaurant_data_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:provider/provider.dart';
+
 class AdmLoginService {
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app/admins/login';
+      'https://backend-production-1e17.up.railway.app/admins/login';
   static Future<Map<String, dynamic>> loginAdm({
     required String email,
     required String senha,
@@ -23,6 +24,7 @@ class AdmLoginService {
       throw Exception('Erro ${response.statusCode}: ${response.body}');
     }
   }
+
   static Future<void> handleLogin(
     BuildContext context,
     String email,
@@ -105,4 +107,4 @@ class AdmLoginService {
       rethrow;
     }
   }
-}
+}

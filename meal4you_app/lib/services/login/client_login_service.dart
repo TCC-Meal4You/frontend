@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/user_restriction/user_restriction_service.dart';
+
 class ClientLoginService {
   static const String baseUrl =
-      "https://backend-production-b24f.up.railway.app/usuarios/login";
+      "https://backend-production-1e17.up.railway.app/usuarios/login";
   static Future<Map<String, dynamic>> loginClient({
     required String email,
     required String senha,
@@ -21,6 +22,7 @@ class ClientLoginService {
       throw Exception("Erro ao logar: ${response.body}");
     }
   }
+
   static Future<void> handleLogin(
     BuildContext context,
     String email,
@@ -82,4 +84,4 @@ class ClientLoginService {
       }
     }
   }
-}
+}

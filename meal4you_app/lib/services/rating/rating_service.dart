@@ -10,7 +10,7 @@ import 'package:meal4you_app/models/meal_rating_response_dto.dart';
 
 class RatingService {
   static final ValueNotifier<int> changeNotifier = ValueNotifier<int>(0);
-  static const String host = 'https://backend-production-b24f.up.railway.app';
+  static const String host = 'https://backend-production-1e17.up.railway.app';
   static const Duration _requestTimeout = Duration(seconds: 20);
 
   static List<Uri> _candidateUris(String pathWithLeadingSlash) {
@@ -475,12 +475,12 @@ class RatingService {
             : await http.get(uri).timeout(_requestTimeout);
 
         if (resp.statusCode == 200) {
-          final ratings = _parseMealRatings(jsonDecode(resp.body))
-              .where((rating) {
-                final mealId = rating.mealId;
-                return mealId == null || mealId == idRefeicao;
-              })
-              .toList();
+          final ratings = _parseMealRatings(jsonDecode(resp.body)).where((
+            rating,
+          ) {
+            final mealId = rating.mealId;
+            return mealId == null || mealId == idRefeicao;
+          }).toList();
 
           if (ratings.isNotEmpty) {
             return ratings;
@@ -515,9 +515,8 @@ class RatingService {
       return decoded
           .whereType<Map>()
           .map(
-            (item) => MealRatingResponseDTO.fromJson(
-              Map<String, dynamic>.from(item),
-            ),
+            (item) =>
+                MealRatingResponseDTO.fromJson(Map<String, dynamic>.from(item)),
           )
           .toList();
     }

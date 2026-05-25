@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
 class ResetPasswordService {
-  final String baseUrl = "https://backend-production-b24f.up.railway.app";
+  final String baseUrl = "https://backend-production-1e17.up.railway.app";
   Future<bool> sendResetCode(String email, bool isAdm) async {
     final url = Uri.parse(
       "$baseUrl/${isAdm ? "admins" : "usuarios"}/redefinir-senha/solicitar?email=$email",
@@ -15,6 +16,7 @@ class ResetPasswordService {
     );
     return response.statusCode == 200;
   }
+
   Future<bool> confirmResetPassword({
     required String email,
     required String newPassword,
@@ -36,4 +38,4 @@ class ResetPasswordService {
     );
     return response.statusCode == 200;
   }
-}
+}

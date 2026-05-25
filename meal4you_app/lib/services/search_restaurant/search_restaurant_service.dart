@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/paginacao_restaurante_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class SearchRestaurantService {
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app/restaurantes';
+      'https://backend-production-1e17.up.railway.app/restaurantes';
   static Future<PaginacaoRestauranteResponseDTO> listarRestaurantes(
     int numPagina,
   ) async {
@@ -25,4 +26,4 @@ class SearchRestaurantService {
       throw Exception('Erro ao listar restaurantes (${response.statusCode})');
     }
   }
-}
+}

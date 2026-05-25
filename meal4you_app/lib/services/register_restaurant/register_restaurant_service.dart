@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
 class RegisterRestaurantService {
   static const String baseUrl =
-      "https://backend-production-b24f.up.railway.app/restaurantes";
+      "https://backend-production-1e17.up.railway.app/restaurantes";
   static Future<Map<String, dynamic>> registerRestaurant({
     required String name,
     required String description,
@@ -46,4 +47,4 @@ class RegisterRestaurantService {
       );
     }
   }
-}
+}

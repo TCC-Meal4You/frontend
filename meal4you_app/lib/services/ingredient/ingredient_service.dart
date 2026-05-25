@@ -3,9 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/ingredient_request_dto.dart';
 import 'package:meal4you_app/models/ingredient_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class IngredientService {
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app/ingredientes';
+      'https://backend-production-1e17.up.railway.app/ingredientes';
   static Future<IngredientResponseDTO> cadastrarIngrediente(
     IngredientRequestDTO dto,
   ) async {
@@ -37,6 +38,7 @@ class IngredientService {
       throw Exception('Erro ao cadastrar ingrediente');
     }
   }
+
   static Future<List<IngredientResponseDTO>> listarMeusIngredientes() async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -59,6 +61,7 @@ class IngredientService {
       throw Exception('Erro ao listar ingredientes');
     }
   }
+
   static Future<void> deletarIngrediente(int id) async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -82,4 +85,4 @@ class IngredientService {
       throw Exception('Erro ao deletar ingrediente');
     }
   }
-}
+}

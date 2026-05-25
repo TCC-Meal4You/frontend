@@ -4,7 +4,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class UserDataService {
   static const String _baseUrl =
-      'https://backend-production-b24f.up.railway.app';
+      'https://backend-production-1e17.up.railway.app';
   static const Duration _requestTimeout = Duration(seconds: 20);
 
   static final Map<int, String> _userNameCache = {};

@@ -18,7 +18,7 @@ class RestaurantFavoriteService {
   }
 
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app/restaurantes';
+      'https://backend-production-1e17.up.railway.app/restaurantes';
   static Future<void> alternarFavorito(int restauranteId) async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {

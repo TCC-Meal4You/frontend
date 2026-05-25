@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
 class ClientRegisterService {
   static const String baseUrl =
-      "https://backend-production-b24f.up.railway.app/usuarios";
+      "https://backend-production-1e17.up.railway.app/usuarios";
   static Future<Map<String, dynamic>> registerClient({
     required String nome,
     required String email,
@@ -29,4 +30,4 @@ class ClientRegisterService {
       );
     }
   }
-}
+}

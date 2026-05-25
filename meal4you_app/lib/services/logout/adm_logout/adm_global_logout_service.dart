@@ -1,16 +1,17 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class AdmGlobalLogoutService {
   static const String _baseUrl =
-      "https://backend-production-b24f.up.railway.app/admins";
+      "https://backend-production-1e17.up.railway.app/admins";
   final http.Client adm;
   AdmGlobalLogoutService({http.Client? adm}) : adm = adm ?? http.Client();
   Future<void> logoutGlobal() async {
     final header = await UserTokenSaving.getAuthorizationHeader();
     final candidates = [
       Uri.parse('$_baseUrl/logout-global'),
-      Uri.parse('https://backend-production-b24f.up.railway.app/logout-global'),
+      Uri.parse('https://backend-production-1e17.up.railway.app/logout-global'),
     ];
     List<String> errors = [];
     for (final uri in candidates) {
@@ -41,4 +42,4 @@ class AdmGlobalLogoutService {
       "Erro no logout global ADM (todos os candidates falharam): ${errors.join(' | ')}",
     );
   }
-}
+}

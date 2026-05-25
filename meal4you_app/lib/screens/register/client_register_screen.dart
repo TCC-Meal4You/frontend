@@ -9,15 +9,17 @@ import 'package:meal4you_app/widgets/submit_button/submit_button.dart';
 import 'package:meal4you_app/widgets/redirect_text/login_redirect_text.dart';
 import 'package:meal4you_app/widgets/or_divider/or_divider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 class ClientRegisterScreen extends StatefulWidget {
   const ClientRegisterScreen({super.key});
   @override
   State<ClientRegisterScreen> createState() => _ClientRegisterScreenState();
 }
+
 class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
   bool _isLoading = false;
   final VerifyEmailService _verifyEmailService = VerifyEmailService(
-    baseUrl: 'https://backend-production-b24f.up.railway.app',
+    baseUrl: 'https://backend-production-1e17.up.railway.app',
   );
   @override
   void initState() {
@@ -27,6 +29,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
     RegisterControllers.senhaController.clear();
     RegisterControllers.confirmarSenhaController.clear();
   }
+
   Future<void> _sendCode() async {
     if (RegisterControllers.nomeController.text.trim().length < 3) {
       if (!mounted) return;
@@ -87,6 +90,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -224,4 +228,4 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       ),
     );
   }
-}
+}

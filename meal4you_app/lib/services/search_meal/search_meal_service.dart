@@ -7,7 +7,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/meal/meal_service.dart';
 
 class SearchMealService {
-  static const String host = 'https://backend-production-b24f.up.railway.app';
+  static const String host = 'https://backend-production-1e17.up.railway.app';
   static const String baseUrl = '$host/refeicoes';
 
   static Future<PaginacaoRefeicoesResponseDTO> listarRefeicoes(

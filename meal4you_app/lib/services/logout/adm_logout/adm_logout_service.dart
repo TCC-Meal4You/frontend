@@ -1,16 +1,17 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class AdmLogoutService {
   static const String _baseUrl =
-      "https://backend-production-b24f.up.railway.app/admins";
+      "https://backend-production-1e17.up.railway.app/admins";
   final http.Client adm;
   AdmLogoutService({http.Client? adm}) : adm = adm ?? http.Client();
   Future<void> logout() async {
     final header = await UserTokenSaving.getAuthorizationHeader();
     final candidates = [
       Uri.parse('$_baseUrl/logout'),
-      Uri.parse('https://backend-production-b24f.up.railway.app/logout'),
+      Uri.parse('https://backend-production-1e17.up.railway.app/logout'),
     ];
     List<String> errors = [];
     for (final uri in candidates) {
@@ -41,4 +42,4 @@ class AdmLogoutService {
       "Erro logout ADM (todos os candidates falharam): ${errors.join(' | ')}",
     );
   }
-}
+}

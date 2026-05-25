@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class SearchRestaurantDataService {
   static const String baseUrl =
-      "https://backend-production-b24f.up.railway.app/restaurantes";
+      "https://backend-production-1e17.up.railway.app/restaurantes";
   static Future<Map<String, dynamic>?> searchMyRestaurant(String token) async {
     final url = Uri.parse("$baseUrl/meu-restaurante");
     try {

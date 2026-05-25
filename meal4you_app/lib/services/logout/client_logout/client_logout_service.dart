@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class ClientLogoutService {
   static const String _baseUrl =
-      "https://backend-production-b24f.up.railway.app/usuarios";
+      "https://backend-production-1e17.up.railway.app/usuarios";
   final http.Client client;
   ClientLogoutService({http.Client? client}) : client = client ?? http.Client();
   Future<void> logout() async {
@@ -11,7 +12,7 @@ class ClientLogoutService {
     if (header == null) return;
     final candidates = [
       Uri.parse('$_baseUrl/logout'),
-      Uri.parse('https://backend-production-b24f.up.railway.app/logout'),
+      Uri.parse('https://backend-production-1e17.up.railway.app/logout'),
     ];
     List<String> errors = [];
     for (final uri in candidates) {
@@ -41,4 +42,4 @@ class ClientLogoutService {
       "Erro ao deslogar (todos os candidates falharam): ${errors.join(' | ')}",
     );
   }
-}
+}

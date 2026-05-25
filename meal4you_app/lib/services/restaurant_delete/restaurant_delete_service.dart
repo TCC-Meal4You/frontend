@@ -3,7 +3,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class RestaurantDeleteService {
   static const String baseUrl =
-      "https://backend-production-b24f.up.railway.app/restaurantes";
+      "https://backend-production-1e17.up.railway.app/restaurantes";
   static Future<void> deleteRestaurant({
     required int restaurantId,
     required String nomeConfirmacao,

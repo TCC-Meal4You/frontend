@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class UpdateAdmProfileService {
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app/admins';
+      'https://backend-production-1e17.up.railway.app/admins';
   static Future<Map<String, dynamic>> atualizarMeuPerfil({
     String? nome,
     String? senha,
@@ -36,4 +37,4 @@ class UpdateAdmProfileService {
       throw Exception('Erro ao atualizar perfil: ${response.statusCode}');
     }
   }
-}
+}

@@ -3,9 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:meal4you_app/models/meal_request_dto.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class MealService {
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app/refeicoes';
+      'https://backend-production-1e17.up.railway.app/refeicoes';
   static Future<MealResponseDTO> cadastrarRefeicao(MealRequestDTO dto) async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -33,6 +34,7 @@ class MealService {
       throw Exception('Erro ao cadastrar refeição: ${response.statusCode}');
     }
   }
+
   static Future<List<MealResponseDTO>> listarMinhasRefeicoes() async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -51,6 +53,7 @@ class MealService {
       throw Exception('Erro ao listar refeições: ${response.statusCode}');
     }
   }
+
   static Future<MealResponseDTO> atualizarRefeicao(
     int id,
     MealRequestDTO dto,
@@ -81,6 +84,7 @@ class MealService {
       throw Exception('Erro ao atualizar refeição: ${response.statusCode}');
     }
   }
+
   static Future<void> deletarRefeicao(int id) async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -100,6 +104,7 @@ class MealService {
       throw Exception('Erro ao deletar refeição: ${response.statusCode}');
     }
   }
+
   static Future<MealResponseDTO> atualizarDisponibilidade(
     int id,
     bool disponivel,
@@ -130,4 +135,4 @@ class MealService {
       );
     }
   }
-}
+}

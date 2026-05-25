@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class RequestEmailChangeService {
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app/admins/solicitar-alteracao-email';
+      'https://backend-production-1e17.up.railway.app/admins/solicitar-alteracao-email';
   static Future<void> solicitarAlteracaoEmail(String novoEmail) async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -31,4 +32,4 @@ class RequestEmailChangeService {
       throw Exception('Erro ao solicitar alteração: ${response.statusCode}');
     }
   }
-}
+}

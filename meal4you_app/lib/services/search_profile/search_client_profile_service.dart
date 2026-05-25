@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+
 class SearchClientProfileService {
   static const String baseUrl =
-      'https://backend-production-b24f.up.railway.app/usuarios';
+      'https://backend-production-1e17.up.railway.app/usuarios';
   static Future<Map<String, dynamic>> buscarMeuPerfil() async {
     final token = await UserTokenSaving.getToken();
     if (token == null) {
@@ -24,4 +25,4 @@ class SearchClientProfileService {
       throw Exception('Erro ao buscar perfil: ${response.statusCode}');
     }
   }
-}
+}

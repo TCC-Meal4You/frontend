@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 class GoogleRegisterAndLoginService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
-  final String baseUrl = "https://backend-production-b24f.up.railway.app";
+  final String baseUrl = "https://backend-production-1e17.up.railway.app";
   Future<void> signInWithGoogle({
     required BuildContext context,
     required bool isAdmin,
