@@ -10,6 +10,7 @@ import 'package:meal4you_app/widgets/profile/client_restrictions_modal/client_re
 import 'package:meal4you_app/services/favorite/restaurant_favorite_service.dart';
 import 'package:meal4you_app/services/favorite/meal_favorite_service.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
+import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 
 class ClientProfileScreen extends StatefulWidget {
   const ClientProfileScreen({super.key});
@@ -78,6 +79,19 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
       });
     } catch (e) {
       if (!mounted) return;
+      final errorText = e.toString();
+      if (errorText.contains('Sessao expirada') ||
+          errorText.contains('Nao autorizado') ||
+          errorText.contains('Token nao encontrado')) {
+        await UserTokenSaving.clearAll();
+        if (!mounted) return;
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/clientLogin',
+          (_) => false,
+        );
+        return;
+      }
       setState(() {
         _isLoading = false;
       });
