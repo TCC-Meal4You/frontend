@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:label="Meal4You"
@@ -8,7 +10,7 @@
         android:icon="@mipmap/ic_launcher">
         
         <activity
-            android:name="com.example.meal4you_app.MainActivity"
+            android:name="com.example.meal4you.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""
