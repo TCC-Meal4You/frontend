@@ -10,6 +10,7 @@ import 'package:meal4you_app/widgets/ratings_and_comments/rating_card.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/rating_editor.dart';
 import 'package:meal4you_app/services/favorite/meal_favorite_service.dart';
 import 'package:meal4you_app/services/favorite/restaurant_favorite_service.dart';
+import 'package:meal4you_app/screens/map/map_route_screen.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
   final RestauranteResponseDTO restaurant;
@@ -684,6 +685,34 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                         ? 'Avaliações (${_ratings.length})'
                                         : 'Avaliações (...)',
                                   ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () async {
+                                    // abrir rota até o restaurante
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => MapRouteScreen(
+                                          address: widget
+                                              .restaurant
+                                              .formattedAddress,
+                                          restaurantId:
+                                              widget.restaurant.idRestaurante,
+                                          restaurantName:
+                                              widget.restaurant.nome,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.map),
+                                  label: const Text('Como Chegar'),
                                 ),
                               ),
                             ],
