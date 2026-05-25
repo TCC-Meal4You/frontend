@@ -10,19 +10,27 @@ class SearchClientProfileService {
     if (token == null) {
       throw Exception('Token nao encontrado');
     }
-    final response = await http.get(
-      Uri.parse(baseUrl),
-      headers: {
+    final client = http.Client();
+    try {
+      final req = http.Request('GET', Uri.parse(baseUrl));
+      req.headers.addAll({
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         'Authorization': 'Bearer $token',
-      },
-    );
-    if (response.statusCode == 200) {
+      });
+      req.followRedirects = false;
+      final streamed = await client.send(req);
+      final response = await http.Response.fromStream(streamed);
+      final location = response.headers['location'] ?? '';
+      if (response.statusCode >= 300 && response.statusCode < 400) {
+        if (location.contains('/oauth2/authorization/google')) {
+          throw Exception('Sessao expirada ou invalida. Faça login novamente.');
+        }
+        throw Exception('Redirecionamento inesperado ao buscar perfil.');
+      }
       return jsonDecode(response.body) as Map<String, dynamic>;
-    } else if (response.statusCode == 401) {
-      throw Exception('Nao autorizado. Faca login novamente.');
-    } else {
-      throw Exception('Erro ao buscar perfil: ${response.statusCode}');
+    } finally {
+      client.close();
     }
   }
 }
