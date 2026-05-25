@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/services/rating/rating_service.dart';
 
 class KnnRecommendationService {
-  static const String _host = 'https://backend-production-b24f.up.railway.app';
+  static const String _host = 'https://backend-production-1e17.up.railway.app';
 
   static Future<List<int>> obterRecomendacoesRefeicoes() async {
     return _obterIds('/usuarios/recomendacoes-refeicoes-knn');
@@ -35,6 +36,17 @@ class KnnRecommendationService {
       throw Exception('Usuário não autenticado');
     }
     throw Exception('Erro ao buscar recomendações (${response.statusCode})');
+  }
+
+  static Future<bool> isUserReadyForRecommendations({
+    int minRatings = 3,
+  }) async {
+    try {
+      final count = await RatingService.contarAvaliacoes();
+      return count >= minRatings;
+    } catch (_) {
+      return false;
+    }
   }
 
   static List<int> _extrairIds(dynamic payload) {
