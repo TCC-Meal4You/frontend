@@ -253,23 +253,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               color: Color(0xFF1A1A1A),
             ),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const SearchRestaurantAndDishScreen(),
-                ),
-              );
-            },
-            child: const Text(
-              'Ver todos',
-              style: TextStyle(
-                fontFamily: 'Ubuntu',
-                color: Color(0xFF0AA84F),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
         ],
       ),
     );
