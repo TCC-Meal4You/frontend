@@ -29,12 +29,17 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   bool _readyForRecommendations = false;
   int _avaliacoesCount = 0;
   final int _minRatingsThreshold = 3;
+  bool _retryingRecommendationLoad = false;
 
   @override
   void initState() {
     super.initState();
     _carregarRestricoes();
-    _carregarRecomendacoes();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _carregarRecomendacoes();
+      }
+    });
   }
 
   Future<void> _carregarRestricoes() async {
@@ -94,9 +99,23 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         _loadingRecomendacoes = false;
       });
     } catch (e) {
+      final erro = e.toString().replaceAll('Exception: ', '');
+      final erroTransitorio =
+          erro.contains('500') ||
+          erro.contains('timeout') ||
+          erro.contains('TimeoutException');
+
+      if (erroTransitorio && !_retryingRecommendationLoad) {
+        _retryingRecommendationLoad = true;
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+        if (!mounted) return;
+        await _carregarRecomendacoes();
+        return;
+      }
+
       if (!mounted) return;
       setState(() {
-        _erroRecomendacoes = e.toString().replaceAll('Exception: ', '');
+        _erroRecomendacoes = erro;
         _loadingRecomendacoes = false;
       });
     }
