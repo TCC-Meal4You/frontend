@@ -82,9 +82,18 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
 
     RestauranteResponseDTO? restaurant;
 
-    final data = await RestaurantInfoService.getById(restaurantId);
-    if (data != null) {
-      restaurant = RestauranteResponseDTO.fromJson(data);
+    final detailedData = await RestaurantInfoService.getDetailedById(
+      restaurantId,
+    );
+    if (detailedData != null) {
+      restaurant = RestauranteResponseDTO.fromJson(detailedData);
+    }
+
+    if (restaurant == null) {
+      final data = await RestaurantInfoService.getById(restaurantId);
+      if (data != null) {
+        restaurant = RestauranteResponseDTO.fromJson(data);
+      }
     }
 
     if (restaurant == null) {

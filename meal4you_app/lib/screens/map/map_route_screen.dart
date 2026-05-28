@@ -47,20 +47,78 @@ class _MapRouteScreenState extends State<MapRouteScreen>
         .toList();
   }
 
+  Map<String, dynamic>? _asStringMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+    return null;
+  }
+
+  String? _readField(Map<String, dynamic> map, List<String> keys) {
+    for (final key in keys) {
+      final value = map[key];
+      final text = value?.toString().trim();
+      if (text != null && text.isNotEmpty) {
+        return text;
+      }
+    }
+    return null;
+  }
+
+  int _addressScore(String value) {
+    final parts = value
+        .split(',')
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .where((part) => part.toLowerCase() != 'brasil')
+        .toList();
+    return parts.length;
+  }
+
+  bool _hasStreetAndNumber(Map<String, dynamic> map) {
+    final logradouro = _readField(map, ['logradouro', 'rua', 'street']);
+    final numero = _readField(map, ['numero', 'number', 'numeroEndereco']);
+    return logradouro != null &&
+        logradouro.isNotEmpty &&
+        numero != null &&
+        numero.isNotEmpty;
+  }
+
   String? _queryFromAddressMap(dynamic value) {
-    if (value is! Map) return null;
+    final map = _asStringMap(value);
+    if (map == null) return null;
+
+    final hasStreetAndNumber = _hasStreetAndNumber(map);
+    if (!hasStreetAndNumber) {
+      print('[MapRouteScreen][_queryFromAddressMap] incomplete map=$map');
+    }
+
+    final logradouro = _readField(map, ['logradouro', 'rua', 'street']);
+    final numero = _readField(map, ['numero', 'number', 'numeroEndereco']);
+    final complemento = _readField(map, ['complemento']);
+    final bairro = _readField(map, ['bairro']);
+    final cidade = _readField(map, ['cidade', 'localidade']);
+    final uf = _readField(map, ['uf', 'estado']);
+    final cep = _readField(map, ['cep']);
+
     final parts = _nonEmptyParts([
-      value['logradouro'],
-      value['numero'],
-      value['complemento'],
-      value['bairro'],
-      value['cidade'],
-      value['uf'],
-      value['cep'],
+      logradouro,
+      numero,
+      complemento,
+      bairro,
+      cidade,
+      uf,
+      cep,
       'Brasil',
     ]);
-    if (parts.isNotEmpty) {
-      return parts.join(', ');
+    if (parts.isEmpty) return null;
+
+    final built = parts.join(', ');
+    if (hasStreetAndNumber || _addressScore(built) >= 2) {
+      return built;
     }
     return null;
   }
@@ -82,51 +140,154 @@ class _MapRouteScreenState extends State<MapRouteScreen>
     super.dispose();
   }
 
-  Future<String?> _buildQuery() async {
-    if (widget.restaurantId != null) {
-      final data = await RestaurantInfoService.getById(widget.restaurantId!);
-      if (data != null) {
-        final candidates = [
-          _queryFromAddressMap(data['endereco']),
-          _queryFromAddressMap(data['address']),
-          _queryFromAddressMap(data['enderecoRestaurante']),
-          _nonEmptyParts([
-            data['logradouro'],
-            data['numero'],
-            data['complemento'],
-            data['bairro'],
-            data['cidade'],
-            data['uf'],
-            data['cep'],
-            'Brasil',
-          ]).join(', '),
-        ];
+  String? _buildQueryFromIncompleteAddress(
+    Map<String, dynamic> restaurantData,
+  ) {
+    final logradouro = _readField(restaurantData, [
+      'logradouro',
+      'rua',
+      'street',
+    ]);
+    final numero = _readField(restaurantData, [
+      'numero',
+      'number',
+      'numeroEndereco',
+    ]);
+    final complemento = _readField(restaurantData, ['complemento']);
+    final bairro = _readField(restaurantData, ['bairro']);
+    final cidade = _readField(restaurantData, ['cidade', 'localidade']);
+    final uf = _readField(restaurantData, ['uf', 'estado']);
+    final cep = _readField(restaurantData, ['cep']);
 
-        for (final candidate in candidates) {
-          if (candidate != null && candidate.trim().isNotEmpty) {
-            return candidate.trim();
-          }
-        }
+    final parts = _nonEmptyParts([
+      if (logradouro != null && numero != null) ...[logradouro, numero],
+      if (complemento != null) complemento,
+      if (bairro != null) bairro,
+      if (cidade != null) cidade,
+      if (uf != null) uf,
+      if (cep != null) cep,
+      'Brasil',
+    ]);
+
+    if (parts.isEmpty) return null;
+    final query = parts.join(', ');
+    print('[MapRouteScreen][_buildQueryFromIncompleteAddress] built=$query');
+    return query;
+  }
+
+  Future<String?> _buildQuery() async {
+    print(
+      '[MapRouteScreen][_buildQuery] incoming address=${widget.address} restaurantId=${widget.restaurantId} restaurantName=${widget.restaurantName}',
+    );
+    String? bestCandidate;
+    var bestScore = -1;
+
+    void consider(String? candidate) {
+      if (candidate == null || candidate.trim().isEmpty) return;
+      print('[MapRouteScreen][_buildQuery] candidate=$candidate');
+      final score = _addressScore(candidate);
+      if (score > bestScore) {
+        bestScore = score;
+        bestCandidate = candidate.trim();
       }
     }
 
     if (widget.address != null && widget.address!.trim().isNotEmpty) {
-      return widget.address!.trim();
+      final directAddress = widget.address!.trim();
+      print(
+        '[MapRouteScreen][_buildQuery] direct widget.address=$directAddress',
+      );
+      return directAddress;
+    }
+
+    if (widget.restaurantId != null) {
+      final detailedData = await RestaurantInfoService.getDetailedById(
+        widget.restaurantId!,
+      );
+      print(
+        '[MapRouteScreen][_buildQuery] detailed api raw data=$detailedData',
+      );
+      final data =
+          detailedData ??
+          await RestaurantInfoService.getById(widget.restaurantId!);
+      print('[MapRouteScreen][_buildQuery] api raw data=$data');
+      if (data != null) {
+        final source = _asStringMap(data) ?? <String, dynamic>{};
+        final wrapped = _asStringMap(source['data']);
+        final restaurantWrapped = _asStringMap(source['restaurante']);
+        final restaurantAliasWrapped = _asStringMap(source['restaurant']);
+
+        consider(_queryFromAddressMap(source));
+        consider(_queryFromAddressMap(wrapped));
+        consider(_queryFromAddressMap(restaurantWrapped));
+        consider(_queryFromAddressMap(restaurantAliasWrapped));
+        consider(_queryFromAddressMap(source['endereco']));
+        consider(_queryFromAddressMap(source['address']));
+        consider(_queryFromAddressMap(source['enderecoRestaurante']));
+
+        if (wrapped != null) {
+          consider(_queryFromAddressMap(wrapped['endereco']));
+          consider(_queryFromAddressMap(wrapped['address']));
+        }
+
+        if (restaurantWrapped != null) {
+          consider(_queryFromAddressMap(restaurantWrapped['endereco']));
+          consider(_queryFromAddressMap(restaurantWrapped['address']));
+        }
+
+        if (bestCandidate != null) {
+          print(
+            '[MapRouteScreen][_buildQuery] selected candidate=$bestCandidate',
+          );
+          return bestCandidate;
+        }
+
+        consider(_buildQueryFromIncompleteAddress(source));
+        if (bestCandidate != null) {
+          print(
+            '[MapRouteScreen][_buildQuery] selected incomplete candidate=$bestCandidate',
+          );
+          return bestCandidate;
+        }
+      }
+    }
+
+    if (widget.restaurantName != null &&
+        widget.restaurantName!.trim().isNotEmpty) {
+      final fallbackName = widget.restaurantName!.trim();
+      print(
+        '[MapRouteScreen][_buildQuery] fallback restaurantName=$fallbackName',
+      );
+      return fallbackName;
+    }
+
+    if (widget.address != null && widget.address!.trim().isNotEmpty) {
+      final fallbackAddress = widget.address!.trim();
+      print(
+        '[MapRouteScreen][_buildQuery] fallback widget.address=$fallbackAddress',
+      );
+      return fallbackAddress;
     }
 
     return null;
   }
 
   Future<bool> _openGoogleMaps(String query) async {
+    print('[MapRouteScreen][_openGoogleMaps] query=$query');
     try {
       final result = await _launcherChannel.invokeMethod<bool>('open', {
         'query': query,
       });
+      print('[MapRouteScreen][_openGoogleMaps] native result=$result');
       return result ?? false;
     } on PlatformException catch (e) {
+      print(
+        '[MapRouteScreen][_openGoogleMaps] PlatformException code=${e.code} message=${e.message}',
+      );
       _error = e.message ?? e.code;
       return false;
     } catch (e) {
+      print('[MapRouteScreen][_openGoogleMaps] error=$e');
       _error = e.toString();
       return false;
     }
@@ -141,6 +302,7 @@ class _MapRouteScreenState extends State<MapRouteScreen>
 
     try {
       final query = await _buildQuery();
+      print('[MapRouteScreen][_prepareQuery] built query=$query');
       if (query == null || query.trim().isEmpty) {
         throw Exception('Não foi possível montar a consulta do restaurante.');
       }
@@ -169,7 +331,9 @@ class _MapRouteScreenState extends State<MapRouteScreen>
       _error = null;
     });
 
+    print('[MapRouteScreen][_openRoute] opening query=$_query');
     final opened = await _openGoogleMaps(_query!);
+    print('[MapRouteScreen][_openRoute] opened=$opened error=$_error');
     if (!opened && mounted) {
       setState(() {
         _loading = false;

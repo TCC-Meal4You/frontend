@@ -688,14 +688,15 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                               Expanded(
                                 child: OutlinedButton.icon(
                                   onPressed: () async {
-                                    // abrir rota até o restaurante
+                                    print(
+                                      '[RestaurantDetailScreen] routeAddress=${widget.restaurant.routeAddress} formattedAddress=${widget.restaurant.formattedAddress} logradouro=${widget.restaurant.logradouro} numero=${widget.restaurant.numero} complemento=${widget.restaurant.complemento} bairro=${widget.restaurant.bairro} cidade=${widget.restaurant.cidade} uf=${widget.restaurant.uf} cep=${widget.restaurant.cep}',
+                                    );
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) => MapRouteScreen(
-                                          address: widget
-                                              .restaurant
-                                              .formattedAddress,
+                                          address:
+                                              widget.restaurant.routeAddress,
                                           restaurantId:
                                               widget.restaurant.idRestaurante,
                                           restaurantName:

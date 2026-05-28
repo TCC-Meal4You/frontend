@@ -52,6 +52,18 @@ class RestauranteResponseDTO {
     return parts.join(', ');
   }
 
+  String? get routeAddress {
+    final parts = <String>[
+      if (logradouro != null && logradouro!.trim().isNotEmpty)
+        logradouro!.trim(),
+      if (numero != null && numero!.trim().isNotEmpty) numero!.trim(),
+      if (complemento != null && complemento!.trim().isNotEmpty)
+        complemento!.trim(),
+    ];
+    if (parts.isEmpty) return null;
+    return parts.join(', ');
+  }
+
   RestauranteResponseDTO copyWith({
     int? idRestaurante,
     String? nome,
@@ -102,6 +114,21 @@ class RestauranteResponseDTO {
       return _stringValue(nested[key]);
     }
 
+    final nestedRestaurant = json['restaurante'];
+    if (nestedRestaurant is Map && nestedRestaurant[key] != null) {
+      return _stringValue(nestedRestaurant[key]);
+    }
+
+    final nestedRestaurantAlias = json['restaurant'];
+    if (nestedRestaurantAlias is Map && nestedRestaurantAlias[key] != null) {
+      return _stringValue(nestedRestaurantAlias[key]);
+    }
+
+    final nestedData = json['data'];
+    if (nestedData is Map && nestedData[key] != null) {
+      return _stringValue(nestedData[key]);
+    }
+
     final direct = _stringValue(json[key]);
     if (direct != null) return direct;
 
@@ -113,28 +140,134 @@ class RestauranteResponseDTO {
     return null;
   }
 
+  static String? _findFieldRecursive(dynamic value, Set<String> keys) {
+    if (value is Map) {
+      for (final entry in value.entries) {
+        final entryKey = entry.key.toString();
+        final entryValue = entry.value;
+
+        if (keys.contains(entryKey)) {
+          final resolved = _stringValue(entryValue);
+          if (resolved != null) {
+            return resolved;
+          }
+        }
+
+        final nestedResult = _findFieldRecursive(entryValue, keys);
+        if (nestedResult != null) {
+          return nestedResult;
+        }
+      }
+    }
+
+    if (value is Iterable) {
+      for (final item in value) {
+        final nestedResult = _findFieldRecursive(item, keys);
+        if (nestedResult != null) {
+          return nestedResult;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  static dynamic _findValueRecursive(dynamic value, Set<String> keys) {
+    if (value is Map) {
+      for (final entry in value.entries) {
+        final entryKey = entry.key.toString();
+        final entryValue = entry.value;
+
+        if (keys.contains(entryKey)) {
+          return entryValue;
+        }
+
+        final nestedResult = _findValueRecursive(entryValue, keys);
+        if (nestedResult != null) {
+          return nestedResult;
+        }
+      }
+    }
+
+    if (value is Iterable) {
+      for (final item in value) {
+        final nestedResult = _findValueRecursive(item, keys);
+        if (nestedResult != null) {
+          return nestedResult;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  static Map<String, dynamic> _unwrapJson(Map<String, dynamic> json) {
+    final candidates = [json['data'], json['restaurante'], json['restaurant']];
+    for (final candidate in candidates) {
+      if (candidate is Map<String, dynamic>) {
+        return candidate;
+      }
+      if (candidate is Map) {
+        return Map<String, dynamic>.from(candidate);
+      }
+    }
+    return json;
+  }
+
   factory RestauranteResponseDTO.fromJson(Map<String, dynamic> json) {
+    final source = _unwrapJson(json);
+    print('[RestauranteResponseDTO] fromJson source=$source');
+    final idValue = _findValueRecursive(source, {'idRestaurante', 'id'});
+    final nomeValue = _findValueRecursive(source, {'nome'});
+    final descricaoValue = _findValueRecursive(source, {'descricao'});
+    final tipoComidaValue = _findValueRecursive(source, {'tipoComida'});
+    final ativoValue = _findValueRecursive(source, {'ativo'});
+    final favoritoValue = _findValueRecursive(source, {'favorito'});
+    final distanciaValue = _findValueRecursive(source, {'distancia'});
+    final tempoEntregaValue = _findValueRecursive(source, {'tempoEntrega'});
+    final avaliacaoMediaValue = _findValueRecursive(source, {'avaliacaoMedia'});
+
     return RestauranteResponseDTO(
-      idRestaurante: json['idRestaurante'] ?? json['id'] ?? 0,
-      nome: json['nome'] ?? '',
-      descricao: json['descricao'],
-      tipoComida: json['tipoComida'] ?? '',
-      ativo: json['ativo'] ?? false,
-      favorito: json['favorito'] ?? false,
-      distancia: json['distancia'] != null
-          ? (json['distancia'] as num).toDouble()
+      idRestaurante: int.tryParse(idValue?.toString() ?? '') ?? 0,
+      nome: nomeValue?.toString() ?? '',
+      descricao: descricaoValue?.toString(),
+      tipoComida: tipoComidaValue?.toString() ?? '',
+      ativo: ativoValue is bool
+          ? ativoValue
+          : ativoValue?.toString().toLowerCase() == 'true',
+      favorito: favoritoValue is bool
+          ? favoritoValue
+          : favoritoValue?.toString().toLowerCase() == 'true',
+      distancia: distanciaValue != null
+          ? (distanciaValue as num?)?.toDouble() ??
+                double.tryParse(distanciaValue.toString())
           : null,
-      tempoEntrega: json['tempoEntrega'],
-      avaliacaoMedia: json['avaliacaoMedia'] != null
-          ? (json['avaliacaoMedia'] as num).toDouble()
+      tempoEntrega: tempoEntregaValue?.toString(),
+      avaliacaoMedia: avaliacaoMediaValue != null
+          ? (avaliacaoMediaValue as num?)?.toDouble() ??
+                double.tryParse(avaliacaoMediaValue.toString())
           : null,
-      cep: _extractAddressField(json, 'cep'),
-      logradouro: _extractAddressField(json, 'logradouro'),
-      numero: _extractAddressField(json, 'numero'),
-      complemento: _extractAddressField(json, 'complemento'),
-      bairro: _extractAddressField(json, 'bairro'),
-      cidade: _extractAddressField(json, 'cidade'),
-      uf: _extractAddressField(json, 'uf'),
+      cep:
+          _extractAddressField(source, 'cep') ??
+          _findFieldRecursive(source, {'cep'}),
+      logradouro:
+          _extractAddressField(source, 'logradouro') ??
+          _findFieldRecursive(source, {'logradouro', 'rua', 'street'}),
+      numero:
+          _extractAddressField(source, 'numero') ??
+          _findFieldRecursive(source, {'numero', 'number', 'numeroEndereco'}),
+      complemento:
+          _extractAddressField(source, 'complemento') ??
+          _findFieldRecursive(source, {'complemento'}),
+      bairro:
+          _extractAddressField(source, 'bairro') ??
+          _findFieldRecursive(source, {'bairro'}),
+      cidade:
+          _extractAddressField(source, 'cidade') ??
+          _findFieldRecursive(source, {'cidade', 'localidade'}),
+      uf:
+          _extractAddressField(source, 'uf') ??
+          _findFieldRecursive(source, {'uf', 'estado'}),
     );
   }
 }
