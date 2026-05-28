@@ -60,35 +60,35 @@ class _MapRouteScreenState extends State<MapRouteScreen> {
   }
 
   Future<String?> _buildQuery() async {
-    if (widget.address != null && widget.address!.trim().isNotEmpty) {
-      return widget.address!.trim();
-    }
-
     if (widget.restaurantId != null) {
       final data = await RestaurantInfoService.getById(widget.restaurantId!);
       if (data != null) {
-        final endereco =
-            _queryFromAddressMap(data['endereco']) ??
-            _queryFromAddressMap(data['address']) ??
-            _queryFromAddressMap(data['enderecoRestaurante']);
-        if (endereco != null) {
-          return endereco;
-        }
+        final candidates = [
+          _queryFromAddressMap(data['endereco']),
+          _queryFromAddressMap(data['address']),
+          _queryFromAddressMap(data['enderecoRestaurante']),
+          _nonEmptyParts([
+            data['logradouro'],
+            data['numero'],
+            data['complemento'],
+            data['bairro'],
+            data['cidade'],
+            data['uf'],
+            data['cep'],
+            'Brasil',
+          ]).join(', '),
+        ];
 
-        final parts = _nonEmptyParts([
-          data['logradouro'],
-          data['numero'],
-          data['complemento'],
-          data['bairro'],
-          data['cidade'],
-          data['uf'],
-          data['cep'],
-          'Brasil',
-        ]);
-        if (parts.isNotEmpty) {
-          return parts.join(', ');
+        for (final candidate in candidates) {
+          if (candidate != null && candidate.trim().isNotEmpty) {
+            return candidate.trim();
+          }
         }
       }
+    }
+
+    if (widget.address != null && widget.address!.trim().isNotEmpty) {
+      return widget.address!.trim();
     }
 
     return null;
