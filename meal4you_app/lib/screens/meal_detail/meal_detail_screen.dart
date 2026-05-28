@@ -3,10 +3,13 @@ import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/favorite/meal_favorite_service.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
+import 'package:meal4you_app/models/restaurante_response_dto.dart';
+import 'package:meal4you_app/screens/restaurant_detail/restaurant_detail_screen.dart';
+import 'package:meal4you_app/services/restaurant_info/restaurant_info_service.dart';
+import 'package:meal4you_app/services/search_restaurant/search_restaurant_service.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/meal_rating_editor.dart';
 import 'package:meal4you_app/widgets/ratings_and_comments/meal_rating_card.dart';
 import 'package:meal4you_app/models/meal_rating_response_dto.dart';
-import 'package:meal4you_app/screens/map/map_route_screen.dart';
 
 class MealDetailScreen extends StatefulWidget {
   final MealResponseDTO meal;
@@ -19,6 +22,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   late Future<List<MealRatingResponseDTO>> _ratingsFuture;
   List<MealRatingResponseDTO> _ratings = [];
   bool _favorito = false;
+  bool _openingRestaurant = false;
   String? _currentUserName;
   int? _currentUserId;
   String? _currentUserEmail;
@@ -50,6 +54,88 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         widget.meal.favorito;
     if (value == _favorito) return;
     setState(() => _favorito = value);
+  }
+
+  Future<void> _showRestaurant() async {
+    if (_openingRestaurant) return;
+
+    setState(() {
+      _openingRestaurant = true;
+    });
+
+    final restaurantId = widget.meal.idRestaurante;
+    if (restaurantId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Restaurante não disponível para este prato.'),
+          ),
+        );
+      }
+      if (mounted) {
+        setState(() {
+          _openingRestaurant = false;
+        });
+      }
+      return;
+    }
+
+    RestauranteResponseDTO? restaurant;
+
+    final data = await RestaurantInfoService.getById(restaurantId);
+    if (data != null) {
+      restaurant = RestauranteResponseDTO.fromJson(data);
+    }
+
+    if (restaurant == null) {
+      try {
+        var pageNumber = 0;
+        while (true) {
+          final response = await SearchRestaurantService.listarRestaurantes(
+            pageNumber + 1,
+          );
+
+          for (final item in response.restaurantes) {
+            if (item.idRestaurante == restaurantId) {
+              restaurant = item;
+              break;
+            }
+          }
+
+          if (restaurant != null || pageNumber + 1 >= response.totalPaginas) {
+            break;
+          }
+
+          pageNumber++;
+        }
+      } catch (_) {}
+    }
+
+    if (restaurant == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível carregar o restaurante.'),
+        ),
+      );
+      if (mounted) {
+        setState(() {
+          _openingRestaurant = false;
+        });
+      }
+      return;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _openingRestaurant = false;
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RestaurantDetailScreen(restaurant: restaurant!),
+      ),
+    );
   }
 
   Future<void> _loadCurrentUser() async {
@@ -328,6 +414,9 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       Wrap(
                         spacing: 8,
                         children: meal.restricoes
+                            .where(
+                              (r) => r != 'Pescetariano' && r != 'Sem Lactose',
+                            )
                             .map(
                               (r) => Container(
                                 padding: const EdgeInsets.symmetric(
@@ -342,9 +431,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      r == 'Pescetariano'
-                                          ? Icons.set_meal
-                                          : Icons.no_drinks,
+                                      Icons.no_drinks,
                                       size: 14,
                                       color: Colors.grey[600],
                                     ),
@@ -369,30 +456,23 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                         children: [
                           Expanded(
                             child: OutlinedButton.icon(
-                              onPressed: () {
-                                final rid = widget.meal.idRestaurante;
-                                if (rid != null) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => MapRouteScreen(
-                                        restaurantId: rid,
-                                        restaurantName: null,
+                              onPressed: _openingRestaurant
+                                  ? null
+                                  : _showRestaurant,
+                              icon: _openingRestaurant
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
                                       ),
-                                    ),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Endereço do restaurante não disponível.',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                              icon: const Icon(Icons.map),
-                              label: const Text('Como Chegar'),
+                                    )
+                                  : const Icon(Icons.storefront_outlined),
+                              label: Text(
+                                _openingRestaurant
+                                    ? 'Carregando...'
+                                    : 'Mostrar restaurante',
+                              ),
                             ),
                           ),
                         ],
