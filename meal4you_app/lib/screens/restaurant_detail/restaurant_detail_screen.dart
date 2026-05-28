@@ -650,13 +650,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              _buildOptionChip('Pescetariano'),
-                              _buildOptionChip('Sem Lactose'),
-                            ],
-                          ),
                           const SizedBox(height: 16),
                           Container(height: 1, color: Colors.grey[200]),
                           const SizedBox(height: 16),
@@ -780,28 +773,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildOptionChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            label == 'Pescetariano' ? Icons.set_meal : Icons.no_drinks,
-            size: 14,
-            color: Colors.grey[600],
-          ),
-          const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-        ],
       ),
     );
   }
