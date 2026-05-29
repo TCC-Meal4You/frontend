@@ -270,7 +270,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Filtrando por suas preferências:',
+            'Filtrando por suas restrições:',
             style: TextStyle(
               fontFamily: 'Ubuntu',
               fontSize: 15,
@@ -582,7 +582,23 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     if (_loadingRecomendacoes) {
       return const Padding(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 8),
+              Text(
+                'Estamos buscando o melhor para você. Aguarde um momento',
+                style: TextStyle(
+                  fontFamily: 'Ubuntu',
+                  fontSize: 12,
+                  color: Color(0xFF236742),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 

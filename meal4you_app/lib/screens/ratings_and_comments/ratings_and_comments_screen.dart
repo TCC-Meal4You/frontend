@@ -570,8 +570,19 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 16),
                               child: Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircularProgressIndicator(strokeWidth: 2),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Carregando aguarde um momento',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF5A5A5A),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             )
@@ -748,7 +759,20 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(strokeWidth: 2),
+                              SizedBox(height: 8),
+                              Text(
+                                'Estamos verificando suas avaliações. Aguarde um momento',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF5A5A5A),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       )
                     else if (_mealRatings.isEmpty)
