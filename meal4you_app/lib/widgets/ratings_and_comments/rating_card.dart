@@ -87,6 +87,8 @@ class RatingCard extends StatelessWidget {
   final String? currentUserEmail;
   final int? currentUserId;
   final String? overrideName;
+  final String? overrideRestaurantName;
+  final bool showRestaurantNameLoading;
   const RatingCard({
     super.key,
     required this.rating,
@@ -97,6 +99,8 @@ class RatingCard extends StatelessWidget {
     this.currentUserEmail,
     this.currentUserId,
     this.overrideName,
+    this.overrideRestaurantName,
+    this.showRestaurantNameLoading = false,
   });
   @override
   Widget build(BuildContext context) {
@@ -141,18 +145,31 @@ class RatingCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _avatarLabel(
-                        rating,
-                        currentUserName: currentUserName,
-                        currentUserEmail: currentUserEmail,
-                        currentUserId: currentUserId,
-                        overrideName: overrideName,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Builder(
+                      builder: (_) {
+                        final author = _avatarLabel(
+                          rating,
+                          currentUserName: currentUserName,
+                          currentUserEmail: currentUserEmail,
+                          currentUserId: currentUserId,
+                          overrideName: overrideName,
+                        );
+                        final rest =
+                            (overrideRestaurantName ?? rating.restaurantName)
+                                ?.trim();
+                        final title = (rest != null && rest.isNotEmpty)
+                            ? '$author · $rest'
+                            : (showRestaurantNameLoading
+                                  ? '$author · Carregando nome do restaurante...'
+                                  : author);
+                        return Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
                     ),
                     Text(
                       formatExactDateOrDateOnly(

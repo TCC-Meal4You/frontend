@@ -7,7 +7,8 @@ bool _looksLikeAnonymousUserLabel(String value) {
   final normalized = value.trim().toLowerCase();
   if (normalized.isEmpty) return true;
   if (normalized == 'usuário' || normalized == 'usuario') return true;
-  if (normalized.startsWith('usuário #') || normalized.startsWith('usuario #')) {
+  if (normalized.startsWith('usuário #') ||
+      normalized.startsWith('usuario #')) {
     return true;
   }
   if (normalized.startsWith('user #')) return true;
@@ -102,6 +103,8 @@ class MealRatingCard extends StatelessWidget {
   final String? currentUserEmail;
   final int? currentUserId;
   final bool preferCurrentUserNameIfEmpty;
+  final String? overrideMealName;
+  final bool showMealNameLoading;
   const MealRatingCard({
     super.key,
     required this.rating,
@@ -112,6 +115,8 @@ class MealRatingCard extends StatelessWidget {
     this.currentUserEmail,
     this.currentUserId,
     this.preferCurrentUserNameIfEmpty = false,
+    this.overrideMealName,
+    this.showMealNameLoading = false,
   });
   @override
   Widget build(BuildContext context) {
@@ -156,19 +161,31 @@ class MealRatingCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _avatarLabelFromMealRating(
-                        rating,
-                        currentUserName: currentUserName,
-                        currentUserEmail: currentUserEmail,
-                        currentUserId: currentUserId,
-                        preferCurrentUserNameIfEmpty:
-                            preferCurrentUserNameIfEmpty,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Builder(
+                      builder: (_) {
+                        final author = _avatarLabelFromMealRating(
+                          rating,
+                          currentUserName: currentUserName,
+                          currentUserEmail: currentUserEmail,
+                          currentUserId: currentUserId,
+                          preferCurrentUserNameIfEmpty:
+                              preferCurrentUserNameIfEmpty,
+                        );
+                        final meal = (overrideMealName ?? rating.mealName)
+                            ?.trim();
+                        final title = (meal != null && meal.isNotEmpty)
+                            ? '$author · $meal'
+                            : (showMealNameLoading
+                                  ? '$author · Carregando nome da refeição...'
+                                  : author);
+                        return Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
                     ),
                     Text(
                       formatExactDateOrDateOnly(
