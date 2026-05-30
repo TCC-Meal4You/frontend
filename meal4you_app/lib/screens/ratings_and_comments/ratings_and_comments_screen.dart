@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/models/meal_rating_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
+import 'package:meal4you_app/services/search_restaurant/search_restaurant_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/user/user_data_service.dart';
 import 'package:meal4you_app/services/search_meal/search_meal_service.dart';
@@ -24,6 +25,8 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
   List<MealRatingResponseDTO> _mealRatings = [];
   bool _isLoading = true;
   bool _loadingMealRatings = false;
+  bool _loadingRestaurantNames = false;
+  bool _loadingMealNames = false;
   String? _errorMessage;
   bool _isAdmUser = false;
   bool _loadingUserRole = true;
@@ -32,6 +35,8 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
   String? _currentUserEmail;
   int? _currentUserId;
   final Map<int, String> _userNames = {};
+  final Map<int, String> _restaurantNames = {};
+  final Map<int, String> _mealNames = {};
   @override
   void initState() {
     super.initState();
@@ -140,6 +145,8 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
           _mealRatings = [];
           _isLoading = false;
           _loadingMealRatings = true;
+          _loadingRestaurantNames = true;
+          _loadingMealNames = false;
         });
 
         _loadUserNamesForRatings();
@@ -155,7 +162,12 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
           _mealRatings = results[1] as List<MealRatingResponseDTO>;
           _isLoading = false;
           _loadingMealRatings = false;
+          _loadingRestaurantNames = true;
+          _loadingMealNames = true;
         });
+
+        _loadRestaurantNamesForRatings();
+        _loadMealNamesForRatings();
       }
     } catch (e) {
       if (!mounted) return;
@@ -165,6 +177,89 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
         _loadingMealRatings = false;
       });
     }
+  }
+
+  Future<void> _loadRestaurantNamesForRatings() async {
+    final missingIds = _ratings
+        .where(
+          (rating) =>
+              rating.restaurantId != null &&
+              rating.restaurantId! > 0 &&
+              (rating.restaurantName == null ||
+                  rating.restaurantName!.trim().isEmpty),
+        )
+        .map((rating) => rating.restaurantId!)
+        .toSet();
+
+    if (missingIds.isEmpty) {
+      return;
+    }
+
+    try {
+      final names = <int, String>{};
+      var page = 1;
+      var totalPages = 1;
+
+      while (page <= totalPages && names.length < missingIds.length) {
+        final response = await SearchRestaurantService.listarRestaurantes(page);
+        totalPages = response.totalPaginas <= 0 ? 1 : response.totalPaginas;
+
+        for (final restaurant in response.restaurantes) {
+          if (missingIds.contains(restaurant.idRestaurante)) {
+            names[restaurant.idRestaurante] = restaurant.nome;
+          }
+        }
+
+        page += 1;
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _restaurantNames.addAll(names);
+        _loadingRestaurantNames = false;
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _loadMealNamesForRatings() async {
+    final missingIds = _mealRatings
+        .where(
+          (rating) =>
+              rating.mealId != null &&
+              rating.mealId! > 0 &&
+              (rating.mealName == null || rating.mealName!.trim().isEmpty),
+        )
+        .map((rating) => rating.mealId!)
+        .toSet();
+
+    if (missingIds.isEmpty) {
+      return;
+    }
+
+    try {
+      final names = <int, String>{};
+      var page = 1;
+      var totalPages = 1;
+
+      while (page <= totalPages && names.length < missingIds.length) {
+        final response = await SearchMealService.listarRefeicoes(page);
+        totalPages = response.totalPaginas <= 0 ? 1 : response.totalPaginas;
+
+        for (final meal in response.refeicoes) {
+          if (missingIds.contains(meal.idRefeicao)) {
+            names[meal.idRefeicao] = meal.nome;
+          }
+        }
+
+        page += 1;
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _mealNames.addAll(names);
+        _loadingMealNames = false;
+      });
+    } catch (_) {}
   }
 
   Future<void> _loadMealRatingsForRestaurant(int idRestaurante) async {
@@ -502,6 +597,10 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                                 currentUserName: _currentUserName,
                                 currentUserEmail: _currentUserEmail,
                                 currentUserId: _currentUserId,
+                                overrideRestaurantName:
+                                    _restaurantNames[rating.restaurantId],
+                                showRestaurantNameLoading:
+                                    _loadingRestaurantNames,
                                 onEdit: _loadingUserRole || _isAdmUser
                                     ? null
                                     : () async {
@@ -600,6 +699,8 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                                 currentUserName: _currentUserName,
                                 currentUserEmail: _currentUserEmail,
                                 currentUserId: _currentUserId,
+                                overrideMealName: _mealNames[rating.mealId],
+                                showMealNameLoading: _loadingMealNames,
                                 showActions:
                                     !_loadingUserRole &&
                                     _isMealRatingOwner(rating),
@@ -696,6 +797,9 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                           currentUserName: _currentUserName,
                           currentUserEmail: _currentUserEmail,
                           currentUserId: _currentUserId,
+                          overrideRestaurantName:
+                              _restaurantNames[rating.restaurantId],
+                          showRestaurantNameLoading: _loadingRestaurantNames,
                           onEdit: _loadingUserRole || _isAdmUser
                               ? null
                               : () async {
@@ -789,6 +893,8 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                           currentUserName: _currentUserName,
                           currentUserEmail: _currentUserEmail,
                           currentUserId: _currentUserId,
+                          overrideMealName: _mealNames[rating.mealId],
+                          showMealNameLoading: _loadingMealNames,
                           showActions:
                               !_loadingUserRole && _isMealRatingOwner(rating),
                           preferCurrentUserNameIfEmpty: _isMealRatingOwner(
