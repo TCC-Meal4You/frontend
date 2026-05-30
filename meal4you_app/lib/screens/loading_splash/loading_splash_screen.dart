@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 import 'package:meal4you_app/services/validate_token/validate_token_service.dart';
 import 'dart:math' as math;
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
+
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _logoController;
@@ -67,6 +69,7 @@ class _SplashScreenState extends State<SplashScreen>
     )..repeat();
     Future.delayed(const Duration(seconds: 5), _checkLogin);
   }
+
   Future<void> _checkLogin() async {
     final token = await UserTokenSaving.getToken();
     final userData = await UserTokenSaving.getUserData();
@@ -81,13 +84,13 @@ class _SplashScreenState extends State<SplashScreen>
     final isAdmByTipo = tipo == 'adm';
     final isAdmByField = isAdmField == true;
     if (isAdmByUserType || isAdmByTipo || isAdmByField) {
-      bool isTokenValid = false;
+      bool? isTokenValid;
       try {
         isTokenValid = await ValidateTokenService.validateToken();
       } catch (e) {
-        isTokenValid = false;
+        isTokenValid = null;
       }
-      if (!isTokenValid) {
+      if (isTokenValid == false) {
         await UserTokenSaving.clearAll();
         _goTo('/profileChoice');
         return;
@@ -106,13 +109,13 @@ class _SplashScreenState extends State<SplashScreen>
       _goTo('/createAdmRestaurant');
       return;
     }
-    bool isTokenValid = false;
+    bool? isTokenValid;
     try {
       isTokenValid = await ValidateTokenService.validateToken();
     } catch (e) {
-      isTokenValid = false;
+      isTokenValid = null;
     }
-    if (!isTokenValid) {
+    if (isTokenValid == false) {
       await UserTokenSaving.clearAll();
       _goTo('/profileChoice');
       return;
@@ -125,10 +128,12 @@ class _SplashScreenState extends State<SplashScreen>
       _goTo('/restrictionsChoice');
     }
   }
+
   void _goTo(String route) {
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, route);
   }
+
   @override
   void dispose() {
     _logoController.dispose();
@@ -138,6 +143,7 @@ class _SplashScreenState extends State<SplashScreen>
     _particlesController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
