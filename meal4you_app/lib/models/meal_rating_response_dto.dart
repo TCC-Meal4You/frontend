@@ -107,6 +107,50 @@ class MealRatingResponseDTO {
       return null;
     }
 
+    String? readMealName(dynamic source) {
+      if (source == null) return null;
+      if (source is Map) {
+        final direct =
+            source['nomeRefeicao'] ??
+            source['refeicaoNome'] ??
+            source['mealName'] ??
+            source['nomePrato'] ??
+            source['pratoNome'] ??
+            source['nome'] ??
+            source['name'];
+        if (direct is String && direct.trim().isNotEmpty) {
+          return direct.trim();
+        }
+
+        final nestedKeys = ['refeicao', 'meal', 'data'];
+        for (final key in nestedKeys) {
+          final nested = source[key];
+          final nestedName = readMealName(nested);
+          if (nestedName != null && nestedName.isNotEmpty) {
+            return nestedName;
+          }
+        }
+
+        for (final value in source.values) {
+          final nestedName = readMealName(value);
+          if (nestedName != null && nestedName.isNotEmpty) {
+            return nestedName;
+          }
+        }
+      }
+
+      if (source is List) {
+        for (final value in source) {
+          final nestedName = readMealName(value);
+          if (nestedName != null && nestedName.isNotEmpty) {
+            return nestedName;
+          }
+        }
+      }
+
+      return null;
+    }
+
     DateTime parseRatingDate(dynamic value) {
       if (value == null) return DateTime.now();
       if (value is int) {
@@ -207,7 +251,7 @@ class MealRatingResponseDTO {
       ratingId: parseInt(rawRatingId) ?? 0,
       userId: parseInt(rawUserId),
       mealId: parseInt(rawMealId),
-      mealName: rawMealName,
+      mealName: rawMealName ?? readMealName(json),
       userName: userName,
       userEmail: readStringFrom(json, [
         'email',

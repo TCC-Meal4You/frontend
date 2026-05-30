@@ -75,6 +75,47 @@ class UserRatingResponseDTO {
       return null;
     }
 
+    String? readRestaurantName(dynamic source) {
+      if (source == null) return null;
+      if (source is Map) {
+        final direct =
+            source['nomeRestaurante'] ??
+            source['restaurantName'] ??
+            source['nome'] ??
+            source['name'];
+        if (direct is String && direct.trim().isNotEmpty) {
+          return direct.trim();
+        }
+
+        final nestedKeys = ['restaurante', 'restaurant', 'data'];
+        for (final key in nestedKeys) {
+          final nested = source[key];
+          final nestedName = readRestaurantName(nested);
+          if (nestedName != null && nestedName.isNotEmpty) {
+            return nestedName;
+          }
+        }
+
+        for (final value in source.values) {
+          final nestedName = readRestaurantName(value);
+          if (nestedName != null && nestedName.isNotEmpty) {
+            return nestedName;
+          }
+        }
+      }
+
+      if (source is List) {
+        for (final value in source) {
+          final nestedName = readRestaurantName(value);
+          if (nestedName != null && nestedName.isNotEmpty) {
+            return nestedName;
+          }
+        }
+      }
+
+      return null;
+    }
+
     DateTime parseRatingDate(dynamic value) {
       if (value == null) return DateTime.now();
       if (value is int) {
@@ -177,10 +218,30 @@ class UserRatingResponseDTO {
     final parsedDate = parseRatingDate(rawDateValue);
     final hasTimeFlag = detectHasTime(rawDateValue);
     return UserRatingResponseDTO(
-      ratingId: json['idAvaliacao'] ?? 0,
-      userId: json['idUsuario'] ?? json['id_usuario'],
-      restaurantId: json['idRestaurante'] ?? json['id_restaurante'],
-      restaurantName: json['nomeRestaurante'] ?? json['restaurantName'],
+      ratingId:
+          findValueFrom(json, [
+            'idAvaliacao',
+            'id_avaliacao',
+            'avaliacaoId',
+            'ratingId',
+            'id',
+          ]) ??
+          0,
+      userId: findValueFrom(json, [
+        'idUsuario',
+        'id_usuario',
+        'usuarioId',
+        'userId',
+        'clienteId',
+        'idCliente',
+      ]),
+      restaurantId: findValueFrom(json, [
+        'idRestaurante',
+        'id_restaurante',
+        'restauranteId',
+        'restaurantId',
+      ]),
+      restaurantName: readRestaurantName(json),
       userName:
           readStringFrom(json, [
             'nomeUsuario',
