@@ -105,6 +105,7 @@ class MealRatingCard extends StatelessWidget {
   final bool preferCurrentUserNameIfEmpty;
   final String? overrideMealName;
   final bool showMealNameLoading;
+  final bool showAssociatedName;
   const MealRatingCard({
     super.key,
     required this.rating,
@@ -117,6 +118,7 @@ class MealRatingCard extends StatelessWidget {
     this.preferCurrentUserNameIfEmpty = false,
     this.overrideMealName,
     this.showMealNameLoading = false,
+    this.showAssociatedName = false,
   });
   @override
   Widget build(BuildContext context) {
@@ -173,11 +175,13 @@ class MealRatingCard extends StatelessWidget {
                         );
                         final meal = (overrideMealName ?? rating.mealName)
                             ?.trim();
-                        final title = (meal != null && meal.isNotEmpty)
-                            ? '$author · $meal'
-                            : (showMealNameLoading
-                                  ? '$author · Carregando nome da refeição...'
-                                  : author);
+                        final title = showAssociatedName
+                            ? (meal != null && meal.isNotEmpty
+                                  ? '$author · $meal'
+                                  : (showMealNameLoading
+                                        ? '$author · Carregando nome da refeição...'
+                                        : author))
+                            : author;
                         return Text(
                           title,
                           style: const TextStyle(

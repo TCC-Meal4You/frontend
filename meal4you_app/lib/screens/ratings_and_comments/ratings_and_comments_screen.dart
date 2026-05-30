@@ -26,7 +26,6 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
   bool _isLoading = true;
   bool _loadingMealRatings = false;
   bool _loadingRestaurantNames = false;
-  bool _loadingMealNames = false;
   String? _errorMessage;
   bool _isAdmUser = false;
   bool _loadingUserRole = true;
@@ -122,7 +121,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
-      _loadingMealRatings = false;
+      _loadingMealRatings = true;
       _errorMessage = null;
     });
     try {
@@ -146,7 +145,6 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
           _isLoading = false;
           _loadingMealRatings = true;
           _loadingRestaurantNames = true;
-          _loadingMealNames = false;
         });
 
         _loadUserNamesForRatings();
@@ -161,13 +159,15 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
           _ratings = results[0] as List<UserRatingResponseDTO>;
           _mealRatings = results[1] as List<MealRatingResponseDTO>;
           _isLoading = false;
-          _loadingMealRatings = false;
+          _loadingMealRatings = true;
           _loadingRestaurantNames = true;
-          _loadingMealNames = true;
         });
 
         _loadRestaurantNamesForRatings();
-        _loadMealNamesForRatings();
+        _loadMealNamesForRatings(
+          ratings: _mealRatings,
+          preferOwnedMeals: false,
+        );
       }
     } catch (e) {
       if (!mounted) return;
@@ -192,6 +192,8 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
         .toSet();
 
     if (missingIds.isEmpty) {
+      if (!mounted) return;
+      setState(() {});
       return;
     }
 
@@ -221,45 +223,96 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
     } catch (_) {}
   }
 
-  Future<void> _loadMealNamesForRatings() async {
-    final missingIds = _mealRatings
-        .where(
-          (rating) =>
-              rating.mealId != null &&
-              rating.mealId! > 0 &&
-              (rating.mealName == null || rating.mealName!.trim().isEmpty),
-        )
-        .map((rating) => rating.mealId!)
-        .toSet();
-
-    if (missingIds.isEmpty) {
-      return;
-    }
-
+  Future<void> _loadMealNamesForRatings({
+    required List<MealRatingResponseDTO> ratings,
+    required bool preferOwnedMeals,
+    int? idRestaurante,
+  }) async {
     try {
       final names = <int, String>{};
-      var page = 1;
-      var totalPages = 1;
+      final missingIds = ratings
+          .where((rating) => rating.mealId != null && rating.mealId! > 0)
+          .map((rating) => rating.mealId!)
+          .toSet();
 
-      while (page <= totalPages && names.length < missingIds.length) {
-        final response = await SearchMealService.listarRefeicoes(page);
-        totalPages = response.totalPaginas <= 0 ? 1 : response.totalPaginas;
+      if (missingIds.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          if (_loadingMealRatings) {
+            _loadingMealRatings = false;
+          }
+        });
+        return;
+      }
 
-        for (final meal in response.refeicoes) {
-          if (missingIds.contains(meal.idRefeicao)) {
-            names[meal.idRefeicao] = meal.nome;
+      try {
+        if (preferOwnedMeals) {
+          try {
+            final minhasRefeicoes = await MealService.listarMinhasRefeicoes();
+            for (final meal in minhasRefeicoes) {
+              if (meal.idRefeicao > 0 && meal.nome.trim().isNotEmpty) {
+                names[meal.idRefeicao] = meal.nome.trim();
+              }
+            }
+          } catch (e) {
+            debugPrint(
+              '[RatingsScreen] listarMinhasRefeicoes para nomes falhou: $e',
+            );
+          }
+        } else {
+          var page = 1;
+          var totalPages = 1;
+
+          while (page <= totalPages && names.length < missingIds.length) {
+            final pag = await SearchMealService.listarRefeicoes(page);
+            totalPages = pag.totalPaginas <= 0 ? 1 : pag.totalPaginas;
+
+            for (final meal in pag.refeicoes) {
+              if (meal.idRefeicao > 0 && meal.nome.trim().isNotEmpty) {
+                names[meal.idRefeicao] = meal.nome.trim();
+              }
+            }
+
+            page += 1;
           }
         }
+      } catch (e) {
+        debugPrint('[RatingsScreen] listarRefeicoes para nomes falhou: $e');
+      }
 
-        page += 1;
+      if (names.length < missingIds.length && idRestaurante != null) {
+        try {
+          final pag = await SearchMealService.listarRefeicoesPorRestaurante(
+            idRestaurante,
+          );
+          for (final meal in pag.refeicoes) {
+            if (meal.idRefeicao > 0 && meal.nome.trim().isNotEmpty) {
+              names[meal.idRefeicao] = meal.nome.trim();
+            }
+          }
+        } catch (e) {
+          debugPrint(
+            '[RatingsScreen] listarRefeicoesPorRestaurante para nomes falhou: $e',
+          );
+        }
       }
 
       if (!mounted) return;
       setState(() {
         _mealNames.addAll(names);
-        _loadingMealNames = false;
+        if (_loadingMealRatings) {
+          _loadingMealRatings = false;
+        }
       });
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[RatingsScreen] carregar nomes de refeições falhou: $e');
+      if (!mounted) return;
+      setState(() {
+        if (_loadingMealRatings) {
+          _loadingMealRatings = false;
+        }
+      });
+    }
   }
 
   Future<void> _loadMealRatingsForRestaurant(int idRestaurante) async {
@@ -270,8 +323,13 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
       if (!mounted) return;
       setState(() {
         _mealRatings = ratings;
-        _loadingMealRatings = false;
+        _loadingMealRatings = true;
       });
+      await _loadMealNamesForRatings(
+        ratings: ratings,
+        preferOwnedMeals: true,
+        idRestaurante: idRestaurante,
+      );
     } catch (e) {
       debugPrint(
         '[RatingsScreen] error loading meal ratings for restaurant $idRestaurante: $e',
@@ -597,6 +655,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                                 currentUserName: _currentUserName,
                                 currentUserEmail: _currentUserEmail,
                                 currentUserId: _currentUserId,
+                                showAssociatedName: false,
                                 overrideRestaurantName:
                                     _restaurantNames[rating.restaurantId],
                                 showRestaurantNameLoading:
@@ -699,8 +758,11 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                                 currentUserName: _currentUserName,
                                 currentUserEmail: _currentUserEmail,
                                 currentUserId: _currentUserId,
-                                overrideMealName: _mealNames[rating.mealId],
-                                showMealNameLoading: _loadingMealNames,
+                                showAssociatedName: true,
+                                overrideMealName:
+                                    _mealNames[rating.mealId] ??
+                                    rating.mealName,
+                                showMealNameLoading: false,
                                 showActions:
                                     !_loadingUserRole &&
                                     _isMealRatingOwner(rating),
@@ -797,6 +859,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                           currentUserName: _currentUserName,
                           currentUserEmail: _currentUserEmail,
                           currentUserId: _currentUserId,
+                          showAssociatedName: true,
                           overrideRestaurantName:
                               _restaurantNames[rating.restaurantId],
                           showRestaurantNameLoading: _loadingRestaurantNames,
@@ -893,8 +956,10 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                           currentUserName: _currentUserName,
                           currentUserEmail: _currentUserEmail,
                           currentUserId: _currentUserId,
-                          overrideMealName: _mealNames[rating.mealId],
-                          showMealNameLoading: _loadingMealNames,
+                          showAssociatedName: true,
+                          overrideMealName:
+                              _mealNames[rating.mealId] ?? rating.mealName,
+                          showMealNameLoading: false,
                           showActions:
                               !_loadingUserRole && _isMealRatingOwner(rating),
                           preferCurrentUserNameIfEmpty: _isMealRatingOwner(

@@ -89,6 +89,7 @@ class RatingCard extends StatelessWidget {
   final String? overrideName;
   final String? overrideRestaurantName;
   final bool showRestaurantNameLoading;
+  final bool showAssociatedName;
   const RatingCard({
     super.key,
     required this.rating,
@@ -101,6 +102,7 @@ class RatingCard extends StatelessWidget {
     this.overrideName,
     this.overrideRestaurantName,
     this.showRestaurantNameLoading = false,
+    this.showAssociatedName = false,
   });
   @override
   Widget build(BuildContext context) {
@@ -157,11 +159,13 @@ class RatingCard extends StatelessWidget {
                         final rest =
                             (overrideRestaurantName ?? rating.restaurantName)
                                 ?.trim();
-                        final title = (rest != null && rest.isNotEmpty)
-                            ? '$author · $rest'
-                            : (showRestaurantNameLoading
-                                  ? '$author · Carregando nome do restaurante...'
-                                  : author);
+                        final title = showAssociatedName
+                            ? (rest != null && rest.isNotEmpty
+                                  ? '$author · $rest'
+                                  : (showRestaurantNameLoading
+                                        ? '$author · Carregando nome do restaurante...'
+                                        : author))
+                            : author;
                         return Text(
                           title,
                           style: const TextStyle(
