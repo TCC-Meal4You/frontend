@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+
 class UserTokenSaving {
   static const String _tokenKey = 'user_token';
   static const String _userDataKey = 'user_data';
@@ -12,19 +13,23 @@ class UserTokenSaving {
     final token = await getToken();
     return token == null ? null : 'Bearer $token';
   }
+
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString(_tokenKey);
     return token;
   }
+
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
   }
+
   static Future<void> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
   }
+
   static Future<void> saveUserData(Map<String, dynamic> userData) async {
     final prefs = await SharedPreferences.getInstance();
     final existingData = await getUserData();
@@ -42,11 +47,13 @@ class UserTokenSaving {
       await prefs.setString(_userEmailKey, email);
     }
   }
+
   static Future<Map<String, dynamic>?> getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_userDataKey);
     return raw == null ? null : jsonDecode(raw);
   }
+
   static Future<String?> getUserEmail() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString(_userEmailKey);
@@ -59,47 +66,58 @@ class UserTokenSaving {
     }
     return null;
   }
+
   static Future<void> saveCurrentUserEmail(String email) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userEmailKey, email);
   }
+
   static Future<void> saveUserPassword(String password) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userPasswordKey, password);
   }
+
   static Future<String?> getUserPassword() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userPasswordKey);
   }
+
   static Future<void> clearUserPassword() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userPasswordKey);
   }
-  static Future<void> saveUserId(String email) async {
+
+  static Future<void> saveUserId(int userId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userIdKey, email);
+    await prefs.setString(_userIdKey, userId.toString());
   }
+
   static Future<String?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userIdKey);
   }
+
   static Future<void> clearUserId() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userIdKey);
   }
+
   static Future<void> saveRestaurantId(int? id) async {
     if (id == null || id <= 0) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_restaurantIdKey, id);
   }
+
   static Future<int?> getRestaurantId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_restaurantIdKey);
   }
+
   static Future<void> clearRestaurantId() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_restaurantIdKey);
   }
+
   static Future<void> saveRestaurantDataForUser(
     String email,
     Map<String, dynamic> restaurantData,
@@ -122,6 +140,7 @@ class UserTokenSaving {
       rethrow;
     }
   }
+
   static Future<Map<String, dynamic>?> getRestaurantDataForUser(
     String email,
   ) async {
@@ -129,16 +148,19 @@ class UserTokenSaving {
     final raw = prefs.getString('restaurant_data_$email');
     return raw == null ? null : jsonDecode(raw);
   }
+
   static Future<void> clearRestaurantDataForUser(String email) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('restaurant_data_$email');
   }
+
   static Future<void> clearRestaurantDataForCurrentUser() async {
     final email = await getUserEmail();
     if (email != null) {
       await clearRestaurantDataForUser(email);
     }
   }
+
   static Future<void> saveRestaurantDataForCurrentUser(
     Map<String, dynamic> restaurantData,
   ) async {
@@ -151,19 +173,23 @@ class UserTokenSaving {
       );
     }
   }
+
   static Future<Map<String, dynamic>?> getRestaurantDataForCurrentUser() async {
     final email = await getUserEmail();
     if (email == null) return null;
     return getRestaurantDataForUser(email);
   }
+
   static Future<void> setRestrictionsCompleted(bool completed) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_restrictionsCompletedKey, completed);
   }
+
   static Future<bool> hasCompletedRestrictions() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_restrictionsCompletedKey) ?? false;
   }
+
   static Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString(_userEmailKey);
@@ -184,6 +210,7 @@ class UserTokenSaving {
       }
     }
   }
+
   static Future<void> clearAllUserData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
