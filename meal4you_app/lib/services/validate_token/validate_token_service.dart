@@ -5,7 +5,7 @@ import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
 class ValidateTokenService {
   static const String _baseUrl =
       'https://backend-production-1e17.up.railway.app';
-  static Future<bool> validateToken() async {
+  static Future<bool?> validateToken() async {
     try {
       final token = await UserTokenSaving.getToken();
       if (token == null || token.isEmpty) {
@@ -35,9 +35,9 @@ class ValidateTokenService {
       if (response.statusCode == 401) {
         return false;
       }
-      return false;
+      return null;
     } catch (e) {
-      return false;
+      return null;
     }
   }
 }
