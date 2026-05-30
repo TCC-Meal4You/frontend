@@ -95,7 +95,6 @@ class RatingService {
         errors.add('${uri.toString()} => ${resp.statusCode}: ${resp.body}');
         if (resp.statusCode == 400) throw Exception('Nota inválida (0-5)');
         if (resp.statusCode == 401) {
-          await UserTokenSaving.clearToken();
           throw Exception('Usuário não autenticado');
         }
       } on TimeoutException catch (e) {
@@ -298,7 +297,6 @@ class RatingService {
         errors.add('${uri.toString()} => ${resp.statusCode}: ${resp.body}');
         if (resp.statusCode == 400) throw Exception('Nota inválida (0-5)');
         if (resp.statusCode == 401) {
-          await UserTokenSaving.clearToken();
           throw Exception('Usuário não autenticado');
         }
       } on TimeoutException catch (e) {
