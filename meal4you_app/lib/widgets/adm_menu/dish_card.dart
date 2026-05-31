@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/meal_response_dto.dart';
+
 class DishCard extends StatefulWidget {
   final MealResponseDTO refeicao;
   final int index;
@@ -17,8 +18,28 @@ class DishCard extends StatefulWidget {
   @override
   State<DishCard> createState() => _DishCardState();
 }
+
 class _DishCardState extends State<DishCard> {
   bool _isDeleting = false;
+
+  Widget _buildIngredientChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0FE687).withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF0A8D4A),
+        ),
+      ),
+    );
+  }
+
   Future<void> _handleDelete() async {
     if (_isDeleting) return;
     try {
@@ -36,8 +57,15 @@ class _DishCardState extends State<DishCard> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
+    final ingredientes = widget.refeicao.ingredientes
+        .map((ingrediente) => ingrediente.nome)
+        .where((nome) => nome.trim().isNotEmpty)
+        .take(6)
+        .toList();
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
@@ -191,12 +219,18 @@ class _DishCardState extends State<DishCard> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Ingredientes: ${widget.refeicao.ingredientes.map((i) => i.nome).join(', ')}',
-                        style: TextStyle(color: Colors.grey[800], fontSize: 13),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: ingredientes
+                            .map(
+                              (ingrediente) =>
+                                  _buildIngredientChip(ingrediente),
+                            )
+                            .toList(),
                       ),
                       if (restricoes.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         Text(
                           'Restrições: ${restricoes.join(', ')}',
                           style: TextStyle(
@@ -230,4 +264,4 @@ class _DishCardState extends State<DishCard> {
       ),
     );
   }
-}
+}

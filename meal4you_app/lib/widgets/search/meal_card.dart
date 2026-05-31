@@ -8,8 +8,35 @@ class MealCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onFavorite;
   const MealCard({super.key, required this.meal, this.onTap, this.onFavorite});
+
+  Widget _buildChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0FE687).withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF0A8D4A),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final ingredientes = meal.ingredientes
+        .map((i) => i.nome)
+        .where((nome) {
+          return nome.trim().isNotEmpty;
+        })
+        .take(6)
+        .toList();
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -121,6 +148,16 @@ class MealCard extends StatelessWidget {
                         style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    if (ingredientes.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: ingredientes
+                            .map((ingrediente) => _buildChip(ingrediente))
+                            .toList(),
                       ),
                     ],
                     const SizedBox(height: 8),

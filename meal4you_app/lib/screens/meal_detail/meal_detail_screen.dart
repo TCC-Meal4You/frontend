@@ -325,6 +325,10 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final meal = widget.meal;
+    final ingredientes = meal.ingredientes
+        .map((ingrediente) => ingrediente.nome)
+        .where((nome) => nome.trim().isNotEmpty)
+        .toList();
 
     return SafeArea(
       child: Scaffold(
@@ -419,9 +423,65 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
+                      if (ingredientes.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: ingredientes
+                              .take(8)
+                              .map(
+                                (ingrediente) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(
+                                      0xFF0FE687,
+                                    ).withValues(alpha: 0.20),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: const Color(
+                                        0xFF0FE687,
+                                      ).withValues(alpha: 0.45),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFF0FE687,
+                                        ).withValues(alpha: 0.08),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    ingrediente,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF08733D),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                       const SizedBox(height: 12),
+                      Text(
+                        'Esta refeição contem:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
+                        runSpacing: 8,
                         children: meal.restricoes
                             .where(
                               (r) => r != 'Pescetariano' && r != 'Sem Lactose',
@@ -433,26 +493,32 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey[300]!),
+                                  color: const Color(
+                                    0xFF9D00FF,
+                                  ).withValues(alpha: 0.14),
+                                  border: Border.all(
+                                    color: const Color(
+                                      0xFF9D00FF,
+                                    ).withValues(alpha: 0.28),
+                                  ),
                                   borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.no_drinks,
-                                      size: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      r,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFF9D00FF,
+                                      ).withValues(alpha: 0.06),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
+                                ),
+                                child: Text(
+                                  r,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: const Color(0xFF6F00B8),
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             )

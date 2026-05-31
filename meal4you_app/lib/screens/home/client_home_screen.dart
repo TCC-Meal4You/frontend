@@ -456,6 +456,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   }
 
   Widget _buildMealItem(MealResponseDTO meal) {
+    final ingredientes = meal.ingredientes
+        .map((ingrediente) => ingrediente.nome)
+        .where((nome) => nome.trim().isNotEmpty)
+        .take(5)
+        .toList();
+
     return GestureDetector(
       onTap: () {
         Navigator.of(
@@ -533,6 +539,38 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       fontSize: 13,
                     ),
                   ),
+                  if (ingredientes.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: ingredientes
+                          .map(
+                            (ingrediente) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFF0FE687,
+                                ).withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                ingrediente,
+                                style: const TextStyle(
+                                  fontFamily: 'Ubuntu',
+                                  fontSize: 11,
+                                  color: Color(0xFF0A8D4A),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
                   if (meal.restricoes.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     SingleChildScrollView(
