@@ -71,6 +71,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       _avaliacoesCount = await RatingService.contarAvaliacoes();
       _readyForRecommendations =
           await KnnRecommendationService.isUserReadyForRecommendations(
+            currentRatingsCount: _avaliacoesCount,
             minRatings: _minRatingsThreshold,
           );
 
@@ -89,8 +90,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         KnnRecommendationService.obterRecomendacoesRefeicoes(),
       ]);
 
-      final restaurantes = await _buscarRestaurantesPorIds(results[0]);
-      final refeicoes = await _buscarRefeicoesPorIds(results[1]);
+      final fetched = await Future.wait([
+        _buscarRestaurantesPorIds(results[0]),
+        _buscarRefeicoesPorIds(results[1]),
+      ]);
+      final restaurantes = fetched[0] as List<RestauranteResponseDTO>;
+      final refeicoes = fetched[1] as List<MealResponseDTO>;
 
       if (!mounted) return;
       setState(() {

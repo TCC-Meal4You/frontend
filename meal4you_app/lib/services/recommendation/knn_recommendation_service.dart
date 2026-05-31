@@ -39,10 +39,12 @@ class KnnRecommendationService {
   }
 
   static Future<bool> isUserReadyForRecommendations({
+    int? currentRatingsCount,
     int minRatings = 3,
   }) async {
     try {
-      final count = await RatingService.contarAvaliacoes();
+      final count =
+          currentRatingsCount ?? await RatingService.contarAvaliacoes();
       return count >= minRatings;
     } catch (_) {
       return false;
