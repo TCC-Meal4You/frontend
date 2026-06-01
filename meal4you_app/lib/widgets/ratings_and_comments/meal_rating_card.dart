@@ -178,9 +178,7 @@ class MealRatingCard extends StatelessWidget {
                         final title = showAssociatedName
                             ? (meal != null && meal.isNotEmpty
                                   ? '$author · $meal'
-                                  : (showMealNameLoading
-                                        ? '$author · Carregando nome da refeição...'
-                                        : author))
+                                  : '$author · ${showMealNameLoading ? 'Carregando nome da refeição...' : 'Refeição'}')
                             : author;
                         return Text(
                           title,

@@ -14,6 +14,7 @@ class MealRatingResponseDTO {
   final int ratingId;
   final int? userId;
   final int? mealId;
+  final int? restaurantId;
   final String? mealName;
   final String userName;
   final String? userEmail;
@@ -26,6 +27,7 @@ class MealRatingResponseDTO {
     required this.ratingId,
     this.userId,
     this.mealId,
+    this.restaurantId,
     this.mealName,
     required this.userName,
     this.userEmail,
@@ -217,6 +219,12 @@ class MealRatingResponseDTO {
       'mealId',
       'idMeal',
     ]);
+    final rawRestaurantId = findValueFrom(json, [
+      'idRestaurante',
+      'id_restaurante',
+      'restauranteId',
+      'restaurantId',
+    ]);
     final rawUserId = findValueFrom(json, [
       'idUsuario',
       'id_usuario',
@@ -251,6 +259,7 @@ class MealRatingResponseDTO {
       ratingId: parseInt(rawRatingId) ?? 0,
       userId: parseInt(rawUserId),
       mealId: parseInt(rawMealId),
+      restaurantId: parseInt(rawRestaurantId),
       mealName: rawMealName ?? readMealName(json),
       userName: userName,
       userEmail: readStringFrom(json, [

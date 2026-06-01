@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal4you_app/models/user_rating_response_dto.dart';
 import 'package:meal4you_app/models/meal_rating_response_dto.dart';
+import 'package:meal4you_app/models/meal_response_dto.dart';
 import 'package:meal4you_app/services/rating/rating_service.dart';
 import 'package:meal4you_app/services/search_restaurant/search_restaurant_service.dart';
 import 'package:meal4you_app/services/user_token_saving/user_token_saving.dart';
@@ -238,79 +239,92 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
       if (missingIds.isEmpty) {
         if (!mounted) return;
         setState(() {
-          if (_loadingMealRatings) {
-            _loadingMealRatings = false;
-          }
+          _loadingMealRatings = false;
         });
         return;
       }
 
-      try {
-        if (preferOwnedMeals) {
-          try {
-            final minhasRefeicoes = await MealService.listarMinhasRefeicoes();
-            for (final meal in minhasRefeicoes) {
-              if (meal.idRefeicao > 0 && meal.nome.trim().isNotEmpty) {
-                names[meal.idRefeicao] = meal.nome.trim();
-              }
-            }
-          } catch (e) {
-            debugPrint(
-              '[RatingsScreen] listarMinhasRefeicoes para nomes falhou: $e',
-            );
-          }
-        } else {
-          var page = 1;
-          var totalPages = 1;
-
-          while (page <= totalPages && names.length < missingIds.length) {
-            final pag = await SearchMealService.listarRefeicoes(page);
-            totalPages = pag.totalPaginas <= 0 ? 1 : pag.totalPaginas;
-
-            for (final meal in pag.refeicoes) {
-              if (meal.idRefeicao > 0 && meal.nome.trim().isNotEmpty) {
-                names[meal.idRefeicao] = meal.nome.trim();
-              }
-            }
-
-            page += 1;
-          }
-        }
-      } catch (e) {
-        debugPrint('[RatingsScreen] listarRefeicoes para nomes falhou: $e');
-      }
-
-      if (names.length < missingIds.length && idRestaurante != null) {
+      if (preferOwnedMeals) {
         try {
-          final pag = await SearchMealService.listarRefeicoesPorRestaurante(
-            idRestaurante,
-          );
-          for (final meal in pag.refeicoes) {
+          final minhasRefeicoes = await MealService.listarMinhasRefeicoes();
+          for (final meal in minhasRefeicoes) {
             if (meal.idRefeicao > 0 && meal.nome.trim().isNotEmpty) {
               names[meal.idRefeicao] = meal.nome.trim();
             }
           }
         } catch (e) {
           debugPrint(
-            '[RatingsScreen] listarRefeicoesPorRestaurante para nomes falhou: $e',
+            '[RatingsScreen] listarMinhasRefeicoes para nomes falhou: $e',
           );
+        }
+      } else {
+        var page = 1;
+        var totalPages = 1;
+
+        while (page <= totalPages && names.length < missingIds.length) {
+          final pag = await SearchMealService.listarRefeicoes(page);
+          totalPages = pag.totalPaginas <= 0 ? 1 : pag.totalPaginas;
+
+          for (final meal in pag.refeicoes) {
+            if (meal.idRefeicao > 0 && meal.nome.trim().isNotEmpty) {
+              names[meal.idRefeicao] = meal.nome.trim();
+            }
+          }
+
+          page += 1;
+        }
+      }
+
+      if (names.length < missingIds.length) {
+        final restaurantIds = <int>{
+          if (idRestaurante != null && idRestaurante > 0) idRestaurante,
+          ...ratings
+              .where(
+                (rating) =>
+                    rating.restaurantId != null && rating.restaurantId! > 0,
+              )
+              .map((rating) => rating.restaurantId!)
+              .toSet(),
+        };
+
+        if (restaurantIds.isNotEmpty) {
+          final restaurantResults = await Future.wait(
+            restaurantIds.map((restaurantId) async {
+              try {
+                final pag =
+                    await SearchMealService.listarRefeicoesPorRestaurante(
+                      restaurantId,
+                    );
+                return pag.refeicoes;
+              } catch (e) {
+                debugPrint(
+                  '[RatingsScreen] listarRefeicoesPorRestaurante($restaurantId) para nomes falhou: $e',
+                );
+                return <MealResponseDTO>[];
+              }
+            }),
+          );
+
+          for (final meals in restaurantResults) {
+            for (final meal in meals) {
+              if (meal.idRefeicao > 0 && meal.nome.trim().isNotEmpty) {
+                names[meal.idRefeicao] = meal.nome.trim();
+              }
+            }
+          }
         }
       }
 
       if (!mounted) return;
       setState(() {
         _mealNames.addAll(names);
-        if (_loadingMealRatings) {
-          _loadingMealRatings = false;
-        }
+        _loadingMealRatings = false;
       });
     } catch (e) {
       debugPrint('[RatingsScreen] carregar nomes de refeições falhou: $e');
       if (!mounted) return;
       setState(() {
-        if (_loadingMealRatings) {
-          _loadingMealRatings = false;
-        }
+        _loadingMealRatings = false;
       });
     }
   }
@@ -762,7 +776,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                                 overrideMealName:
                                     _mealNames[rating.mealId] ??
                                     rating.mealName,
-                                showMealNameLoading: false,
+                                showMealNameLoading: _loadingMealRatings,
                                 showActions:
                                     !_loadingUserRole &&
                                     _isMealRatingOwner(rating),
@@ -959,7 +973,7 @@ class _RatingsAndCommentsScreenState extends State<RatingsAndCommentsScreen> {
                           showAssociatedName: true,
                           overrideMealName:
                               _mealNames[rating.mealId] ?? rating.mealName,
-                          showMealNameLoading: false,
+                          showMealNameLoading: _loadingMealRatings,
                           showActions:
                               !_loadingUserRole && _isMealRatingOwner(rating),
                           preferCurrentUserNameIfEmpty: _isMealRatingOwner(
